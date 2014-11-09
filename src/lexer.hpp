@@ -2,14 +2,16 @@
 
 #include <iostream>
 #include <fstream>
+#include <iterator>
 #include <cassert>
+#include <boost/range.hpp>
 
 namespace popo {
 
     namespace lexer {
 
 
-//         enum struct Token{
+        enum struct Token{
 //             variable
 //             list
 //             list,
@@ -23,7 +25,7 @@ namespace popo {
 //             left = '(',     // 40
 //             right = ')',    // 41
 
-//         }
+        };
 
 //         struct Lex{
 //             Token token,
@@ -35,22 +37,29 @@ namespace popo {
 
 //             }
 //         };
-
+        template<typename Iterator>
         class lexical_analyser
         {
             public:
-                lexical_analyser(const std::string &filename) :ifs(filename)
+                lexical_analyser(Iterator const& b, Iterator const& e)
+                    : begin_(b), end_(e)
                 {
-                    assert(ifs);
+//                     range_itr = boost::begin(range), end=boost::end(range);
+//                     assert(is_itr);
                 }
 
-                ~lexical_analyser()
+                auto get_next_token(void)
+                    -> Token
                 {
-                    ifs.close();
+//                     if(begin_ != end_){
+//                         return *begin_++;
+//                     }
                 }
+
+                virtual ~lexical_analyser() = default;
 
             private:
-                std::ifstream ifs;
+                Iterator begin_, end_;
 
         };
 
