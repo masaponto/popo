@@ -14,16 +14,17 @@ namespace popo {
         enum struct Token{
 //             variable
 //             list
-//             list,
+            list,
 
 //             atom
-//             num,
-//             string,
-//             symbol,
-//             nil,
+            num,
+            string,
+            symbol,
+            nil,
 
-//             left = '(',     // 40
-//             right = ')',    // 41
+            left = '(',     // 40
+            right = ')',    // 41
+            eof
 
         };
 
@@ -51,9 +52,12 @@ namespace popo {
                 auto get_next_token(void)
                     -> Token
                 {
-//                     if(begin_ != end_){
-//                         return *begin_++;
-//                     }
+                    if(begin_ != end_){
+                        return *begin_++;
+                    }
+                    else {
+                        return Token::eof;
+                    }
                 }
 
                 virtual ~lexical_analyser() = default;
