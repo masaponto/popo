@@ -36,11 +36,11 @@ int main()
                 break;
 
             case lexer::Token::string:
-                std::cout << "string" <<std::endl;
+                std::cout << lex.get_lex().str <<std::endl;
                 break;
 
             case lexer::Token::num:
-                std::cout << "num" << std::endl;
+                std::cout << lex.get_lex().num << std::endl;
                 break;
 
             default:

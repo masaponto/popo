@@ -79,12 +79,10 @@ namespace popo {
                     ~token_value(){};
                     std::string str;
                     int num;
-                } t_val;
-
+                }t_val;
 
             public:
-                auto get_lex()
-                    -> token_value
+                token_value& get_lex()
                 {
                     return t_val;
                 }
