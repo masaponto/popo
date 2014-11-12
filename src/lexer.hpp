@@ -18,58 +18,59 @@ namespace popo {
             eof
         };
 
-        template<typename Iterator>
+        template<typename Iteratable>
         class lexical_analyser
         {
             public:
-                lexical_analyser(Iterator const& b, Iterator const& e)
-                    : begin_(b), end_(e)
+                lexical_analyser(Iteratable const& ary)
+                    :begin_(ary.begin()), end_(ary.end()), data(ary)
                 {
-//                     range_itr = boost::begin(range), end=boost::end(range);
-//
-//                     assert(is_itr);
                 }
 
                 auto get_next_token(void)
                     -> Token
                 {
-                    std::cout << "end" << *end_ << std::endl;
+                    pass_space();
                     if(begin_ != end_){
-                        std::cout << "before:" << *begin_ << std::endl;
-                        pass_space();
-                        std::cout << "after:" << *begin_ << std::endl;
 
-                        //left
+//                         left
                         if(*begin_ == '('){
                             begin_++;
                             return Token::left;
                         }
-                        //right
+//                         right
                         else if(*begin_ == ')'){
                             begin_++;
                             return Token::right;
                         }
-                        //num
+//                         num
                         else if('0' <= *begin_ && *begin_ <= '9'){
                             begin_++;
                             parse_digit();
                             return Token::num;
                         }
-                        // string
-                        else {
+//                         string
+                        else if( ('a' <= *begin_ && *begin_ <= 'z') ||
+                                ('A' <= *begin_ && *begin_ <= 'Z')){
+                            begin_++;
+                            parse_string();
+                            return Token::string;
+                        }
+                        // mark
+                        else if('!' <= *begin_ && *begin_ <= '~' ){
                             begin_++;
                             parse_string();
                             return Token::string;
                         }
                     }
-                    std::cout << "before" << std::endl;
                     return Token::eof;
                 }
 
                 virtual ~lexical_analyser() = default;
 
             private:
-                Iterator begin_, end_;
+                typename Iteratable::const_iterator begin_, end_;
+                Iteratable data;
 
 
             private:
@@ -92,14 +93,11 @@ namespace popo {
             private:
                 auto pass_space(void)
                     -> void
-                    {
-                        if(' ' == *begin_ || '\n' == *begin_){
-                            while (' ' == *begin_ || '\n' == *begin_){
-                                begin_++;
-                            }
-                            std::cout << "in pass_space: " << *begin_ << std::endl;
-                        }
+                {
+                    while (' ' == *begin_ || '\n' == *begin_) {
+                        begin_++;
                     }
+                }
 
                 auto parse_digit()
                     -> void

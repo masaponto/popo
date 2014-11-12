@@ -18,9 +18,8 @@ int main()
     const std::list<char> file_data{std::istreambuf_iterator<char>(fs),
         std::istreambuf_iterator<char>()};
 
-
-    lexer::lexical_analyser<std::list<char>::const_iterator>
-        lex(file_data.begin(), file_data.end());
+    lexer::lexical_analyser<std::list<char> >
+        lex(file_data);
 
     while (true) {
         switch (lex.get_next_token()) {
@@ -29,7 +28,7 @@ int main()
                 return 0;
 
             case lexer::Token::left:
-                std::cout << "(";
+                std::cout << "(" << std::endl;
                 break;
 
             case lexer::Token::right:
@@ -37,7 +36,7 @@ int main()
                 break;
 
             case lexer::Token::string:
-                std::cout << "string str" <<std::endl;
+                std::cout << "string" <<std::endl;
                 break;
 
             case lexer::Token::num:
@@ -47,6 +46,5 @@ int main()
             default:
                 std::cout << "default" << std::endl;
         }
-        std::cout << std::flush;
     }
 }
