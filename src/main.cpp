@@ -22,4 +22,7 @@ int main()
     lexer::lexical_analyser<std::list<char>::const_iterator>
         lex(file_data.cbegin(), file_data.cend());
 
+    std::cout << (char)lex.get_next_token() << std::endl;
+
+
 }

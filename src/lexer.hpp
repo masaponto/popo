@@ -53,7 +53,14 @@ namespace popo {
                     -> Token
                 {
                     if(begin_ != end_){
-                        return *begin_++;
+
+                        char c = *begin_++;
+                        if(c == '('){
+                            return Token::left;
+                        }
+                        else {
+                            return Token::eof;
+                        }
                     }
                     else {
                         return Token::eof;
