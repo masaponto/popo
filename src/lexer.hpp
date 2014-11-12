@@ -113,7 +113,11 @@ namespace popo {
                 auto parse_string()
                     -> void
                 {
-                    t_val.str = "a";
+                    std::string str(1, *begin_++);
+                    while('!' <= *begin_ && *begin_ <= '~' ){
+                        str += *begin_++;
+                    }
+                    t_val.str = str;
                 }
 
         };
