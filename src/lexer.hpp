@@ -54,7 +54,7 @@ namespace popo {
                         // mark
                         else if('!' <= *begin_ && *begin_ <= '~' ){
                             parse_string();
-//                             begin_++;
+                            std::cout << *begin_<< std::endl;
                             return Token::string;
                         }
                     }
@@ -70,10 +70,12 @@ namespace popo {
 
             private:
                 union token_value{
-                    token_value(): str(){};
-                    ~token_value(){};
-                    std::string str;
-                    int num;
+                    public:
+                        token_value(): str(){};
+                        ~token_value(){};
+                    public:
+                        std::string str;
+                        int num;
                 }t_val;
 
             public:
@@ -107,12 +109,14 @@ namespace popo {
                     -> void
                 {
                     std::string str(1, *begin_++);
-                    while('!' <= *begin_ && *begin_ <= '~' ){
+                    while ('!' <= *begin_ && *begin_ <= '~' && '(' != *begin_ &&
+                           ')' != *begin_) {
                         str += *begin_++;
                     }
+                    std::cout << "1"<<str << std::endl;
                     t_val.str = str;
+                    std::cout << "2" <<str << std::endl;
                 }
-
         };
 
     }  // namespace lexer

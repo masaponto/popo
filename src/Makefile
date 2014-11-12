@@ -1,6 +1,6 @@
 
 CXX = clang++
-CXXFLAGS = -std=c++11 -c -Wall 
+CXXFLAGS = -std=c++11 -c -Wall
 LDFLAGS =
 SOURCES = main.cpp lexer.hpp
 OBJECTS = main.o
