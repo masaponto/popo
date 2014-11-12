@@ -48,20 +48,13 @@ namespace popo {
 //                         num
                         else if('0' <= *begin_ && *begin_ <= '9'){
                             parse_digit();
-//                             begin_++;
                             return Token::num;
                         }
-//                         string
-//                         else if( ('a' <= *begin_ && *begin_ <= 'z') ||
-//                                 ('A' <= *begin_ && *begin_ <= 'Z')){
-//                             parse_string();
-//                             begin_++;
-//                             return Token::string;
-//                         }
+
                         // mark
                         else if('!' <= *begin_ && *begin_ <= '~' ){
                             parse_string();
-                            begin_++;
+//                             begin_++;
                             return Token::string;
                         }
                     }
