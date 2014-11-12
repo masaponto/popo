@@ -20,9 +20,33 @@ int main()
 
 
     lexer::lexical_analyser<std::list<char>::const_iterator>
-        lex(file_data.cbegin(), file_data.cend());
+        lex(file_data.begin(), file_data.end());
 
-    std::cout << (char)lex.get_next_token() << std::endl;
+    while (true) {
+        switch (lex.get_next_token()) {
+            case lexer::Token::eof:
+                std::cout << "eof" << std::endl;
+                return 0;
 
+            case lexer::Token::left:
+                std::cout << "(";
+                break;
 
+            case lexer::Token::right:
+                std::cout << ")" << std::endl;
+                break;
+
+            case lexer::Token::string:
+                std::cout << "string str" <<std::endl;
+                break;
+
+            case lexer::Token::num:
+                std::cout << "num" << std::endl;
+                break;
+
+            default:
+                std::cout << "default" << std::endl;
+        }
+        std::cout << std::flush;
+    }
 }

@@ -1,6 +1,6 @@
 
 CXX = clang++
-CXXFLAGS = -std=c++11 -c -Wall -I ~/boost_1_57_0
+CXXFLAGS = -std=c++11 -c -Wall -I ~/boost_1_57_0 -g
 LDFLAGS =
 SOURCES = main.cpp lexer.hpp
 OBJECTS = main.o
@@ -15,7 +15,7 @@ all: $(EXECUTABLE) $(OBJECTS)
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(EXECUTABLE)
 
-run:
+run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
 clean:
