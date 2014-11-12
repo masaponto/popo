@@ -5,6 +5,7 @@
 #include <iterator>
 #include <cassert>
 #include <cctype>
+#include <string>
 
 namespace popo {
 
@@ -31,6 +32,7 @@ namespace popo {
                     -> Token
                 {
                     pass_space();
+//                     std::cout << *begin_ << std::endl;
                     if(begin_ != end_){
 
 //                         left
@@ -45,21 +47,21 @@ namespace popo {
                         }
 //                         num
                         else if('0' <= *begin_ && *begin_ <= '9'){
-                            begin_++;
                             parse_digit();
+//                             begin_++;
                             return Token::num;
                         }
 //                         string
-                        else if( ('a' <= *begin_ && *begin_ <= 'z') ||
-                                ('A' <= *begin_ && *begin_ <= 'Z')){
-                            begin_++;
-                            parse_string();
-                            return Token::string;
-                        }
+//                         else if( ('a' <= *begin_ && *begin_ <= 'z') ||
+//                                 ('A' <= *begin_ && *begin_ <= 'Z')){
+//                             parse_string();
+//                             begin_++;
+//                             return Token::string;
+//                         }
                         // mark
                         else if('!' <= *begin_ && *begin_ <= '~' ){
-                            begin_++;
                             parse_string();
+                            begin_++;
                             return Token::string;
                         }
                     }
@@ -100,7 +102,12 @@ namespace popo {
                 auto parse_digit()
                     -> void
                 {
-                    t_val.num = 0;
+                    std::string str_num(1, *begin_++);
+                    while('0' <= *begin_ && *begin_ <= '9'){
+                        str_num += *begin_++;
+                    }
+
+                    t_val.num = std::stoi(str_num);
                 }
 
                 auto parse_string()
