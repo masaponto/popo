@@ -19,12 +19,23 @@ namespace popo {
             eof
         };
 
+        struct token_value{
+            public:
+                token_value(): str(), num(){};
+                ~token_value() {};
+
+            public:
+                std::string str;
+                int num;
+        };
+
+
         template<typename Iteratable>
         class lexical_analyser
         {
             public:
                 lexical_analyser(Iteratable const& ary)
-                    :begin_(ary.begin()), end_(ary.end()), data(ary)
+                    :begin_(ary.begin()), end_(ary.end())
                 {
                 }
 
@@ -54,7 +65,7 @@ namespace popo {
                         // mark
                         else if('!' <= *begin_ && *begin_ <= '~' ){
                             parse_string();
-                            std::cout << *begin_<< std::endl;
+//                             std::cout << *begin_<< std::endl;
                             return Token::string;
                         }
                     }
@@ -65,18 +76,9 @@ namespace popo {
 
             private:
                 typename Iteratable::const_iterator begin_, end_;
-                Iteratable data;
-
 
             private:
-                union token_value{
-                    public:
-                        token_value(): str(){};
-                        ~token_value(){};
-                    public:
-                        std::string str;
-                        int num;
-                }t_val;
+                token_value t_val;
 
             public:
                 token_value& get_lex()
@@ -113,9 +115,7 @@ namespace popo {
                            ')' != *begin_) {
                         str += *begin_++;
                     }
-                    std::cout << "1"<<str << std::endl;
                     t_val.str = str;
-                    std::cout << "2" <<str << std::endl;
                 }
         };
 
