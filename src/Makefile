@@ -2,7 +2,7 @@
 CXX = clang++
 CXXFLAGS = -std=c++11 -c -Wall
 LDFLAGS =
-SOURCES = main.cpp lexer.hpp
+SOURCES = main.cpp lexer.hpp parser.hpp
 OBJECTS = main.o
 EXECUTABLE = popo
 
