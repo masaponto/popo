@@ -27,7 +27,7 @@ int main()
                 return 0;
 
             case lexer::Token::left:
-                std::cout << "(" << std::endl;
+                std::cout << "( " << std::flush;
                 break;
 
             case lexer::Token::right:
@@ -35,11 +35,11 @@ int main()
                 break;
 
             case lexer::Token::string:
-                std::cout << lex.get_lex().str <<std::endl;
+                std::cout << lex.get_lex().str << " " << std::flush;
                 break;
 
             case lexer::Token::num:
-                std::cout << lex.get_lex().num << std::endl;
+                std::cout << lex.get_lex().num << " " << std::flush;
                 break;
 
             default:

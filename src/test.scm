@@ -7,6 +7,7 @@
     (k (+ a b)))
 
 (define pi (* 4 (atan 1.0)))
+
 ;    degree -> radian
 (define (radian deg)
     (* deg (/ pi 180.0)))
