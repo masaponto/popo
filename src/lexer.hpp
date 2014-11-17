@@ -94,10 +94,9 @@ namespace popo {
                     -> void
                 {
                     if(';' == *begin_){
-                        begin_++;
-                        while('\n' != *begin_ && begin_ != end_){
-                            begin_++;
-                        }
+                        while('\n' != *++begin_ && begin_ != end_)
+                            ;
+                        pass_space();
                     }
                 }
 
