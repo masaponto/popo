@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+// program = sexp
+// sexp = atom | ( slist | quote sexp
+// slist = sexp slist | )
+
 namespace popo {
     namespace parser {
 
@@ -41,16 +45,16 @@ namespace popo {
                 std::string val;
         };
 
-        class list_node
+        class cons_node
             : public expr_node
         {
             public:
-                list_node() {
+                cons_node() {
                     car_ = nullptr;
                     cdr_ = nullptr;
                 }
 
-                list_node(expr_node* car, expr_node* cdr)
+                cons_node(expr_node* car, expr_node* cdr)
                     : car_(car), cdr_(cdr){}
 
             public:
