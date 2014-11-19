@@ -43,7 +43,8 @@ namespace popo {
                     -> Token
                 {
                     pass_space();
-                    pass_comment();
+                    pass_one_line_comment();
+                    pass_lines_comment();
 //                     std::cout << *begin_ << std::endl;
 
                     if(begin_ != end_){
@@ -90,7 +91,7 @@ namespace popo {
 
 
             private:
-                auto pass_comment(void)
+                auto pass_one_line_comment(void)
                     -> void
                 {
                     if(';' == *begin_){
@@ -99,6 +100,26 @@ namespace popo {
                         pass_space();
                     }
                 }
+
+                auto pass_lines_comment(void)
+                    -> void
+                {
+                    if('#' == *begin_){
+                        if('|' == *(++begin_)){
+                            begin_++;
+                            while(!('|' == *begin_ && '#' == *(++begin_))){
+                                begin_++;
+                            }
+                            begin_++;
+                            pass_space();
+                            pass_one_line_comment();
+                        }
+                        else {
+                            begin_--;
+                        }
+                    }
+                }
+
 
                 auto pass_space(void)
                     -> void
