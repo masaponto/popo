@@ -35,9 +35,7 @@ namespace popo {
         {
             public:
                 lexical_analyser(Iteratable const& ary)
-                    :begin_(ary.begin()), end_(ary.end())
-                {
-                }
+                    :begin_(ary.begin()), end_(ary.end()) {}
 
                 auto get_next_token(void)
                     -> Token
