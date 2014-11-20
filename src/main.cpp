@@ -21,6 +21,8 @@ int main()
     lexer::lexical_analyser<std::list<char> >
         lex(file_data);
 
+    parser::s_expression_parser<std::list<char> > ep(lex);
+
     while (true) {
         switch (lex.get_next_token()) {
             case lexer::Token::eof:
