@@ -3,8 +3,8 @@ CXX = clang++
 CXXFLAGS = -std=c++11 -c -Wall
 CMDLINE =
 LDFLAGS =
-SOURCES = main.cpp lexer.hpp parser.hpp
-OBJECTS = main.o
+SOURCES = main.cpp lexer.hpp parser.cpp
+OBJECTS = main.o parser.o
 EXECUTABLE = popo
 
 

@@ -3,14 +3,14 @@
 #include <fstream>
 #include <vector>
 #include <list>
+#include <cassert>
 
 #include "lexer.hpp"
 #include "parser.hpp"
 
-
 int main()
 {
-    using namespace popo;
+using namespace popo;
 
     std::string filename("test.scm");
     std::ifstream fs(filename);
@@ -22,6 +22,10 @@ int main()
         lex(file_data);
 
     parser::s_expression_parser<std::list<char> > ep(lex);
+    auto conscell = ep.sexp_parse();
+
+    assert(nullptr != conscell);
+    print_cons(conscell);
 
     while (true) {
         switch (lex.get_next_token()) {

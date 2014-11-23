@@ -12,12 +12,21 @@ namespace popo {
     namespace lexer {
 
         enum struct Token{
-            string,
+            string = 0,
             num,
             left,
             right,
             eof
         };
+
+        std::string token_text[] = {
+            "string",
+            "num",
+            "left",
+            "right",
+            "eof",
+        };
+
 
         struct token_value{
             public:
