@@ -83,10 +83,10 @@ namespace popo {
                     : lex_(lex) {}
 
             public:
-                auto sexp_parse() -> expr_node*;
-//                 {
-//                     return sexp_car_parse(false);
-//                 }
+                auto sexp_parse() -> expr_node*
+                {
+                    return sexp_car_parse(false);
+                }
 
             private:
                 auto sexp_car_parse(bool already_read_token)
@@ -155,7 +155,7 @@ namespace popo {
 
         };
 
-//         cons_node* s_expression_parser::nil = new cons_node();
+        cons_node* s_expression_parser::nil = new cons_node();
 
         auto print_cons(expr_node* node)
             -> void
