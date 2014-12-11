@@ -22,6 +22,7 @@ namespace popo {
 
             public:
                 node_type type;
+                expr_node* parent_node;
 
         };
 
@@ -163,30 +164,38 @@ namespace popo {
 
         };
 
-//         cons_node* s_expression_parser<typename T>::nil = new cons_node();
-        template <typename T> cons_node* s_expression_parser<T>::nil = new cons_node();
+        template <typename T>
+        cons_node* s_expression_parser<T>::nil = new cons_node();
+
+        template<typename T>
+        auto _print_cons(expr_node* node, int depth)
+            -> void
+        {
+            if (node->type == node_type::num) {
+                auto vn = static_cast<num_node*>(node);
+                std::cout << std::string(" ", depth) << vn->val << std::endl;
+            } else if (node->type == node_type::string) {
+                auto vn = static_cast<string_node*>(node);
+                std::cout << std::string(" ", depth) << vn->val << std::endl;
+            } else if (node->type == node_type::cons) {
+                auto n = static_cast<cons_node*>(node);
+                if (s_expression_parser<T>::nil == n) {
+                    return;
+                }
+
+                _print_cons<T>(n->car, depth);
+                if (n->is_function){
+                    depth++;
+                }
+                _print_cons<T>(n->cdr, depth);
+            }
+        }
 
         template<typename T>
         auto print_cons(expr_node* node)
             -> void
         {
-            if(node->type == node_type::num){
-                auto n = static_cast<num_node*>(node);
-                std::cout << n->val << std::endl;
-            }
-            else if(node->type == node_type::string){
-                auto n = static_cast<string_node*>(node);
-                std::cout << n->val << std::endl;
-            }
-            else if(node->type == node_type::cons){
-                auto n = static_cast<cons_node*>(node);
-                if(s_expression_parser<T>::nil == n){
-                    return;
-                }
-                print_cons<T>(n->car);
-                print_cons<T>(n->cdr);
-            }
-
+            _print_cons<T>(node, 0);
         }
 
     } // namespace parser
