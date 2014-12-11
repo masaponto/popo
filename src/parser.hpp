@@ -71,6 +71,7 @@ namespace popo {
                     : expr_node(node_type::cons), car(ca), cdr(cd){}
 
             public:
+                bool is_function;
                 expr_node* car;
                 expr_node* cdr;
         };
@@ -94,8 +95,13 @@ namespace popo {
                 {
                     auto cons = new cons_node();
                     if(!already_read_token){
-                        assert(lexer::Token::left == lex_.get_next_token());
+                        auto token = lex_.get_next_token();
+                        if(lexer::Token::eof == token){
+                            return nullptr;
+                        }
+                        assert(lexer::Token::left == token);
                     }
+                    cons->is_function = true;
                     switch(lex_.get_next_token()){
                         case lexer::Token::string:
                             cons->car = new string_node(lex_.get_lex().str);
@@ -105,45 +111,47 @@ namespace popo {
                             cons->car = new num_node(lex_.get_lex().num);
                             break;
 
+                        case lexer::Token::eof:
+                            delete cons;
+                            return nullptr;
+
                         default:
                             assert(false);
                     }
 
-                    cons->cdr = sexp_cdr_parse(lexer::Token::eof);
+                    cons->cdr = sexp_cdr_parse();
+//                     cons->cdr = sexp_cdr_parse(lexer::Token::eof);
                     return cons;
                 }
 
-                auto sexp_cdr_parse(lexer::Token next_token)
+                auto sexp_cdr_parse()
                     -> expr_node*
                 {
                     auto cons = new cons_node();
-                    if(lexer::Token::eof == next_token){
-                        next_token = lex_.get_next_token();
-                    }
-                    switch(next_token){
+                    switch(lex_.get_next_token()){
                         case lexer::Token::string:
+                            cons->is_function = false;
                             cons->car = new string_node(lex_.get_lex().str);
                             break;
 
                         case lexer::Token::num:
+                            cons->is_function = false;
                             cons->car = new num_node(lex_.get_lex().num);
                             break;
 
                         case lexer::Token::right:
                             delete cons;
-                            return s_expression_parser::nil;
+                            return nil;
+
+                        case lexer::Token::left:
+                            cons->is_function = true;
+                            cons->car = sexp_car_parse(true);
+                            break;
 
                         default:
                             assert(false);
                     }
-
-                    auto t = lex_.get_next_token();
-                    if(lexer::Token::left == t){
-                        cons->cdr = sexp_car_parse(true);
-                    }
-                    else {
-                        cons->cdr = sexp_cdr_parse(t);
-                    }
+                    cons->cdr = sexp_cdr_parse();
                     return cons;
                 }
 

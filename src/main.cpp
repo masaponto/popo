@@ -22,10 +22,13 @@ using namespace popo;
     lexer::lexical_analyser<input_data> lex(file_data);
 
     parser::s_expression_parser<input_data> ep(lex);
-    auto conscell = ep.sexp_parse();
 
-    assert(nullptr != conscell);
-    parser::print_cons<input_data>(conscell);
+    auto conscell = ep.sexp_parse();
+    while (nullptr != conscell) {
+        parser::print_cons<input_data>(conscell);
+        std::cout << std::endl;
+        conscell = ep.sexp_parse();
+    }
 
 //     while (true) {
 //         switch (lex.get_next_token()) {

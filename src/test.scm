@@ -1,9 +1,9 @@
 (+ 1 2)
 
-#|
 (define (bar x)
     (foo 0 x))
 
+#|
 (let binds body)
 
 (define (k+ a b k)
