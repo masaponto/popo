@@ -155,31 +155,30 @@ namespace popo {
 
         };
 
-        cons_node* s_expression_parser::nil = new cons_node();
+//         cons_node* s_expression_parser<typename T>::nil = new cons_node();
+        template <typename T> cons_node* s_expression_parser<T>::nil = new cons_node();
 
+        template<typename T>
         auto print_cons(expr_node* node)
             -> void
         {
-//             static auto i = 0;
-//             if(node->type == node_type::num){
-//                 auto n = static_cast<num_node*>(node);
-//                 std::cout << i++ << " " << n->val << std::endl;
-//             }
-//             else if(node->type == node_type::string){
-//                 auto n = static_cast<string_node*>(node);
-//                 std::cout << i++ << " " << n->val << std::endl;
-//             }
-//             else if(node->type == node_type::cons){
-//                 auto n = static_cast<cons_node*>(node);
-//                 std::cout << i++ << std::endl;
-//                 if(s_expression_parser::nil == n){
+            if(node->type == node_type::num){
+                auto n = static_cast<num_node*>(node);
+                std::cout << n->val << std::endl;
+            }
+            else if(node->type == node_type::string){
+                auto n = static_cast<string_node*>(node);
+                std::cout << n->val << std::endl;
+            }
+            else if(node->type == node_type::cons){
+                auto n = static_cast<cons_node*>(node);
+                if(s_expression_parser<T>::nil == n){
+                    return;
+                }
+                print_cons<T>(n->car);
+                print_cons<T>(n->cdr);
+            }
 
-//                 }
-//                 print_cons(n->car);
-//                 print_cons(n->cdr);
-//             }
-
-            return;
         }
 
     } // namespace parser
