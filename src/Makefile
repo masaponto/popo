@@ -23,6 +23,10 @@ run: $(EXECUTABLE)
 test: $(SOURCES)
 	$(CXX) -std=c++11 -ggdb3 -o $(EXECUTABLE) main.cpp
 
+
+gdb_run: test
+	gdb -x cmd.gdb
+
 clean:
 	rm -f *.o *.gch $(EXECUTABLE)
 
