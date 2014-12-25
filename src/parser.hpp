@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cassert>
+#include <memory>
 #include "lexer.hpp"
 
 namespace popo {
@@ -72,7 +73,6 @@ namespace popo {
                     : expr_node(node_type::cons), car(ca), cdr(cd){}
 
             public:
-                bool is_function;
                 expr_node* car;
                 expr_node* cdr;
         };
@@ -85,16 +85,15 @@ namespace popo {
                     : lex_(lex) {}
 
             public:
-                auto sexp_parse() -> expr_node*
+                auto s_exp_parse() -> cons_node*
                 {
                     return sexp_car_parse(false);
                 }
 
             private:
                 auto sexp_car_parse(bool already_read_token)
-                    -> expr_node*
+                    -> cons_node*
                 {
-                    auto cons = new cons_node();
                     if(!already_read_token){
                         auto token = lex_.get_next_token();
                         if(lexer::Token::eof == token){
@@ -102,58 +101,33 @@ namespace popo {
                         }
                         assert(lexer::Token::left == token);
                     }
-                    cons->is_function = true;
+                    expr_node* car;
+//                     std::unique_ptr<expr_node> car;
                     switch(lex_.get_next_token()){
                         case lexer::Token::string:
-                            cons->car = new string_node(lex_.get_lex().str);
+                            // std::unique_ptr<std::string>
+                            car = new string_node(lex_.get_lex().str);
                             break;
 
                         case lexer::Token::num:
-                            cons->car = new num_node(lex_.get_lex().num);
+                            car = new num_node(lex_.get_lex().num);
+                            break;
+
+                        case lexer::Token::left:
+                            car = sexp_car_parse(true);
                             break;
 
                         case lexer::Token::eof:
-                            delete cons;
                             return nullptr;
 
-                        default:
-                            assert(false);
-                    }
-
-                    cons->cdr = sexp_cdr_parse();
-//                     cons->cdr = sexp_cdr_parse(lexer::Token::eof);
-                    return cons;
-                }
-
-                auto sexp_cdr_parse()
-                    -> expr_node*
-                {
-                    auto cons = new cons_node();
-                    switch(lex_.get_next_token()){
-                        case lexer::Token::string:
-                            cons->is_function = false;
-                            cons->car = new string_node(lex_.get_lex().str);
-                            break;
-
-                        case lexer::Token::num:
-                            cons->is_function = false;
-                            cons->car = new num_node(lex_.get_lex().num);
-                            break;
-
                         case lexer::Token::right:
-                            delete cons;
                             return nil;
 
-                        case lexer::Token::left:
-                            cons->is_function = true;
-                            cons->car = sexp_car_parse(true);
-                            break;
-
                         default:
                             assert(false);
                     }
-                    cons->cdr = sexp_cdr_parse();
-                    return cons;
+
+                    return new cons_node(car, sexp_car_parse(true));
                 }
 
             private:
@@ -164,8 +138,19 @@ namespace popo {
 
         };
 
+
         template <typename T>
         cons_node* s_expression_parser<T>::nil = new cons_node();
+
+        auto get_space_string(int num)
+            -> std::unique_ptr<std::string>
+        {
+            std::unique_ptr<std::string> spaces(new std::string(' ', 0));
+            for(int i=0; i<num; i++){
+                *spaces += " ";
+            }
+            return spaces;
+        }
 
         template<typename T>
         auto _print_cons(expr_node* node, int depth)
@@ -173,19 +158,20 @@ namespace popo {
         {
             if (node->type == node_type::num) {
                 auto vn = static_cast<num_node*>(node);
-                std::cout << std::string(" ", depth) << vn->val << std::endl;
+                std::cout << *get_space_string(depth) << vn->val << std::endl;
             } else if (node->type == node_type::string) {
                 auto vn = static_cast<string_node*>(node);
-                std::cout << std::string(" ", depth) << vn->val << std::endl;
+                std::cout << *get_space_string(depth) << vn->val << std::endl;
             } else if (node->type == node_type::cons) {
                 auto n = static_cast<cons_node*>(node);
-                if (s_expression_parser<T>::nil == n) {
+                if(s_expression_parser<T>::nil == n) {
                     return;
                 }
-
-                _print_cons<T>(n->car, depth);
-                if (n->is_function){
-                    depth++;
+                if(node_type::cons == n->car->type){
+                    _print_cons<T>(n->car, depth+1);
+                }
+                else {
+                    _print_cons<T>(n->car, depth);
                 }
                 _print_cons<T>(n->cdr, depth);
             }
@@ -197,6 +183,7 @@ namespace popo {
         {
             _print_cons<T>(node, 0);
         }
+
 
     } // namespace parser
 } // namespace popo

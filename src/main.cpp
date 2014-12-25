@@ -23,11 +23,11 @@ using namespace popo;
 
     parser::s_expression_parser<input_data> ep(lex);
 
-    auto conscell = ep.sexp_parse();
+    auto conscell = ep.s_exp_parse();
     while (nullptr != conscell) {
         parser::print_cons<input_data>(conscell);
         std::cout << std::endl;
-        conscell = ep.sexp_parse();
+        conscell = ep.s_exp_parse();
     }
 
 //     while (true) {

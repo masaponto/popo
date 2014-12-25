@@ -8,16 +8,20 @@ OBJECTS = main.o
 EXECUTABLE = popo
 
 
-all: $(EXECUTABLE) $(OBJECTS)
-
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CMDLINE) $< -o $@
+
+
+all: $(EXECUTABLE) $(OBJECTS)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(EXECUTABLE)
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
+
+test: $(SOURCES)
+	$(CXX) -std=c++11 -ggdb3 -o $(EXECUTABLE) main.cpp
 
 clean:
 	rm -f *.o *.gch $(EXECUTABLE)
