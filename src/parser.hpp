@@ -137,13 +137,13 @@ auto _print_cons(std::unique_ptr<expr_node> node, int depth) -> void
     if (node->type == node_type::nil) {
         return;
     } else if (node->type == node_type::num) {
-        auto vn = dynamic_cast<num_node*>(node.release());
+        std::unique_ptr<num_node> vn(dynamic_cast<num_node*>(node.release()));
         std::cout << *get_space_string(depth) << vn->val << std::endl;
     } else if (node->type == node_type::string) {
-        auto vn = dynamic_cast<string_node*>(node.release());
+        std::unique_ptr<string_node> vn(dynamic_cast<string_node*>(node.release()));
         std::cout << *get_space_string(depth) << vn->val << std::endl;
     } else if (node->type == node_type::cons) {
-        auto n = dynamic_cast<cons_node*>(node.release());
+        std::unique_ptr<cons_node> n(dynamic_cast<cons_node*>(node.release()));
         if (node_type::cons == n->car->type) {
             _print_cons<T>(std::move(n->car), depth + 1);
         } else {
