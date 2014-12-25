@@ -72,6 +72,7 @@ public:
 public:
     auto s_exp_parse() -> std::unique_ptr<expr_node>
     {
+        is_fail = false;
         return sexp_car_parse(false);
     }
 
@@ -103,6 +104,9 @@ private:
                 break;
 
             case lexer::Token::eof:
+                if(already_read_token){
+                    assert(false);
+                }
                 return nullptr;
 
             case lexer::Token::right:
@@ -118,8 +122,8 @@ private:
 
 private:
     lexer::lexical_analyser<Iteratable> lex_;
+    bool is_fail;
 
-public:
 };
 
 auto get_space_string(int num) -> std::unique_ptr<std::string>
@@ -132,7 +136,8 @@ auto get_space_string(int num) -> std::unique_ptr<std::string>
 }
 
 template <typename T>
-auto _print_cons(std::unique_ptr<expr_node> node, int depth, bool is_func) -> void
+auto _print_cons(std::unique_ptr<expr_node> node, int depth, bool is_func)
+    -> void
 {
     if (node->type == node_type::nil) {
         return;
@@ -140,12 +145,12 @@ auto _print_cons(std::unique_ptr<expr_node> node, int depth, bool is_func) -> vo
         std::unique_ptr<num_node> vn(dynamic_cast<num_node*>(node.release()));
         std::cout << *get_space_string(depth) << vn->val << std::endl;
     } else if (node->type == node_type::string) {
-        std::unique_ptr<string_node> vn(dynamic_cast<string_node*>(node.release()));
+        std::unique_ptr<string_node> vn(
+            dynamic_cast<string_node*>(node.release()));
 
-        if(is_func){
-            std::cout << *get_space_string(depth-1) << '+' << std::flush;
-        }
-        else {
+        if (is_func) {
+            std::cout << *get_space_string(depth - 1) << '+' << std::flush;
+        } else {
             std::cout << *get_space_string(depth) << std::flush;
         }
         std::cout << vn->val << std::endl;
@@ -164,7 +169,8 @@ template <typename T>
 auto print_cons(std::unique_ptr<expr_node> node) -> void
 {
     std::unique_ptr<cons_node> nil(new cons_node());
-    std::unique_ptr<cons_node> new_root(new cons_node(std::move(node), std::move(nil)));
+    std::unique_ptr<cons_node> new_root(
+        new cons_node(std::move(node), std::move(nil)));
     _print_cons<T>(std::move(new_root), 0, true);
 }
 
