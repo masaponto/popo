@@ -5,7 +5,6 @@
 #include <list>
 #include <cassert>
 
-#include "lexical.hpp"
 #include "syntax.hpp"
 #include "semantic.hpp"
 
@@ -18,12 +17,13 @@ int main()
     std::ifstream fs(filename);
 
     using input_data = std::list<char>;
+
     const input_data file_data{std::istreambuf_iterator<char>(fs),
                                std::istreambuf_iterator<char>()};
 
-    lexical::lexical_analyser<input_data> lex(file_data);
+    semantic::semantic_analyser<input_data> sem_analyser(file_data);
 
-    syntax::s_expression_parser<input_data> ep(lex);
+    syntax::s_expression_parser<input_data> ep(file_data);
 
     auto conscell = ep.s_exp_parse();
     while (nullptr != conscell) {

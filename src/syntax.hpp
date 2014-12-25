@@ -67,7 +67,7 @@ public:
 template <typename Iteratable>
 class s_expression_parser {
 public:
-    s_expression_parser(lexical::lexical_analyser<Iteratable>& lex) : lex_(lex) {}
+    s_expression_parser(const Iteratable& itr) : lex_(itr){}
 
 public:
     auto s_exp_parse() -> std::unique_ptr<expr_node>

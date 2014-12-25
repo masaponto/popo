@@ -43,5 +43,16 @@ private:
     value_type type;
 };
 
+
+template <typename Iteratable>
+class semantic_analyser {
+
+    public:
+        semantic_analyser(const Iteratable& itr): parser_(itr) {};
+
+    private:
+        syntax::s_expression_parser<Iteratable> parser_;
+};
+
 }  // namespace semantic
 }  // namespace popo
