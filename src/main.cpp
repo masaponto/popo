@@ -7,6 +7,7 @@
 
 #include "lexical.hpp"
 #include "syntax.hpp"
+#include "semantic.hpp"
 
 
 int main()
@@ -20,13 +21,13 @@ int main()
     const input_data file_data{std::istreambuf_iterator<char>(fs),
                                std::istreambuf_iterator<char>()};
 
-    lexer::lexical_analyser<input_data> lex(file_data);
+    lexical::lexical_analyser<input_data> lex(file_data);
 
-    parser::s_expression_parser<input_data> ep(lex);
+    syntax::s_expression_parser<input_data> ep(lex);
 
     auto conscell = ep.s_exp_parse();
     while (nullptr != conscell) {
-        parser::print_cons<input_data>(std::move(conscell));
+        syntax::print_cons<input_data>(std::move(conscell));
         std::cout << std::endl;
         conscell = ep.s_exp_parse();
     }

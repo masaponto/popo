@@ -9,7 +9,7 @@
 
 namespace popo {
 
-namespace lexer {
+namespace lexical{
 
 enum struct Token { string = 0, num, left, right, eof };
 
@@ -134,5 +134,5 @@ private:
     }
 };
 
-}  // namespace lexer
+}  // namespace lexical
 }  // namespace popo

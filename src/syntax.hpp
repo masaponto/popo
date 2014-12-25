@@ -6,7 +6,7 @@
 #include "lexical.hpp"
 
 namespace popo {
-namespace parser {
+namespace syntax{
 
 enum struct node_type { num, string, symbol, cons, nil };
 
@@ -67,7 +67,7 @@ public:
 template <typename Iteratable>
 class s_expression_parser {
 public:
-    s_expression_parser(lexer::lexical_analyser<Iteratable>& lex) : lex_(lex) {}
+    s_expression_parser(lexical::lexical_analyser<Iteratable>& lex) : lex_(lex) {}
 
 public:
     auto s_exp_parse() -> std::unique_ptr<expr_node>
@@ -81,35 +81,35 @@ private:
     {
         if (!already_read_token) {
             auto token = lex_.get_next_token();
-            if (lexer::Token::eof == token) {
+            if (lexical::Token::eof == token) {
                 return nullptr;
             }
-            assert(lexer::Token::left == token);
+            assert(lexical::Token::left == token);
         }
         std::unique_ptr<expr_node> car;
         switch (lex_.get_next_token()) {
-            case lexer::Token::string:
+            case lexical::Token::string:
                 car = std::move(std::unique_ptr<string_node>(
                     new string_node(lex_.get_lex().str)));
                 break;
 
-            case lexer::Token::num:
+            case lexical::Token::num:
                 car = std::move(std::unique_ptr<num_node>(
                     new num_node(lex_.get_lex().num)));
                 break;
 
-            case lexer::Token::left:
+            case lexical::Token::left:
                 car =
                     std::move(std::unique_ptr<expr_node>(sexp_car_parse(true)));
                 break;
 
-            case lexer::Token::eof:
+            case lexical::Token::eof:
                 if(already_read_token){
                     assert(false);
                 }
                 return nullptr;
 
-            case lexer::Token::right:
+            case lexical::Token::right:
                 return std::unique_ptr<cons_node>(new cons_node());
 
             default:
@@ -121,7 +121,7 @@ private:
     }
 
 private:
-    lexer::lexical_analyser<Iteratable> lex_;
+    lexical::lexical_analyser<Iteratable> lex_;
     bool is_fail;
 
 };
@@ -174,5 +174,5 @@ auto print_cons(std::unique_ptr<expr_node> node) -> void
     _print_cons<T>(std::move(new_root), 0, true);
 }
 
-}  // namespace parser
+}  // namespace syntax
 }  // namespace popo
