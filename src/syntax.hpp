@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <memory>
-#include "lexer.hpp"
+#include "lexical.hpp"
 
 namespace popo {
 namespace parser {

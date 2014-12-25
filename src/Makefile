@@ -3,16 +3,17 @@ CXX = clang++
 CXXFLAGS = -std=c++11 -c -Wall
 CMDLINE =
 LDFLAGS =
-SOURCES = main.cpp lexer.hpp parser.hpp
+HEADERS = lexical.hpp syntax.hpp semantic.hpp
+SOURCES = main.cpp
 OBJECTS = main.o
 EXECUTABLE = popo
-
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CMDLINE) $< -o $@
 
-
 all: $(EXECUTABLE) $(OBJECTS)
+
+main.o: $(HEADERS)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(EXECUTABLE)

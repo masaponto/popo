@@ -5,8 +5,9 @@
 #include <list>
 #include <cassert>
 
-#include "lexer.hpp"
-#include "parser.hpp"
+#include "lexical.hpp"
+#include "syntax.hpp"
+
 
 int main()
 {

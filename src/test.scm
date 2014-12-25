@@ -5,10 +5,12 @@
 
 (let binds body)
 
-(define (k+ a b k)
-    (k (+ a b)))
+
+(define x (lambda (a b) (+ a b)))
 
 #|
+(define (k+ a b k)
+    (k (+ a b)))
 ; definition of pi
 (define pi (* 4 (atan 1)))
 
