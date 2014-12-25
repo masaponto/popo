@@ -10,7 +10,7 @@
 
 int main()
 {
-using namespace popo;
+    using namespace popo;
 
     std::string filename("test.scm");
     std::ifstream fs(filename);
@@ -30,30 +30,30 @@ using namespace popo;
         conscell = ep.s_exp_parse();
     }
 
-//     while (true) {
-//         switch (lex.get_next_token()) {
-//             case lexer::Token::eof:
-//                 std::cout << "eof" << std::endl;
-//                 return 0;
+    //     while (true) {
+    //         switch (lex.get_next_token()) {
+    //             case lexer::Token::eof:
+    //                 std::cout << "eof" << std::endl;
+    //                 return 0;
 
-//             case lexer::Token::left:
-//                 std::cout << "( " << std::flush;
-//                 break;
+    //             case lexer::Token::left:
+    //                 std::cout << "( " << std::flush;
+    //                 break;
 
-//             case lexer::Token::right:
-//                 std::cout << ")" << std::endl;
-//                 break;
+    //             case lexer::Token::right:
+    //                 std::cout << ")" << std::endl;
+    //                 break;
 
-//             case lexer::Token::string:
-//                 std::cout << lex.get_lex().str << " " << std::flush;
-//                 break;
+    //             case lexer::Token::string:
+    //                 std::cout << lex.get_lex().str << " " << std::flush;
+    //                 break;
 
-//             case lexer::Token::num:
-//                 std::cout << lex.get_lex().num << " " << std::flush;
-//                 break;
+    //             case lexer::Token::num:
+    //                 std::cout << lex.get_lex().num << " " << std::flush;
+    //                 break;
 
-//             default:
-//                 std::cout << "default" << std::endl;
-//         }
-//     }
+    //             default:
+    //                 std::cout << "default" << std::endl;
+    //         }
+    //     }
 }

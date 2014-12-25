@@ -9,156 +9,130 @@
 
 namespace popo {
 
-    namespace lexer {
+namespace lexer {
 
-        enum struct Token{
-            string = 0,
-            num,
-            left,
-            right,
-            eof
-        };
+enum struct Token { string = 0, num, left, right, eof };
 
-        std::string token_text[] = {
-            "string",
-            "num",
-            "left",
-            "right",
-            "eof",
-        };
+std::string token_text[] = {"string", "num", "left", "right", "eof", };
 
+struct token_value {
+public:
+    token_value() : str(), num() {};
+    ~token_value() {};
 
-        struct token_value{
-            public:
-                token_value(): str(), num(){};
-                ~token_value() {};
+public:
+    std::string str;
+    int num;
+};
 
-            public:
-                std::string str;
-                int num;
-        };
+template <typename Iteratable>
+class lexical_analyser {
+public:
+    lexical_analyser(Iteratable const& ary)
+        : begin_(ary.begin()), end_(ary.end())
+    {
+    }
 
+    auto get_next_token(void) -> Token
+    {
+        pass_space();
+        pass_one_line_comment();
+        pass_lines_comment();
+        //                     std::cout << *begin_ << std::endl;
 
-        template<typename Iteratable>
-        class lexical_analyser
-        {
-            public:
-                lexical_analyser(Iteratable const& ary)
-                    :begin_(ary.begin()), end_(ary.end()) {}
+        if (begin_ != end_) {
 
-                auto get_next_token(void)
-                    -> Token
-                {
-                    pass_space();
-                    pass_one_line_comment();
-                    pass_lines_comment();
-//                     std::cout << *begin_ << std::endl;
+            //                         left
+            if (*begin_ == '(') {
+                begin_++;
+                return Token::left;
+            }
+            //                         right
+            else if (*begin_ == ')') {
+                begin_++;
+                return Token::right;
+            }
+            //                         num
+            else if ('0' <= *begin_ && *begin_ <= '9') {
+                parse_digit();
+                return Token::num;
+            }
 
-                    if(begin_ != end_){
+            // mark
+            else if ('!' <= *begin_ && *begin_ <= '~') {
+                parse_string();
+                //                             std::cout << *begin_<< std::endl;
+                return Token::string;
+            }
+        }
+        return Token::eof;
+    }
 
-//                         left
-                        if(*begin_ == '('){
-                            begin_++;
-                            return Token::left;
-                        }
-//                         right
-                        else if(*begin_ == ')'){
-                            begin_++;
-                            return Token::right;
-                        }
-//                         num
-                        else if('0' <= *begin_ && *begin_ <= '9'){
-                            parse_digit();
-                            return Token::num;
-                        }
+    virtual ~lexical_analyser() = default;
 
-                        // mark
-                        else if('!' <= *begin_ && *begin_ <= '~' ){
-                            parse_string();
-//                             std::cout << *begin_<< std::endl;
-                            return Token::string;
-                        }
-                    }
-                    return Token::eof;
+private:
+    typename Iteratable::const_iterator begin_, end_;
+
+private:
+    token_value t_val;
+
+public:
+    token_value& get_lex() { return t_val; }
+
+private:
+    auto pass_one_line_comment(void) -> void
+    {
+        if (';' == *begin_) {
+            while ('\n' != *++begin_ && begin_ != end_)
+                ;
+            pass_space();
+        }
+    }
+
+    auto pass_lines_comment(void) -> void
+    {
+        if ('#' == *begin_) {
+            if ('|' == *(++begin_)) {
+                begin_++;
+                while (!('|' == *begin_ && '#' == *(++begin_))) {
+                    begin_++;
                 }
+                begin_++;
+                pass_space();
+                pass_one_line_comment();
+            } else {
+                begin_--;
+            }
+        }
+    }
 
-                virtual ~lexical_analyser() = default;
+    auto pass_space(void) -> void
+    {
+        while ((' ' == *begin_ || '\n' == *begin_) && begin_ != end_) {
+            begin_++;
+        }
+    }
 
-            private:
-                typename Iteratable::const_iterator begin_, end_;
+    auto parse_digit() -> void
+    {
+        std::string str_num(1, *begin_++);
+        while ('0' <= *begin_ && *begin_ <= '9') {
+            str_num += *begin_++;
+        }
 
-            private:
-                token_value t_val;
+        t_val.num = std::stoi(str_num);
+    }
 
-            public:
-                token_value& get_lex()
-                {
-                    return t_val;
-                }
+    auto parse_string() -> void
+    {
+        std::string str(1, *begin_++);
+        while ('!' <= *begin_ && *begin_ <= '~' && '(' != *begin_ &&
+               ')' != *begin_) {
+            str += *begin_++;
+        }
+        t_val.str = str;
+    }
+};
 
-
-            private:
-                auto pass_one_line_comment(void)
-                    -> void
-                {
-                    if(';' == *begin_){
-                        while('\n' != *++begin_ && begin_ != end_)
-                            ;
-                        pass_space();
-                    }
-                }
-
-                auto pass_lines_comment(void)
-                    -> void
-                {
-                    if('#' == *begin_){
-                        if('|' == *(++begin_)){
-                            begin_++;
-                            while(!('|' == *begin_ && '#' == *(++begin_))){
-                                begin_++;
-                            }
-                            begin_++;
-                            pass_space();
-                            pass_one_line_comment();
-                        }
-                        else {
-                            begin_--;
-                        }
-                    }
-                }
-
-
-                auto pass_space(void)
-                    -> void
-                {
-                    while ((' ' == *begin_ || '\n' == *begin_) && begin_ != end_) {
-                        begin_++;
-                    }
-                }
-
-                auto parse_digit()
-                    -> void
-                {
-                    std::string str_num(1, *begin_++);
-                    while('0' <= *begin_ && *begin_ <= '9'){
-                        str_num += *begin_++;
-                    }
-
-                    t_val.num = std::stoi(str_num);
-                }
-
-                auto parse_string()
-                    -> void
-                {
-                    std::string str(1, *begin_++);
-                    while ('!' <= *begin_ && *begin_ <= '~' && '(' != *begin_ &&
-                           ')' != *begin_) {
-                        str += *begin_++;
-                    }
-                    t_val.str = str;
-                }
-        };
-
-    }  // namespace lexer
+}  // namespace lexer
 }  // namespace popo
-
