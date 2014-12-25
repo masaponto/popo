@@ -25,7 +25,7 @@ using namespace popo;
 
     auto conscell = ep.s_exp_parse();
     while (nullptr != conscell) {
-        parser::print_cons<input_data>(conscell);
+        parser::print_cons<input_data>(std::move(conscell));
         std::cout << std::endl;
         conscell = ep.s_exp_parse();
     }

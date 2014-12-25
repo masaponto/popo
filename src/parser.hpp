@@ -12,7 +12,8 @@ namespace popo {
             num,
             string,
             symbol,
-            cons
+            cons,
+            nil
         };
 
         class expr_node
@@ -64,17 +65,21 @@ namespace popo {
             : public expr_node
         {
             public:
-                cons_node(): expr_node(node_type::cons) {
+                cons_node(): expr_node(node_type::nil) {
                     car = nullptr;
                     cdr = nullptr;
                 }
 
-                cons_node(expr_node* ca, expr_node* cd)
-                    : expr_node(node_type::cons), car(ca), cdr(cd){}
+                cons_node(std::unique_ptr<expr_node> ca, std::unique_ptr<expr_node> cd)
+                    : expr_node(node_type::cons)
+                {
+                    car = std::move(ca);
+                    cdr = std::move(cd);
+                }
 
             public:
-                expr_node* car;
-                expr_node* cdr;
+                std::unique_ptr<expr_node> car;
+                std::unique_ptr<expr_node> cdr;
         };
 
         template<typename Iteratable>
@@ -85,14 +90,14 @@ namespace popo {
                     : lex_(lex) {}
 
             public:
-                auto s_exp_parse() -> cons_node*
+                auto s_exp_parse() -> std::unique_ptr<expr_node>
                 {
                     return sexp_car_parse(false);
                 }
 
             private:
                 auto sexp_car_parse(bool already_read_token)
-                    -> cons_node*
+                    -> std::unique_ptr<expr_node>
                 {
                     if(!already_read_token){
                         auto token = lex_.get_next_token();
@@ -101,46 +106,42 @@ namespace popo {
                         }
                         assert(lexer::Token::left == token);
                     }
-                    expr_node* car;
-//                     std::unique_ptr<expr_node> car;
+//                     expr_node* car;
+                    std::unique_ptr<expr_node> car;
                     switch(lex_.get_next_token()){
                         case lexer::Token::string:
                             // std::unique_ptr<std::string>
-                            car = new string_node(lex_.get_lex().str);
+                            car = std::move(std::unique_ptr<string_node>(new string_node(lex_.get_lex().str)));
+
                             break;
 
                         case lexer::Token::num:
-                            car = new num_node(lex_.get_lex().num);
+//                             car = new num_node(lex_.get_lex().num);
+                            car = std::move(std::unique_ptr<num_node>(new num_node(lex_.get_lex().num)));
                             break;
 
                         case lexer::Token::left:
-                            car = sexp_car_parse(true);
+                            car = std::move(std::unique_ptr<expr_node>(sexp_car_parse(true)));
                             break;
 
                         case lexer::Token::eof:
                             return nullptr;
 
                         case lexer::Token::right:
-                            return nil;
+                            return std::unique_ptr<cons_node>(new cons_node());
 
                         default:
                             assert(false);
                     }
 
-                    return new cons_node(car, sexp_car_parse(true));
+                    return std::unique_ptr<cons_node>(new cons_node(std::move(car), sexp_car_parse(true)));
                 }
 
             private:
                 lexer::lexical_analyser<Iteratable> lex_;
 
             public:
-                static cons_node* nil;
-
         };
-
-
-        template <typename T>
-        cons_node* s_expression_parser<T>::nil = new cons_node();
 
         auto get_space_string(int num)
             -> std::unique_ptr<std::string>
@@ -153,35 +154,35 @@ namespace popo {
         }
 
         template<typename T>
-        auto _print_cons(expr_node* node, int depth)
+        auto _print_cons(std::unique_ptr<expr_node> node, int depth)
             -> void
         {
-            if (node->type == node_type::num) {
-                auto vn = static_cast<num_node*>(node);
+            if(node->type == node_type::nil){
+                return;
+            }
+            else if (node->type == node_type::num) {
+                auto vn = dynamic_cast<num_node*>(node.release());
                 std::cout << *get_space_string(depth) << vn->val << std::endl;
             } else if (node->type == node_type::string) {
-                auto vn = static_cast<string_node*>(node);
+                auto vn = dynamic_cast<string_node*>(node.release());
                 std::cout << *get_space_string(depth) << vn->val << std::endl;
             } else if (node->type == node_type::cons) {
-                auto n = static_cast<cons_node*>(node);
-                if(s_expression_parser<T>::nil == n) {
-                    return;
-                }
+                auto n = dynamic_cast<cons_node*>(node.release());
                 if(node_type::cons == n->car->type){
-                    _print_cons<T>(n->car, depth+1);
+                    _print_cons<T>(std::move(n->car), depth+1);
                 }
                 else {
-                    _print_cons<T>(n->car, depth);
+                    _print_cons<T>(std::move(n->car), depth);
                 }
-                _print_cons<T>(n->cdr, depth);
+                _print_cons<T>(std::move(n->cdr), depth);
             }
         }
 
         template<typename T>
-        auto print_cons(expr_node* node)
+        auto print_cons(std::unique_ptr<expr_node> node)
             -> void
         {
-            _print_cons<T>(node, 0);
+            _print_cons<T>(std::move(node), 0);
         }
 
 
