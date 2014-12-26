@@ -7,6 +7,7 @@
 
 #include "syntax.hpp"
 #include "semantic.hpp"
+#include "debug.hpp"
 
 
 int main()

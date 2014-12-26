@@ -3,7 +3,7 @@ CXX = clang++
 CXXFLAGS = -std=c++11 -c -Wall
 CMDLINE =
 LDFLAGS =
-HEADERS = lexical.hpp syntax.hpp semantic.hpp
+HEADERS = lexical.hpp syntax.hpp semantic.hpp debug.hpp
 SOURCES = main.cpp
 OBJECTS = main.o
 EXECUTABLE = popo
