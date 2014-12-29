@@ -4,4 +4,5 @@ popo
 *.o
 tags
 !src/test/CMakeList.txt
+!src/test/*.cpp
 src/test/*
