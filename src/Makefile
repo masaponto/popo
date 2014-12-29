@@ -16,12 +16,13 @@ all: $(EXECUTABLE) $(OBJECTS)
 main.o: $(HEADERS)
 
 $(EXECUTABLE): $(OBJECTS)
+	ctags -R .
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(EXECUTABLE)
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
-test: $(SOURCES)
+test: $(SOURCES) $(EXECUTABLE)
 	$(CXX) -std=c++11 -ggdb3 -o $(EXECUTABLE) main.cpp
 
 

@@ -1,23 +1,15 @@
 (+ 1 2)
 
-(define (bar x)
-    (foo 0 x))
-
-(let binds body)
-
-
 (define x (lambda (a b) (+ a b)))
 
-#|
-(define (k+ a b k)
-    (k (+ a b)))
 ; definition of pi
 (define pi (* 4 (atan 1)))
 
 ; degree -> radian
-(define (radian deg)
-    (* deg (/ pi 180)))
+(define radian (lambda (deg)
+    (* deg (/ pi 180))))
 
+#|
 ; free fall time
 (define (ff-time vy)
     (/ (* 2 vy) 9))

@@ -22,7 +22,7 @@ int main()
     const input_data file_data{std::istreambuf_iterator<char>(fs),
                                std::istreambuf_iterator<char>()};
 
-    semantic::semantic_analyser<input_data> sem_analyser(file_data);
+    semantic::semantic_analyser<input_data> sa(file_data);
 
     syntax::s_expression_parser<input_data> ep(file_data);
 
