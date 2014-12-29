@@ -2,3 +2,6 @@ a.out
 *.gch
 popo
 *.o
+tags
+!src/test/CMakeList.txt
+src/test/*
