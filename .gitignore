@@ -2,4 +2,4 @@ a.out
 *.gch
 popo
 *.o
-/test
+/src/test
