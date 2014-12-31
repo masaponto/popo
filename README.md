@@ -1,5 +1,19 @@
 popo
 
+### how to build
+$ cd src
+$ make
+
+
+###how to test
+$ cd src/test
+get google test
+$ wget https://googletest.googlecode.com/files/gtest-1.7.0.zip
+
+$ cd test/build
+$ cmake ..
+$ make 
+
 
 参考
 
