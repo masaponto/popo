@@ -2,5 +2,8 @@ a.out
 *.gch
 popo
 *.o
-/src/test
 tags
+!src/test/CMakeLists.txt
+!src/test/build/
+!src/test/*.cpp
+src/test/*
