@@ -3,6 +3,7 @@ a.out
 popo
 *.o
 tags
-!src/test/CMakeList.txt
+!src/test/CMakeLists.txt
+!src/test/build/
 !src/test/*.cpp
 src/test/*
