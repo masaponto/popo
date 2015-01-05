@@ -44,7 +44,8 @@ namespace semantic {
                   argument_num_(arg_num),
                   table_entry_num_(entry_num) {};
 
-            function_entry(int arg_num, function_numbers num): function_entry(arg_num, static_cast<int>(num)){};
+            function_entry(int arg_num, function_numbers num):
+                function_entry(arg_num, static_cast<int>(num)){};
 
         public:
             int argument_num_;
@@ -125,14 +126,23 @@ namespace semantic {
             for (auto&& bf : built_in_function) {
                 symbol_table.table_stack.push_front(bf);
             }
-        };
 
-    public:
+            analyse();
+        };
 
     private:
         auto analyse() -> void
         {
-            auto cons_node = parser_.s_exp_parse();
+            std::unique_ptr<syntax::cons_node> s_exp_node = parser_.s_exp_parse();
+//             std::unique_ptr<string_node> function_name(
+//                     static_cast<string_node*>(s_exp_node->car.release));
+//
+//
+//             auto function_name = s_exp_node->car->val;
+            auto function_name = dynamic_cast<syntax::string_node*>(s_exp_node.get()).val;
+
+
+
             //TODO: このあとのしょり
         }
 
