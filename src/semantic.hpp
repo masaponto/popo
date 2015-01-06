@@ -26,11 +26,12 @@ namespace semantic {
     };
 
     // symbol table
-    enum struct entry_type { value, function, };
+    enum struct entry_type { value, function, not_found};
     struct symbol_table_entry {
 
         public:
             symbol_table_entry(entry_type t) : type_(t){};
+            symbol_table_entry() : type_(entry_type::not_found){};
 
         public:
             entry_type type_;
@@ -125,28 +126,51 @@ namespace semantic {
             for (auto&& bf : built_in_function) {
                 symbol_table.table_stack.push_front(bf);
             }
-        };
 
-    public:
+            analyse();
+        };
 
     private:
         auto analyse() -> void
         {
-            auto cons_node = parser_.s_exp_parse();
-            //TODO: このあとのしょり
+            auto function_name =
+                static_cast<syntax::string_node*>(
+                    static_cast<syntax::cons_node*>(parser_.s_exp_parse().get())
+                        ->car.get())->val;
+
+
+            auto pair = search_function(function_name);
+            assert(entry_type::not_found != pair.second.type_);
+
+            //TODO: 
         }
+
+
+        auto search_function(std::string func_name)
+            -> std::pair<std::string, symbol_table_entry>
+        {
+            for(auto& data: symbol_table.table_stack){
+                std::cout << data.first << std::endl;
+                if(data.first == func_name){
+                    return data;
+                }
+            }
+
+            return std::make_pair("", symbol_table_entry());
+        }
+
 
     private:
         syntax::s_expression_parser<Iteratable> parser_;
 
         struct symbol_table_stack
         {
-        public:
-            symbol_table_stack() : table_stack(), local_symbol_num(0) {};
+            public:
+                symbol_table_stack() : table_stack(), local_symbol_num(0) {};
 
-        public:
-            std::list<std::pair<std::string, symbol_table_entry> > table_stack;
-            int local_symbol_num;
+            public:
+                std::list<std::pair<std::string, symbol_table_entry> > table_stack;
+                int local_symbol_num;
         } symbol_table;
 
         std::vector<std::unique_ptr<syntax::expr_node> > function_table;
