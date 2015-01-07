@@ -32,6 +32,7 @@ namespace semantic {
         public:
             symbol_table_entry(entry_type t) : type_(t){};
             symbol_table_entry() : type_(entry_type::not_found){};
+            virtual ~symbol_table_entry() {};
 
         public:
             entry_type type_;
@@ -47,6 +48,8 @@ namespace semantic {
 
             function_entry(int arg_num, function_numbers num)
                 : function_entry(arg_num, static_cast<int>(num)){};
+
+            virtual ~function_entry(){};
 
         public:
             int argument_num_;
@@ -74,6 +77,8 @@ namespace semantic {
             {
                 v_int = n;
             };
+
+            virtual ~value_entry() {};
 
         private:
             union {
@@ -132,18 +137,57 @@ namespace semantic {
         };
 
     private:
+
+        auto check_argument_num(const syntax::expr_node* cons, int argc)
+            -> bool
+        {
+            if (syntax::node_type::nil == cons->type && 0 == argc) {
+                return true;
+            } else if (argc < 0) {
+                return false;
+            }
+
+            if(syntax::node_type::nil == cons->type){
+
+                if(argc == 0){
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else if(argc < 0){
+                return false;
+            }
+
+            return check_argument_num(static_cast<const syntax::cons_node*>(cons)->cdr.get(), argc--);
+        }
+
         auto analyse() -> void
         {
-            auto function_name =
-                static_cast<syntax::string_node*>(
-                    static_cast<syntax::cons_node*>(parser_.s_exp_parse().get())
-                        ->car.get())->val;
 
+            std::unique_ptr<syntax::cons_node> cons(
+                static_cast<syntax::cons_node*>(
+                    parser_.s_exp_parse().release()));
+
+            // type check
+            assert(syntax::node_type::string == cons->car->type);
+
+            auto function_name =
+                static_cast<syntax::string_node*>(cons->car.get())->val;
 
             auto pair = search_function(function_name);
-            assert(entry_type::not_found != pair.second.type_);
+            // check function definition
+            assert(entry_type::function == pair.second.type_);
 
-            //TODO: 
+            //TODO しらべる below code
+//             auto arg_num = dynamic_cast<function_entry&>(pair.second).argument_num_;
+//             std::cout << "arg: " << arg_num << std::endl;
+            // argument check of number
+//             assert(check_argument_num(cons.get(), arg_num));
+
+
+            // TODO:
         }
 
 
@@ -151,7 +195,7 @@ namespace semantic {
             -> std::pair<std::string, symbol_table_entry>
         {
             for(auto& data: symbol_table.table_stack){
-                std::cout << data.first << std::endl;
+//                 std::cout << data.second.argument_num_ << std::endl;
                 if(data.first == func_name){
                     return data;
                 }
