@@ -45,7 +45,8 @@ namespace semantic {
                   argument_num_(arg_num),
                   table_entry_num_(entry_num) {};
 
-            function_entry(int arg_num, function_numbers num): function_entry(arg_num, static_cast<int>(num)){};
+            function_entry(int arg_num, function_numbers num)
+                : function_entry(arg_num, static_cast<int>(num)){};
 
         public:
             int argument_num_;
@@ -169,11 +170,11 @@ namespace semantic {
                 symbol_table_stack() : table_stack(), local_symbol_num(0) {};
 
             public:
-                std::list<std::pair<std::string, symbol_table_entry> > table_stack;
+                std::list<std::pair<std::string, symbol_table_entry>> table_stack;
                 int local_symbol_num;
         } symbol_table;
 
-        std::vector<std::unique_ptr<syntax::expr_node> > function_table;
+        std::vector<std::unique_ptr<syntax::cons_node>> function_table;
     };
 
 
