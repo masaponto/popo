@@ -171,21 +171,22 @@ namespace semantic {
                 static_cast<syntax::cons_node*>(
                     parser_.s_exp_parse().release()));
 
-            // type check
+            // node type check
             assert(syntax::node_type::string == cons->car->type);
 
             auto function_name =
                 static_cast<syntax::string_node*>(cons->car.get())->val;
 
             auto& pair = search_function(function_name);
+
             // check function definition
             assert(entry_type::function ==
                    static_cast<function_entry*>(pair.second.get())->type_);
 
-            // TODO しらべる below code
             auto arg_num =
                 static_cast<function_entry*>(pair.second.get())->argument_num_;
             std::cout << "arg: " << arg_num << std::endl;
+
             // argument check of number
             assert(check_argument_num(cons.get(), arg_num));
         }
@@ -199,6 +200,7 @@ namespace semantic {
                     return data;
                 }
             }
+
 
             return not_found_pair;
         }
