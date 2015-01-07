@@ -1,4 +1,9 @@
-; (aa 1 2)
+#|
+below code occured error
+(1 1 2)
+(a 1 2)
+|#
+
 (+ 1 2)
 
 (define x (lambda (a b) (+ a b)))
