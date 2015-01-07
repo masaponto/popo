@@ -138,6 +138,7 @@ namespace semantic {
             }
 
             analyse();
+            analyse();
         };
 
     public:
@@ -153,7 +154,6 @@ namespace semantic {
 
 
     private:
-
 
         auto check_argument_num(const syntax::expr_node* cons, int argc)
             -> bool
@@ -173,16 +173,36 @@ namespace semantic {
                 static_cast<const syntax::cons_node*>(cons)->cdr.get(), --argc);
         }
 
-        auto define_procedure(std::string func_name, std::unique_ptr<syntax::expr_node>&& cons)
+        auto define_procedure(std::unique_ptr<syntax::expr_node>&& cons)
             -> void
         {
-            //TODO: this function is push to table_stack and regist to function_table.
+            // TODO: this function is push to table_stack and regist to
+            // function_table.
+            auto cons_node = std::unique_ptr<syntax::cons_node>(
+                static_cast<syntax::cons_node*>(cons.release()));
 
+            // check symbol
+            assert(syntax::node_type::string == cons_node->car->type);
+            auto symbol =
+                std::unique_ptr<syntax::string_node>(
+                    static_cast<syntax::string_node*>(cons_node->car.release()))
+                    ->val;
+
+            std::cout << "define: " << symbol << std::endl;
+
+            auto value_cons_node = std::unique_ptr<syntax::cons_node>(
+                static_cast<syntax::cons_node*>(cons_node->cdr.release()));
+
+            if (syntax::node_type::cons == value_cons_node->car->type) {
+                check_cons(std::unique_ptr<syntax::cons_node>(
+                    static_cast<syntax::cons_node*>(value_cons_node->car.release())));
+            }
         }
 
         auto lambda_procedure(std::unique_ptr<syntax::expr_node>&& cons)
             -> void
         {
+            std::cout << "lambda" <<  std::endl;
 
         }
 
@@ -206,15 +226,18 @@ namespace semantic {
         auto analyse() -> void
         {
 
-            std::unique_ptr<syntax::cons_node> cons(
-                static_cast<syntax::cons_node*>(
-                    parser_.s_exp_parse().release()));
+            auto conscell = parser_.s_exp_parse();
+            while (nullptr != conscell) {
+                std::unique_ptr<syntax::cons_node> cons(
+                    static_cast<syntax::cons_node*>(
+                        conscell.release()));
 
-            check_cons(std::move(cons));
-
+                check_cons(std::move(cons));
+                conscell = parser_.s_exp_parse();
+            }
         }
 
-        auto check_cons(std::unique_ptr<syntax::cons_node> cons)
+        auto check_cons(std::unique_ptr<syntax::cons_node>&& cons)
             -> void
 
         {
@@ -223,6 +246,7 @@ namespace semantic {
 
             auto function_name =
                 static_cast<syntax::string_node*>(cons->car.get())->val;
+                    std::cout << "func: " << function_name << std::endl;
 
             auto& pair = search_function(function_name);
 
@@ -238,7 +262,7 @@ namespace semantic {
 
             switch (divide_function(function_name)) {
                 case function_type::DEFINE:
-                    define_procedure(function_name, std::move(cons->cdr));
+                    define_procedure(std::move(cons->cdr));
                     break;
 
                 case function_type::LAMBDA:

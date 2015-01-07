@@ -5,6 +5,7 @@
 |#
 
 (+ 1 2)
+(define y 4)
 
 (define x (lambda (a b) (+ a b)))
 

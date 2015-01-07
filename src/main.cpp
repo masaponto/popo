@@ -24,12 +24,12 @@ int main()
 
     semantic::semantic_analyser<input_data> sa(file_data);
 
-    syntax::s_expression_parser<input_data> ep(file_data);
+//     syntax::s_expression_parser<input_data> ep(file_data);
 
-    auto conscell = ep.s_exp_parse();
-    while (nullptr != conscell) {
-        syntax::print_cons<input_data>(std::move(conscell));
-        std::cout << std::endl;
-        conscell = ep.s_exp_parse();
-    }
+//     auto conscell = ep.s_exp_parse();
+//     while (nullptr != conscell) {
+//         syntax::print_cons<input_data>(std::move(conscell));
+//         std::cout << std::endl;
+//         conscell = ep.s_exp_parse();
+//     }
 }
