@@ -1,5 +1,5 @@
 #|
-below code occured error
+;below code occured error
 (1 1 2)
 (a 1 2)
 |#

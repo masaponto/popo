@@ -144,6 +144,15 @@ namespace semantic {
         static std::pair<std::string, std::unique_ptr<symbol_table_entry>> not_found_pair;
 
     private:
+        enum struct function_type {
+            DEFINE,
+            LAMBDA,
+            OTHER,
+        };
+
+
+
+    private:
 
 
         auto check_argument_num(const syntax::expr_node* cons, int argc)
@@ -164,6 +173,36 @@ namespace semantic {
                 static_cast<const syntax::cons_node*>(cons)->cdr.get(), --argc);
         }
 
+        auto define_procedure(std::string func_name, std::unique_ptr<syntax::expr_node>&& cons)
+            -> void
+        {
+            //TODO: this function is push to table_stack and regist to function_table.
+
+        }
+
+        auto lambda_procedure(std::unique_ptr<syntax::expr_node>&& cons)
+            -> void
+        {
+
+        }
+
+        auto divide_function(std::string str)
+            -> function_type
+        {
+            //TODO: add special form
+            if("define" == str){
+                return function_type::DEFINE;
+            }
+
+            else if("lambda" == str) {
+                return function_type::LAMBDA;
+            }
+
+            else {
+                return function_type::OTHER;
+            }
+        }
+
         auto analyse() -> void
         {
 
@@ -171,6 +210,14 @@ namespace semantic {
                 static_cast<syntax::cons_node*>(
                     parser_.s_exp_parse().release()));
 
+            check_cons(std::move(cons));
+
+        }
+
+        auto check_cons(std::unique_ptr<syntax::cons_node> cons)
+            -> void
+
+        {
             // type check
             assert(syntax::node_type::string == cons->car->type);
 
@@ -178,16 +225,30 @@ namespace semantic {
                 static_cast<syntax::string_node*>(cons->car.get())->val;
 
             auto& pair = search_function(function_name);
+
             // check function definition
             assert(entry_type::function ==
                    static_cast<function_entry*>(pair.second.get())->type_);
 
-            // TODO しらべる below code
             auto arg_num =
                 static_cast<function_entry*>(pair.second.get())->argument_num_;
-            std::cout << "arg: " << arg_num << std::endl;
+
             // argument check of number
             assert(check_argument_num(cons.get(), arg_num));
+
+            switch (divide_function(function_name)) {
+                case function_type::DEFINE:
+                    define_procedure(function_name, std::move(cons->cdr));
+                    break;
+
+                case function_type::LAMBDA:
+                    lambda_procedure(std::move(cons->cdr));
+                    break;
+
+                case function_type::OTHER:
+
+                    break;
+            }
         }
 
 
@@ -218,6 +279,8 @@ namespace semantic {
         } symbol_table;
 
         std::vector<std::unique_ptr<syntax::cons_node>> function_table;
+
+
     };
 
     template<typename T>
