@@ -320,7 +320,6 @@ namespace semantic {
                 }
             }
 
-
             return not_found_pair;
         }
 
