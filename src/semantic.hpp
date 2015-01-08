@@ -180,7 +180,7 @@ namespace semantic {
                 static_cast<syntax::cons_node*>(cons.release()));
 
             // check symbol
-            assert(syntax::node_type::string == cons_node->car->type);
+            assert(syntax::node_type::symbol == cons_node->car->type);
             auto symbol =
                 std::unique_ptr<syntax::string_node>(
                     static_cast<syntax::string_node*>(cons_node->car.release()))
@@ -277,7 +277,7 @@ namespace semantic {
 
         {
             // node type check
-            assert(syntax::node_type::string == cons->car->type);
+            assert(syntax::node_type::symbol == cons->car->type);
 
             auto function_name =
                 static_cast<syntax::string_node*>(cons->car.get())->val;
@@ -336,12 +336,14 @@ namespace semantic {
 
         struct symbol_table_stack
         {
-            public:
-                symbol_table_stack() : table_stack(), local_symbol_num(0) {};
+        public:
+            symbol_table_stack() : table_stack(), local_symbol_num(0) {};
 
-            public:
-                std::list<std::pair<std::string, std::unique_ptr<symbol_table_entry>>> table_stack;
-                int local_symbol_num;
+        public:
+            std::list<
+                std::pair<std::string, std::unique_ptr<symbol_table_entry>>>
+                table_stack;
+            int local_symbol_num;
         } symbol_table;
 
         // TODO: symbol_table or function_table?

@@ -7,7 +7,7 @@
 
 (define y 4)
 
-(define st_hello hello)
+(define st_hello "hello")
 
 (define x (lambda (a b) (+ a b)))
 #|

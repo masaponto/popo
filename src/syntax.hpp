@@ -31,30 +31,37 @@ class s_expression_parser {
                 assert(lexical::Token::left == token);
             }
             std::unique_ptr<expr_node> car;
+
             switch (lex_.get_next_token()) {
                 case lexical::Token::string:
-                    car = std::move(std::unique_ptr<string_node>(
-                        new string_node(lex_.get_lex().str)));
+                    car = std::unique_ptr<string_node>(
+                        new string_node(lex_.get_lex().str));
                     break;
 
                 case lexical::Token::num:
-                    car = std::move(std::unique_ptr<num_node>(
-                        new num_node(lex_.get_lex().num)));
+                    car = std::unique_ptr<num_node>(
+                        new num_node(lex_.get_lex().num));
                     break;
 
                 case lexical::Token::left:
-                    car =
-                        std::move(std::unique_ptr<expr_node>(sexp_car_parse(true)));
+                    car = std::unique_ptr<expr_node>(sexp_car_parse(true));
                     break;
 
                 case lexical::Token::eof:
-                    if(already_read_token){
+                    if (already_read_token) {
                         assert(false);
                     }
                     return nullptr;
 
                 case lexical::Token::right:
                     return std::unique_ptr<cons_node>(new cons_node());
+
+                case lexical::Token::symbol:
+                    car = std::unique_ptr<symbol_node>(
+                        new symbol_node(lex_.get_lex().symbol));
+                    break;
+
+                // TODO add Token::t_true, t_false
 
                 default:
                     assert(false);
