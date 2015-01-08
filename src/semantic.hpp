@@ -56,35 +56,33 @@ namespace semantic {
 
     struct value_entry : public symbol_table_entry {
 
-        public:
-            enum struct value_type { INT, STRING, SYMBOL, };
+    public:
+        enum struct value_type { INT, STRING, SYMBOL, };
 
-        public:
-            value_entry(std::string n, value_type t)
-                : symbol_table_entry(entry_type::value), type_(t)
-            {
-                if (t == value_type::STRING) {
-                    v_string = n;
-                } else if (t == value_type::SYMBOL) {
-                    v_symbol = n;
-                }
-            };
+    public:
+        value_entry(std::string n, value_type t)
+            : symbol_table_entry(entry_type::value), type_(t)
+        {
+            if (t == value_type::STRING) {
+                v_string = n;
+            } else if (t == value_type::SYMBOL) {
+                v_symbol = n;
+            }
+        };
 
-            value_entry(int n, value_type t)
-                : symbol_table_entry(entry_type::value), type_(t)
-            {
-                v_int = n;
-            };
+        value_entry(int n, value_type t)
+            : symbol_table_entry(entry_type::value), type_(t)
+        {
+            v_int = n;
+        };
 
-            virtual ~value_entry() {};
+        virtual ~value_entry() {};
 
-        private:
-            union {
-                int v_int;
-                std::string v_string;
-                std::string v_symbol;
-            };
-            value_type type_;
+    private:
+        int v_int;
+        std::string v_string;
+        std::string v_symbol;
+        value_type type_;
     };
 
     const std::pair<std::string, function_entry> special_form[] = {

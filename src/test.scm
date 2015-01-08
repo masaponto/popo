@@ -7,6 +7,8 @@
 
 (define y 4)
 
+(define y hello)
+
 (define x (lambda (a b) (+ a b)))
 #|
 
