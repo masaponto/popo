@@ -138,7 +138,7 @@ namespace semantic {
             }
 
             analyse();
-            analyse();
+            print_symbol_stack();
         };
 
     public:
@@ -188,21 +188,58 @@ namespace semantic {
                     static_cast<syntax::string_node*>(cons_node->car.release()))
                     ->val;
 
-            std::cout << "define: " << symbol << std::endl;
+//             std::cout << "define: " << symbol << std::endl;
 
             auto value_cons_node = std::unique_ptr<syntax::cons_node>(
                 static_cast<syntax::cons_node*>(cons_node->cdr.release()));
 
-            if (syntax::node_type::cons == value_cons_node->car->type) {
-                check_cons(std::unique_ptr<syntax::cons_node>(
-                    static_cast<syntax::cons_node*>(value_cons_node->car.release())));
+            switch (value_cons_node->car->type) {
+                case syntax::node_type::cons:
+
+                    check_cons(std::unique_ptr<syntax::cons_node>(
+                        static_cast<syntax::cons_node*>(
+                            value_cons_node->car.release())));
+
+                    //TODO make symbol_table_entry( function_entry)
+                    break;
+
+                case syntax::node_type::num: {
+                    auto num_node = std::unique_ptr<syntax::num_node>(
+                        static_cast<syntax::num_node*>(
+                            value_cons_node->car.release()));
+
+                    auto num_entry =
+                        std::unique_ptr<value_entry>(new value_entry(
+                            num_node->val, value_entry::value_type::INT));
+
+                    symbol_table.table_stack.push_front(
+                        std::make_pair(symbol, std::move(num_entry)));
+
+                    return;
+                }
+                case syntax::node_type::string: {
+
+                    auto string_node = std::unique_ptr<syntax::string_node>(
+                        static_cast<syntax::string_node*>(
+                            value_cons_node->car.release()));
+
+                    auto string_entry =
+                        std::unique_ptr<value_entry>(new value_entry(
+                            string_node->val, value_entry::value_type::STRING));
+
+                    symbol_table.table_stack.push_front(
+                            std::make_pair(symbol, std::move(string_entry)));
+
+                    return;
+                }
             }
+
         }
 
         auto lambda_procedure(std::unique_ptr<syntax::expr_node>&& cons)
             -> void
         {
-            std::cout << "lambda" <<  std::endl;
+//             std::cout << "lambda" <<  std::endl;
 
         }
 
@@ -246,7 +283,7 @@ namespace semantic {
 
             auto function_name =
                 static_cast<syntax::string_node*>(cons->car.get())->val;
-                    std::cout << "func: " << function_name << std::endl;
+//             std::cout << "func: " << function_name << std::endl;
 
             auto& pair = search_function(function_name);
 
@@ -289,6 +326,13 @@ namespace semantic {
             return not_found_pair;
         }
 
+        auto print_symbol_stack() -> void
+        {
+            for(auto& data: symbol_table.table_stack){
+                std::cout << "symbol name: " << data.first << std::endl;
+            }
+        }
+
 
     private:
         syntax::s_expression_parser<Iteratable> parser_;
@@ -303,6 +347,7 @@ namespace semantic {
                 int local_symbol_num;
         } symbol_table;
 
+        // TODO: symbol_table or function_table?
         std::vector<std::unique_ptr<syntax::cons_node>> function_table;
 
 
