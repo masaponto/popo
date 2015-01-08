@@ -59,7 +59,6 @@ public:
             // symbol
             else if ('!' <= *begin_ && *begin_ <= '~') {
                 parse_symbol();
-                // TODO change to Token::symbol
                 return Token::symbol;
             }
         }

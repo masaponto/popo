@@ -57,20 +57,19 @@ namespace semantic {
     struct value_entry : public symbol_table_entry {
 
     public:
-        enum struct value_type { INT, STRING, SYMBOL, };
 
     public:
-        value_entry(std::string n, value_type t)
+        value_entry(std::string n, syntax::node_type t)
             : symbol_table_entry(entry_type::value), type_(t)
         {
-            if (t == value_type::STRING) {
+            if (t == syntax::node_type::string) {
                 v_string = n;
-            } else if (t == value_type::SYMBOL) {
+            } else if (t == syntax::node_type::symbol) {
                 v_symbol = n;
             }
         };
 
-        value_entry(int n, value_type t)
+        value_entry(int n, syntax::node_type t)
             : symbol_table_entry(entry_type::value), type_(t)
         {
             v_int = n;
@@ -82,7 +81,7 @@ namespace semantic {
         int v_int;
         std::string v_string;
         std::string v_symbol;
-        value_type type_;
+        syntax::node_type type_;
     };
 
     const std::pair<std::string, function_entry> special_form[] = {
@@ -171,6 +170,21 @@ namespace semantic {
                 static_cast<const syntax::cons_node*>(cons)->cdr.get(), --argc);
         }
 
+        template<typename n_type>
+        auto regist_value_entry(std::string symbol,
+                std::unique_ptr<syntax::cons_node> value_node)
+            -> void
+        {
+            auto node = std::unique_ptr<n_type>(
+                static_cast<n_type*>(value_node->car.release()));
+
+            auto entry = std::unique_ptr<value_entry>(
+                new value_entry(node->val, node->type));
+
+            symbol_table.table_stack.push_front(
+                std::make_pair(symbol, std::move(entry)));
+        }
+
         auto define_procedure(std::unique_ptr<syntax::expr_node>&& cons)
             -> void
         {
@@ -182,8 +196,8 @@ namespace semantic {
             // check symbol
             assert(syntax::node_type::symbol == cons_node->car->type);
             auto symbol =
-                std::unique_ptr<syntax::string_node>(
-                    static_cast<syntax::string_node*>(cons_node->car.release()))
+                std::unique_ptr<syntax::symbol_node>(
+                    static_cast<syntax::symbol_node*>(cons_node->car.release()))
                     ->val;
 
 //             std::cout << "define: " << symbol << std::endl;
@@ -198,36 +212,23 @@ namespace semantic {
                         static_cast<syntax::cons_node*>(
                             value_cons_node->car.release())));
 
-                    //TODO make symbol_table_entry( function_entry)
+                    //TODO make symbol_table_entry( function_entry )
                     break;
 
-                case syntax::node_type::num: {
-                    auto num_node = std::unique_ptr<syntax::num_node>(
-                        static_cast<syntax::num_node*>(
-                            value_cons_node->car.release()));
+                case syntax::node_type::num:
+                    regist_value_entry<syntax::num_node>(symbol, std::move(value_cons_node));
+                    break;
 
-                    auto num_entry =
-                        std::unique_ptr<value_entry>(new value_entry(
-                            num_node->val, value_entry::value_type::INT));
+                case syntax::node_type::string:
+                    regist_value_entry<syntax::string_node>(symbol, std::move(value_cons_node));
+                    break;
 
-                    symbol_table.table_stack.push_front(
-                        std::make_pair(symbol, std::move(num_entry)));
+                case syntax::node_type::symbol:
+                    regist_value_entry<syntax::symbol_node>(symbol, std::move(value_cons_node));
+                    break;
 
-                    return;
-                }
-                case syntax::node_type::string: {
-
-                    auto string_node = std::unique_ptr<syntax::string_node>(
-                        static_cast<syntax::string_node*>(
-                            value_cons_node->car.release()));
-
-                    auto string_entry =
-                        std::unique_ptr<value_entry>(new value_entry(
-                            string_node->val, value_entry::value_type::STRING));
-
-                    symbol_table.table_stack.push_front(
-                            std::make_pair(symbol, std::move(string_entry)));
-
+                case syntax::node_type::nil: {
+                    //TODO write code
                     return;
                 }
             }
@@ -346,7 +347,7 @@ namespace semantic {
             int local_symbol_num;
         } symbol_table;
 
-        // TODO: symbol_table or function_table?
+        // TODO: rename symbol_table or function_table?
         std::vector<std::unique_ptr<syntax::cons_node>> function_table;
 
 
