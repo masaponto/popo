@@ -212,7 +212,7 @@ namespace semantic {
                         static_cast<syntax::cons_node*>(
                             value_cons_node->car.release())));
 
-                    //TODO make symbol_table_entry( function_entry )
+                    //TODO make symbol_table_entry(function_entry).
                     break;
 
                 case syntax::node_type::num:
@@ -239,7 +239,6 @@ namespace semantic {
             -> void
         {
 //             std::cout << "lambda" <<  std::endl;
-
         }
 
         auto divide_function(std::string str)

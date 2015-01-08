@@ -1,6 +1,7 @@
 a.out
 *.gch
 popo
+popo_debug
 *.o
 tags
 src/test/*
