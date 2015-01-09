@@ -93,4 +93,15 @@ namespace syntax {
         _print_cons<T>(std::move(new_root), 0, true);
     }
 }  // namespace syntax
+
+namespace semantic {
+
+        auto print_symbol_stack() -> void
+        {
+//             for(auto& data: symbol_table.table_stack){
+//                 std::cout << "symbol name: " << data.first << std::endl;
+//             }
+        }
+
+} // namespace semantic
 }  // namespace popo

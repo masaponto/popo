@@ -5,14 +5,14 @@
 |#
 (+ 1 2)
 
+
 (define y 4)
 
 (define st_hello "hello")
 (define string_hello st_hello)
-
 (define x (lambda (a b) (+ a b)))
-#|
 
+#|
 ; definition of pi
 (define pi (* 4 (atan 1)))
 

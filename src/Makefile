@@ -25,9 +25,9 @@ $(EXECUTABLE): $(OBJECTS)
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
-debug: $(SOURCES)
+#TODO: make not override $(DEBUG_EXECUTABL)
+debug: $(SOURCES) $(HEADERS)
 	$(CXX) -std=c++11 -ggdb3 -o $(DEBUG_EXECUTABL) main.cpp
-
 
 gdb_run: $(DEBUG_EXECUTABL)
 	gdb -x cmd.gdb
