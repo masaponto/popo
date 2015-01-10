@@ -86,7 +86,7 @@ namespace semantic {
             {
                 // TODO: this function is push to table_stack and regist to
                 // symbol_table.
-
+                
                 auto cons_node = std::unique_ptr<syntax::cons_node>(
                     static_cast<syntax::cons_node*>(cons.release()));
 
