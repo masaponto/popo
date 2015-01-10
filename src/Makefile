@@ -1,6 +1,6 @@
 
 CXX = clang++
-CXXFLAGS = -std=c++11 -c -Wall
+CXXFLAGS = -std=c++11 -c -Wall 
 CMDLINE =
 LDFLAGS =
 HEADERS = lexical.hpp syntax.hpp semantic.hpp node.hpp symbol_table.hpp debug.hpp

@@ -4,12 +4,14 @@
 (a 1 2)
 |#
 (+ 1 2)
+(+ 1 2)
 
 
 (define y 4)
 
 (define st_hello "hello")
 (define string_hello st_hello)
+(define x (lambda (a b) (+ a b)))
 (define x (lambda (a b) (+ a b)))
 
 #|
