@@ -21,7 +21,8 @@ class s_expression_parser {
         }
 
     private:
-        auto sexp_car_parse(bool already_read_token) -> std::unique_ptr<expr_node>
+        auto sexp_car_parse(bool already_read_token)
+            -> std::unique_ptr<expr_node>
         {
             if (!already_read_token) {
                 auto token = lex_.get_next_token();
@@ -39,8 +40,9 @@ class s_expression_parser {
                     break;
 
                 case lexical::Token::num:
-                    car = std::unique_ptr<num_node>(
-                        new num_node(lex_.get_lex().num));
+                    car =
+                        std::unique_ptr<num_node>(
+                                new num_node(lex_.get_lex().num));
                     break;
 
                 case lexical::Token::left:
@@ -73,7 +75,8 @@ class s_expression_parser {
 
     private:
         lexical::lexical_analyser<Iteratable> lex_;
-    };
+
+};
 
 
 }  // namespace syntax

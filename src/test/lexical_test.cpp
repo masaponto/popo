@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 #include <lexical.hpp>
+#include <syntax.hpp>
 #include <list>
 
 
+// lexical_analyser
 TEST(lexical_analyser, lex_test_1) {
     using namespace popo::lexical;
     std::string in_data("\
@@ -88,6 +90,17 @@ TEST(lexical_analyser, lex_test_4)
     EXPECT_EQ(Token::eof, lex.get_next_token());
 }
 
+// s_expression_parser
+TEST(syntax_analyzer, syntax_test_1)
+{
+    using namespace popo::syntax;
+    const std::string in_data(
+        "\
+            (+ 1 2)\
+            ");
+    s_expression_parser<std::string> parser(in_data);
+    auto expr_node = parser.s_exp_parse();
+}
 
 // int main(int argc, char **argv) {
 //     ::testing::InitGoogleTest(&argc, argv);

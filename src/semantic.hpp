@@ -94,7 +94,8 @@ namespace semantic {
                 assert(syntax::node_type::symbol == cons_node->car->type);
                 auto symbol =
                     std::unique_ptr<syntax::symbol_node>(
-                        static_cast<syntax::symbol_node*>(cons_node->car.release()))
+                        static_cast<syntax::symbol_node*>(
+                            cons_node->car.release()))
                         ->val;
 
 
@@ -111,7 +112,8 @@ namespace semantic {
                             analyse_cons(std::unique_ptr<syntax::cons_node>(
                                 static_cast<syntax::cons_node*>(
                                     value_cons_node->car.release())));
-                        symbol_stack.table_stack.push_front(std::make_pair(symbol, symbol_ptr));
+                        symbol_stack.table_stack.push_front(
+                                std::make_pair(symbol, symbol_ptr));
 
                         //TODO: if symbol_ptr is function_entry, add function_table
                         //                         auto entry =
@@ -200,7 +202,7 @@ namespace semantic {
 
                 // set function table
                 function_table.push_back(std::move(function_cons));
-
+                //TODO: check function procedure
                 // pop dummy argumeny at symbol stack
                 for(int i=0; i<symbol_stack.local_symbol_num; ++i){
                     symbol_stack.table_stack.pop_front();
