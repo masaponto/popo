@@ -15,7 +15,7 @@ add_definitions(
 
 add_executable(
     popo_test
-    lexical_test.cpp
+    popo_test.cpp
     )
 
 #add_executable(lexical_test lexical_test.cpp)

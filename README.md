@@ -6,11 +6,11 @@ $ make
 
 
 ###how to test
-$ cd src/test
-get google test
-$ wget https://googletest.googlecode.com/files/gtest-1.7.0.zip
+$ cd src/test  
+get google test  
+$ wget https://googletest.googlecode.com/files/gtest-1.7.0.zip  
 
-$ cd test/build
+$ cd test/build  
 $ cmake ..
 $ make
 
