@@ -24,13 +24,15 @@ public:
     {
     }
 
+public:
+
     auto get_next_token(void) -> Token
     {
         // TODO: when code have many one line comment, popo occured error.
         pass_space();
         pass_one_line_comment();
         pass_lines_comment();
-        //                     std::cout << *begin_ << std::endl;
+//                             std::cout << *begin_ << std::endl;
 
         // TODO: add #t and #f procedure
         if (begin_ != end_) {

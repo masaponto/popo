@@ -10,9 +10,11 @@ include_directories(
 
 add_definitions(
     -std=c++11
+    -ggdb3
     )
 
 add_executable(lexical_test lexical_test.cpp)
+add_executable(syntax_test syntax_test.cpp)
 #add_subdirectory(/home/hima/work/popo/src/test/gtest-1.7.0)
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest-1.7.0)
 

@@ -4,25 +4,62 @@
 
 namespace {
 
-class LexicalTest: public ::testing::Test {
-    protected:
-        LexicalTest() {
-        }
-};
+TEST(lexical_analyser, test_1) {
+    using namespace popo::lexical;
+    std::string in_data(
+        "\
+            (+ 1 2)\
+            (define x 10)\
+            (define y \"hello\")\
+            (define z \
+                (lambda (a b)\
+                    (+ a b)))\
+            ");
 
-TEST_F(LexicalTest, l_test_1) {
-using namespace popo;
+    lexical_analyser<std::string> lex(in_data);
 
-    std::string filename("../../test.scm");
-    std::ifstream fs(filename);
+    // (+ 1 2)
+    EXPECT_EQ(Token::left, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::num, lex.get_next_token());
+    EXPECT_EQ(Token::num, lex.get_next_token());
+    EXPECT_EQ(Token::right, lex.get_next_token());
 
-    using input_data = std::list<char>;
+    // (define x 10)
+    EXPECT_EQ(Token::left, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::num, lex.get_next_token());
+    EXPECT_EQ(Token::right, lex.get_next_token());
 
-    const input_data file_data{std::istreambuf_iterator<char>(fs),
-                               std::istreambuf_iterator<char>()};
+    // (define y "hello")
+    EXPECT_EQ(Token::left, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::string, lex.get_next_token());
+    EXPECT_EQ(Token::right, lex.get_next_token());
 
+    // (define z
+    //      (lambda (a b)
+    //          (+ a b)))
+    EXPECT_EQ(Token::left, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::left, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::left, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::right, lex.get_next_token());
+    EXPECT_EQ(Token::left, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::symbol, lex.get_next_token());
+    EXPECT_EQ(Token::right, lex.get_next_token());
+    EXPECT_EQ(Token::right, lex.get_next_token());
+    EXPECT_EQ(Token::right, lex.get_next_token());
 
-    lexical::lexical_analyser<input_data> lexcal(file_data);
+    EXPECT_EQ(Token::eof, lex.get_next_token());
 }
 
 } // namespace
