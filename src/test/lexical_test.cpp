@@ -2,18 +2,11 @@
 #include <lexical.hpp>
 #include <list>
 
-namespace {
 
-TEST(lexical_analyser, test_1) {
+TEST(lexical_analyser, lex_test_1) {
     using namespace popo::lexical;
-    std::string in_data(
-        "\
+    std::string in_data("\
             (+ 1 2)\
-            (define x 10)\
-            (define y \"hello\")\
-            (define z \
-                (lambda (a b)\
-                    (+ a b)))\
             ");
 
     lexical_analyser<std::string> lex(in_data);
@@ -24,6 +17,17 @@ TEST(lexical_analyser, test_1) {
     EXPECT_EQ(Token::num, lex.get_next_token());
     EXPECT_EQ(Token::num, lex.get_next_token());
     EXPECT_EQ(Token::right, lex.get_next_token());
+    EXPECT_EQ(Token::eof, lex.get_next_token());
+
+}
+
+TEST(lexical_analyser, lex_test_2)
+{
+    using namespace popo::lexical;
+    std::string in_data("\
+            (define x 10)\
+            ");
+    lexical_analyser<std::string> lex(in_data);
 
     // (define x 10)
     EXPECT_EQ(Token::left, lex.get_next_token());
@@ -31,6 +35,16 @@ TEST(lexical_analyser, test_1) {
     EXPECT_EQ(Token::symbol, lex.get_next_token());
     EXPECT_EQ(Token::num, lex.get_next_token());
     EXPECT_EQ(Token::right, lex.get_next_token());
+    EXPECT_EQ(Token::eof, lex.get_next_token());
+}
+
+TEST(lexical_analyser, lex_test_3)
+{
+    using namespace popo::lexical;
+    std::string in_data("\
+            (define x \"hello\")\
+            ");
+    lexical_analyser<std::string> lex(in_data);
 
     // (define y "hello")
     EXPECT_EQ(Token::left, lex.get_next_token());
@@ -38,6 +52,18 @@ TEST(lexical_analyser, test_1) {
     EXPECT_EQ(Token::symbol, lex.get_next_token());
     EXPECT_EQ(Token::string, lex.get_next_token());
     EXPECT_EQ(Token::right, lex.get_next_token());
+    EXPECT_EQ(Token::eof, lex.get_next_token());
+}
+
+TEST(lexical_analyser, lex_test_4)
+{
+    using namespace popo::lexical;
+    std::string in_data("\
+            (define z\
+                (lambda (a b)\
+                    (+ a b)))\
+            ");
+    lexical_analyser<std::string> lex(in_data);
 
     // (define z
     //      (lambda (a b)
@@ -62,9 +88,8 @@ TEST(lexical_analyser, test_1) {
     EXPECT_EQ(Token::eof, lex.get_next_token());
 }
 
-} // namespace
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+// int main(int argc, char **argv) {
+//     ::testing::InitGoogleTest(&argc, argv);
+//     return RUN_ALL_TESTS();
+// }

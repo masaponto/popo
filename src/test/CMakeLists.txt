@@ -13,13 +13,18 @@ add_definitions(
     -ggdb3
     )
 
-add_executable(lexical_test lexical_test.cpp)
-add_executable(syntax_test syntax_test.cpp)
-#add_subdirectory(/home/hima/work/popo/src/test/gtest-1.7.0)
+add_executable(
+    popo_test
+    lexical_test.cpp
+    )
+
+#add_executable(lexical_test lexical_test.cpp)
+#add_executable(syntax_test syntax_test.cpp)
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest-1.7.0)
 
 target_link_libraries(
-    lexical_test
+    popo_test
     pthread
     gtest
     ${PROJECT_SOURCE_DIR}/gtest-1.7.0/build/libgtest.a
