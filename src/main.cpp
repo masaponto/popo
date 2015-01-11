@@ -24,6 +24,11 @@ int main()
 
     semantic::semantic_analyser<input_data> sa(file_data);
 
+    auto symbol_entry = sa.analyse();
+    while (nullptr != symbol_entry) {
+        symbol_entry = sa.analyse();
+    }
+
 //     syntax::s_expression_parser<input_data> ep(file_data);
 
 //     auto conscell = ep.s_exp_parse();

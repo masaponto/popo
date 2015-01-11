@@ -30,8 +30,6 @@ namespace semantic {
                         std::make_pair(pair.first,
                                            std::make_shared<function_entry>(pair.second)));
                 }
-
-                analyse();
             };
 
         public:
@@ -44,6 +42,20 @@ namespace semantic {
                 LAMBDA,
                 OTHER,
             };
+
+        public:
+            auto analyse() -> std::shared_ptr<symbol_table_entry>
+            {
+
+                auto conscell = parser_.s_exp_parse();
+                if (nullptr == conscell) {
+                    return nullptr;
+                }
+
+                std::unique_ptr<syntax::cons_node> cons(
+                    static_cast<syntax::cons_node*>(conscell.release()));
+                return analyse_cons(std::move(cons));
+            }
 
         private:
 
@@ -198,11 +210,11 @@ namespace semantic {
                                                      function_table.size());
 
                 auto& f_cons = function_cons;
+                // check function
                 assert(dummy_entry == analyse_cons(std::move(f_cons)));
 
                 // set function table
                 function_table.push_back(std::move(function_cons));
-                //TODO: check function procedure
                 // pop dummy argumeny at symbol stack
                 for(int i=0; i<symbol_stack.local_symbol_num; ++i){
                     symbol_stack.table_stack.pop_front();
@@ -228,19 +240,7 @@ namespace semantic {
                 }
             }
 
-            auto analyse() -> void
-            {
 
-                auto conscell = parser_.s_exp_parse();
-                while (nullptr != conscell) {
-                    std::unique_ptr<syntax::cons_node> cons(
-                        static_cast<syntax::cons_node*>(
-                            conscell.release()));
-
-                    analyse_cons(std::move(cons));
-                    conscell = parser_.s_exp_parse();
-                }
-            }
 
             auto analyse_cons(std::unique_ptr<syntax::cons_node>&& cons)
                 -> std::shared_ptr<symbol_table_entry>&&
@@ -277,7 +277,6 @@ namespace semantic {
                         auto dummy = dummy_entry;
                         return std::move(dummy);
                 }
-
             }
 
 
