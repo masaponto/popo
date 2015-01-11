@@ -11,18 +11,21 @@ namespace semantic {
 
     enum struct entry_type { value, list, function, not_found };
 
-    enum struct function_numbers{
+    enum struct function_type{
         //special form
-        DEFINE = -1,
-        LAMBDA = -2,
-        QUOTA = -3,
-        IF = -4,
+        define = -1,
+        lambda = -2,
+        quote = -3,
+        cond = -4,
 
         //built in function
-        PLUS = -5,
-        MINUS = -6,
-        MULTIPLY = -7,
-        DIVIDE = -8,
+        plus = -5,
+        minus = -6,
+        multiply = -7,
+        divide = -8,
+
+        // other
+        other = -9,
     };
 
 
@@ -45,7 +48,7 @@ namespace semantic {
                   argument_num_(arg_num),
                   table_entry_num_(entry_num) {};
 
-            function_entry(int arg_num, function_numbers num)
+            function_entry(int arg_num, function_type num)
                 : function_entry(arg_num, static_cast<int>(num)){};
 
         public:
@@ -97,35 +100,35 @@ namespace semantic {
     const std::pair<std::string, function_entry> special_form[] = {
         std::pair<std::string, function_entry>(
             "define",
-            function_entry(2, function_numbers::DEFINE)),
+            function_entry(2, function_type::define)),
         // (define symbol atom | list | function)
         std::pair<std::string, function_entry>(
             "lambda",
-            function_entry(2, function_numbers::LAMBDA)),
+            function_entry(2, function_type::lambda)),
         // (lambda list list) -> function
         std::pair<std::string, function_entry>(
-            "quota",
-            function_entry(1, function_numbers::QUOTA)),
+            "quote",
+            function_entry(1, function_type::quote)),
         // (quota list) -> list
         std::pair<std::string, function_entry>(
             "if",
-            function_entry(2, function_numbers::IF))
+            function_entry(2, function_type::cond))
         // (if t | nil | function function)
     };
 
     const std::pair<std::string, function_entry> built_in_function[] = {
         std::pair<std::string, function_entry>(
             "+",
-            function_entry(2, function_numbers::PLUS)),
+            function_entry(2, function_type::plus)),
         std::pair<std::string, function_entry>(
             "-",
-            function_entry(2, function_numbers::MINUS)),
+            function_entry(2, function_type::minus)),
         std::pair<std::string, function_entry>(
             "*",
-            function_entry(2, function_numbers::MULTIPLY)),
+            function_entry(2, function_type::multiply)),
         std::pair<std::string, function_entry>(
             "/",
-            function_entry(2, function_numbers::DIVIDE))};
+            function_entry(2, function_type::divide))};
 
 } // namespace semantic
 } // namespace popo
