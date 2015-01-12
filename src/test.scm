@@ -8,10 +8,11 @@
 
 (define z (quote (y "hello")))
 
-#|
- (if (+ y 4)
+(if (+ y 4)
      (+ y 4)
      (- y 4))
+
+#|
 
 ; definition of pi
 (define pi (* 4 (atan 1)))

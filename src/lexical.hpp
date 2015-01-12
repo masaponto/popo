@@ -7,6 +7,8 @@
 #include <cctype>
 #include <string>
 
+
+
 namespace popo {
 
 namespace lexical{
@@ -16,6 +18,7 @@ enum struct Token { string, symbol, num, left, right, eof, t_true, t_false };
 std::string token_text[] = {"string", "symbol", "num",  "left",
                             "right",  "eof",    "true", "false"};
 
+// TODO: when popo read many one line comment, error occured.
 template <typename Iteratable>
 class lexical_analyser {
 public:

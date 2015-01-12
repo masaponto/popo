@@ -195,6 +195,7 @@ namespace semantic {
                 -> std::shared_ptr<symbol_table_entry>
             {
                 std::cout << "quote" << std::endl;
+                std::cout << "---" << std::endl;
 
                 auto cons_node = cast_unique_ptr(std::move(cons));
 
@@ -206,12 +207,31 @@ namespace semantic {
                 return entry;
             }
 
-//             auto if_procedure(std::unique_ptr<syntax::expr_node>&& cons)
-//                 -> std::shared_ptr<symbol_table_entry>
-//             {
+            auto if_procedure(std::unique_ptr<syntax::expr_node>&& cons)
+                -> std::shared_ptr<symbol_table_entry>
+            {
+                std::cout << "if" << std::endl;
 
-//                     auto cons_node = cast_unique_ptr(std::move(cons));
-//             }
+                auto cons_node = cast_unique_ptr(std::move(cons));
+
+                auto test = cast_unique_ptr(std::move(cons_node->car));
+
+                auto exec_node = cast_unique_ptr(std::move(cons_node->cdr));
+
+                auto consequent = cast_unique_ptr(std::move(exec_node->car));
+
+                auto alternative = cast_unique_ptr(std::move(cast_unique_ptr(
+                        std::move(exec_node->cdr)
+                        )->car));
+
+                auto test_entry = analyse_cons(std::move(test));
+
+                auto consequent_entry = analyse_cons(std::move(consequent));
+
+                auto alternative_entry = analyse_cons(std::move(alternative));
+
+                return dummy_entry;
+            }
 
             auto divide_function(std::string str)
                 -> function_type
@@ -229,9 +249,9 @@ namespace semantic {
                     return function_type::sf_quote;
                 }
 
-//                 else if("if" == str) {
-//                     return function_type::sf_if;
-//                 }
+                else if("if" == str) {
+                    return function_type::sf_if;
+                }
 
                 else {
                     return function_type::other;
@@ -270,8 +290,8 @@ namespace semantic {
                     case function_type::sf_quote:
                         return quote_procedure(std::move(cons->cdr));
 
-//                     case function_type::sf_if:
-//                         return if_procedure(std::move(cons->cdr));
+                    case function_type::sf_if:
+                        return if_procedure(std::move(cons->cdr));
 
                     case function_type::other:
                         std::cout << "other: " << function_name << std::endl;
