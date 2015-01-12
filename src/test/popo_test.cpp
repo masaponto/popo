@@ -10,7 +10,7 @@ TEST(lexical_analyser, lex_test_1) {
             (+ 1 2)\
             ");
 
-  lexical_analyser<std::string> lex(in_data);
+  lexical_analyzer<std::string> lex(in_data);
 
   // (+ 1 2)
   EXPECT_EQ(Token::left, lex.get_next_token());
@@ -26,7 +26,7 @@ TEST(lexical_analyser, lex_test_2) {
   std::string in_data("\
             (define x 10)\
             ");
-  lexical_analyser<std::string> lex(in_data);
+  lexical_analyzer<std::string> lex(in_data);
 
   // (define x 10)
   EXPECT_EQ(Token::left, lex.get_next_token());
@@ -42,7 +42,7 @@ TEST(lexical_analyser, lex_test_3) {
   std::string in_data("\
             (define x \"hello\")\
             ");
-  lexical_analyser<std::string> lex(in_data);
+  lexical_analyzer<std::string> lex(in_data);
 
   // (define y "hello")
   EXPECT_EQ(Token::left, lex.get_next_token());
@@ -60,7 +60,7 @@ TEST(lexical_analyser, lex_test_4) {
                 (lambda (a b)\
                     (+ a b)))\
             ");
-  lexical_analyser<std::string> lex(in_data);
+  lexical_analyzer<std::string> lex(in_data);
 
   // (define z
   //      (lambda (a b)
