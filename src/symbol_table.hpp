@@ -11,14 +11,14 @@ namespace semantic {
 
     enum struct entry_type { value, list, function, not_found };
 
-    enum struct function_type{
-        //special form
-        define = -1,
-        lambda = -2,
-        quote = -3,
-        cond = -4,
+    enum struct function_type {
+        // special form
+        sf_define = -1,
+        sf_lambda = -2,
+        sf_quote = -3,
+        sf_if = -4,
 
-        //built in function
+        // built in function
         plus = -5,
         minus = -6,
         multiply = -7,
@@ -27,7 +27,6 @@ namespace semantic {
         // other
         other = -9,
     };
-
 
     struct symbol_table_entry {
 
@@ -100,19 +99,19 @@ namespace semantic {
     const std::pair<std::string, function_entry> special_form[] = {
         std::pair<std::string, function_entry>(
             "define",
-            function_entry(2, function_type::define)),
+            function_entry(2, function_type::sf_define)),
         // (define symbol atom | list | function)
         std::pair<std::string, function_entry>(
             "lambda",
-            function_entry(2, function_type::lambda)),
+            function_entry(2, function_type::sf_lambda)),
         // (lambda list list) -> function
         std::pair<std::string, function_entry>(
             "quote",
-            function_entry(1, function_type::quote)),
+            function_entry(1, function_type::sf_quote)),
         // (quota list) -> list
         std::pair<std::string, function_entry>(
             "if",
-            function_entry(2, function_type::cond))
+            function_entry(3, function_type::sf_if))
         // (if t | nil | function function)
     };
 

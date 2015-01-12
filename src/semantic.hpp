@@ -8,6 +8,8 @@
 #include "syntax.hpp"
 #include "symbol_table.hpp"
 
+//TODO: change procedure, when popo find error.
+//      now: assert -> feture: exception(?) or the other.
 
 namespace popo {
 namespace semantic {
@@ -45,9 +47,7 @@ namespace semantic {
                     return nullptr;
                 }
 
-                std::unique_ptr<syntax::cons_node> cons(
-                    static_cast<syntax::cons_node*>(conscell.release()));
-                return analyse_cons(std::move(cons));
+                return analyse_cons(cast_unique_ptr(std::move(conscell)));
             }
 
         private:
@@ -70,17 +70,13 @@ namespace semantic {
                     std::unique_ptr<syntax::cons_node>&& value_node)
                 -> std::shared_ptr<symbol_table_entry>
             {
-                auto node = std::unique_ptr<n_type>(
-                    static_cast<n_type*>(value_node->car.release()));
 
-                //                 auto entry = std::unique_ptr<value_entry>(
-                //                     new value_entry(node->val, node->type));
+                auto node = cast_unique_ptr<n_type>(std::move(value_node->car));
+
                 std::shared_ptr<symbol_table_entry> entry =
                     std::make_shared<value_entry>(node->val, node->type);
 
                 symbol_stack.table_stack.push_front(
-                    //                     std::make_pair(symbol,
-                    // std::move(entry)));
                     std::make_pair(symbol, entry));
 
                 return entry;
@@ -92,42 +88,28 @@ namespace semantic {
                 // TODO: this function is push to table_stack and regist to
                 // symbol_table.
 
-                auto cons_node = std::unique_ptr<syntax::cons_node>(
-                    static_cast<syntax::cons_node*>(cons.release()));
+                auto cons_node = cast_unique_ptr(std::move(cons));
 
                 // check symbol
                 assert(syntax::node_type::symbol == cons_node->car->type);
-                auto symbol =
-                    std::unique_ptr<syntax::symbol_node>(
-                        static_cast<syntax::symbol_node*>(
-                            cons_node->car.release()))
-                        ->val;
 
+                auto symbol = cast_unique_ptr<syntax::symbol_node>(
+                                  std::move(cons_node->car))->val;
 
                 std::cout << "define: " << symbol << std::endl;
-                auto value_cons_node = std::unique_ptr<syntax::cons_node>(
-                    static_cast<syntax::cons_node*>(cons_node->cdr.release()));
 
-//                 return regist_value_from_cons(symbol, std::move(value_cons_node));
+                auto value_cons_node =
+                    cast_unique_ptr(std::move(cons_node->cdr));
+
                 switch (value_cons_node->car->type) {
-                    case syntax::node_type::cons:
-                    {
+                    case syntax::node_type::cons: {
 
-                        auto&& symbol_ptr =
-                            analyse_cons(std::unique_ptr<syntax::cons_node>(
-                                static_cast<syntax::cons_node*>(
-                                    value_cons_node->car.release())));
+                        auto&& symbol_ptr = analyse_cons(
+                            cast_unique_ptr(std::move(value_cons_node->car)));
+
                         symbol_stack.table_stack.push_front(
-                                std::make_pair(symbol, symbol_ptr));
+                            std::make_pair(symbol, symbol_ptr));
 
-                        //TODO: if symbol_ptr is function_entry, add function_table
-                        //                         auto entry =
-                        // std::unique_ptr<function_entry>(
-                        //                             new
-                        // function_entry(get_argument_number(
-                        //                                 sym.get()),
-                        // function_table.size()));
-                        //                         function_table.push_back(entry);
                         return symbol_ptr;
                     }
                     case syntax::node_type::num:
@@ -154,7 +136,6 @@ namespace semantic {
                         return entry;
                     }
                 }
-
             }
 
             auto push_arguments(const syntax::cons_node* cons)
@@ -178,39 +159,33 @@ namespace semantic {
                 -> std::shared_ptr<symbol_table_entry>
             {
                 std::cout << "lambda" << std::endl;
-                auto cons_node = std::unique_ptr<syntax::cons_node>(
-                    static_cast<syntax::cons_node*>(cons.release()));
 
-                auto function_cons_tmp =
-                    std::move(std::unique_ptr<syntax::cons_node>(
-                                  static_cast<syntax::cons_node*>(
-                                      cons_node->cdr.release()))->car);
+                auto cons_node = cast_unique_ptr(std::move(cons));
 
-                auto argument_cons = std::unique_ptr<syntax::cons_node>(
-                    static_cast<syntax::cons_node*>(
-                        std::move(cons_node->car).release()));
+                auto function_cons = cast_unique_ptr(
+                    std::move(cast_unique_ptr(std::move(cons_node->cdr))->car));
 
-                //push dummy argument to symbol stack
+                auto argument_cons = cast_unique_ptr(std::move(cons_node->car));
+
+                // push dummy argument to symbol stack
                 auto argument_count = push_arguments(argument_cons.get());
-
-                auto function_cons = std::unique_ptr<syntax::cons_node>(
-                    static_cast<syntax::cons_node*>(
-                        function_cons_tmp.release()));
 
                 // create symbol entry
                 std::shared_ptr<symbol_table_entry> entry =
                     std::make_shared<function_entry>(argument_count,
                                                      function_table.size());
 
-                //TODO: まずいきがする
+                // TODO: fix below code.
                 auto& f_cons = function_cons;
                 // check function
                 assert(dummy_entry == analyse_cons(std::move(f_cons)));
 
                 // set function table
+                // FIXME:
+                // 実質２回めのmoveで何もないものをmoveしているのでpush_backしているが中身は無い
                 function_table.push_back(std::move(function_cons));
                 // pop dummy argumeny at symbol stack
-                for(int i=0; i<symbol_stack.local_symbol_num; ++i){
+                for (int i = 0; i < symbol_stack.local_symbol_num; ++i) {
                     symbol_stack.table_stack.pop_front();
                 }
 
@@ -220,55 +195,58 @@ namespace semantic {
                 -> std::shared_ptr<symbol_table_entry>
             {
                 std::cout << "quote" << std::endl;
-                auto cons_node = std::unique_ptr<syntax::cons_node>(
-                    static_cast<syntax::cons_node*>(cons.release()));
 
-                auto list_node = std::move(
-                    static_cast<syntax::cons_node*>(cons_node->cdr.get())->car);
+                auto cons_node = cast_unique_ptr(std::move(cons));
+
+                auto list_node = cast_unique_ptr(std::move(cons_node->car));
 
                 std::shared_ptr<symbol_table_entry> entry =
-                    std::make_shared<list_entry>(
-                            std::unique_ptr<syntax::cons_node>(
-                                static_cast<syntax::cons_node*>(
-                                    list_node.release())));
+                    std::make_shared<list_entry>(std::move(list_node));
 
                 return entry;
             }
+
+//             auto if_procedure(std::unique_ptr<syntax::expr_node>&& cons)
+//                 -> std::shared_ptr<symbol_table_entry>
+//             {
+
+//                     auto cons_node = cast_unique_ptr(std::move(cons));
+//             }
 
             auto divide_function(std::string str)
                 -> function_type
             {
                 //TODO: add special form
                 if("define" == str){
-                    return function_type::define;
+                    return function_type::sf_define;
                 }
 
                 else if("lambda" == str) {
-                    return function_type::lambda;
+                    return function_type::sf_lambda;
                 }
 
                 else if("quote" == str) {
-                    return function_type::quote;
+                    return function_type::sf_quote;
                 }
 
-                else if("cond" == str) {
-                    return function_type::cond;
-                }
+//                 else if("if" == str) {
+//                     return function_type::sf_if;
+//                 }
 
                 else {
                     return function_type::other;
                 }
             }
 
-            auto analyse_cons(std::unique_ptr<syntax::cons_node>&& cons)
+            auto analyse_cons(std::unique_ptr<syntax::cons_node> cons)
                 -> std::shared_ptr<symbol_table_entry>
             {
+                assert(nullptr != cons);
                 // node type check
                 assert(syntax::node_type::symbol == cons->car->type);
 
                 auto function_name =
                     static_cast<syntax::string_node*>(cons->car.get())->val;
-                //             std::cout << "func: " << function_name << std::endl;
 
                 auto& pair = search_function(function_name);
 
@@ -279,25 +257,26 @@ namespace semantic {
                 auto arg_num =
                     static_cast<function_entry*>(pair.second.get())->argument_num_;
 
-
-    //             std::cout << "check cons func_name: "<< function_name << std::endl;
                 // argument check of number
                 assert(get_car_depth(cons.get()) == arg_num);
 
                 switch (divide_function(function_name)) {
-                    case function_type::define:
+                    case function_type::sf_define:
                         return define_procedure(std::move(cons->cdr));
 
-                    case function_type::lambda:
+                    case function_type::sf_lambda:
                         return lambda_procedure(std::move(cons->cdr));
 
-                    case function_type::quote:
+                    case function_type::sf_quote:
                         return quote_procedure(std::move(cons->cdr));
 
+//                     case function_type::sf_if:
+//                         return if_procedure(std::move(cons->cdr));
+
                     case function_type::other:
-                    {
+                        std::cout << "other: " << function_name << std::endl;
                         return dummy_entry;
-                    }
+
                     default:
                         assert(false);
                 }
@@ -316,6 +295,15 @@ namespace semantic {
                 return not_found_pair;
             }
 
+            template<typename type = syntax::cons_node>
+            auto cast_unique_ptr(std::unique_ptr<syntax::expr_node>&& node)
+                -> std::unique_ptr<type>
+            {
+                assert(nullptr != node);
+                return std::unique_ptr<type>(
+                    static_cast<type*>(node.release()));
+            }
+
         private:
             syntax::s_expression_parser<Iteratable> parser_;
 
@@ -332,6 +320,8 @@ namespace semantic {
             } symbol_stack;
 
             std::vector<std::unique_ptr<syntax::cons_node>> function_table;
+
+
 
     };
 

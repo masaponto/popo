@@ -1,6 +1,6 @@
 
 CXX = clang++
-CXXFLAGS = -std=c++11 -c -Wall 
+CXXFLAGS = -std=c++0x -c -Wall 
 CMDLINE =
 LDFLAGS =
 HEADERS = lexical.hpp syntax.hpp semantic.hpp node.hpp symbol_table.hpp debug.hpp
@@ -21,15 +21,12 @@ $(EXECUTABLE): $(OBJECTS)
 	ctags -R .
 	gosh $(INPUT_FILE)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(EXECUTABLE)
+	$(CXX) -std=c++11 -ggdb3 -o $(DEBUG_EXECUTABL) main.cpp
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
-#TODO: make not override $(DEBUG_EXECUTABL)
-debug: $(SOURCES) $(HEADERS)
-	$(CXX) -std=c++11 -ggdb3 -o $(DEBUG_EXECUTABL) main.cpp
-
-gdb_run: $(DEBUG_EXECUTABL)
+gdb_run: $(EXECUTABLE)
 	gdb -x cmd.gdb
 
 clean:
