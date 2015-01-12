@@ -3,7 +3,7 @@
 
 popo is a programming language which is subset of scheme
 
-### reqiure
+### require
 - cmake
 - clang
 
