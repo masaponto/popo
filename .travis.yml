@@ -10,3 +10,5 @@ script: "sh ./.travis_build.sh"
 branches:
   only:
     - travis_ci
+notifications:
+  slack: benimaru:Ve4mmdmtFH8qYHxwEMRS1MbU

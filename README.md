@@ -1,30 +1,34 @@
-popo
+# popo
+[![Build Status](https://travis-ci.org/masaponto/popo.svg?branch=travis_ci)](https://travis-ci.org/masaponto/popo)
+
+popo is a programming language which is subset of scheme
+
+### reqiure
+- cmake
+- clang
 
 ### how to build
+```
 $ cd src
 $ make
-
+```
 
 ###how to test
-$ cd src/test  
-get google test  
-$ wget https://googletest.googlecode.com/files/gtest-1.7.0.zip  
 
-$ cd test/build  
-$ cmake ..
-$ make
+```
+sh  .travis_build.sh
+```
 
+###参考
 
-参考
-
--  lisp処理系ぽいものを書uく
+- lisp処理系ぽいものを書く
 http://d.hatena.ne.jp/hogelog/20070929/p1
 
 - Lisp 一夜漬け
 http://www.haun.org/kent/lisp1/1.html#BACKGROUND
 
 ###TODO
-create symbol stack
+- create symbol stack
 
 License
 ==
