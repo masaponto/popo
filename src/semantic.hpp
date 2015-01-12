@@ -15,10 +15,10 @@ namespace popo {
 namespace semantic {
 
     template <typename Iteratable>
-    class semantic_analyser {
+    class semantic_analyzer {
 
         public:
-            semantic_analyser(const Iteratable& itr)
+            semantic_analyzer(const Iteratable& itr)
                 : parser_(itr), symbol_stack(), function_table()
             {
                 for (auto& pair : special_form) {
@@ -39,7 +39,7 @@ namespace semantic {
             static std::shared_ptr<symbol_table_entry> dummy_entry;
 
         public:
-            auto analyse() -> std::shared_ptr<symbol_table_entry>
+            auto analyze() -> std::shared_ptr<symbol_table_entry>
             {
 
                 auto conscell = parser_.s_exp_parse();
@@ -47,7 +47,7 @@ namespace semantic {
                     return nullptr;
                 }
 
-                return analyse_cons(cast_unique_ptr(std::move(conscell)));
+                return analyze_cons(cast_unique_ptr(std::move(conscell)));
             }
 
         private:
@@ -104,7 +104,7 @@ namespace semantic {
                 switch (value_cons_node->car->type) {
                     case syntax::node_type::cons: {
 
-                        auto&& symbol_ptr = analyse_cons(
+                        auto&& symbol_ptr = analyze_cons(
                             cast_unique_ptr(std::move(value_cons_node->car)));
 
                         symbol_stack.table_stack.push_front(
@@ -178,7 +178,7 @@ namespace semantic {
                 // TODO: fix below code.
                 auto& f_cons = function_cons;
                 // check function
-                assert(dummy_entry == analyse_cons(std::move(f_cons)));
+                assert(dummy_entry == analyze_cons(std::move(f_cons)));
 
                 // set function table
                 // FIXME:
@@ -224,11 +224,11 @@ namespace semantic {
                         std::move(exec_node->cdr)
                         )->car));
 
-                auto test_entry = analyse_cons(std::move(test));
+                auto test_entry = analyze_cons(std::move(test));
 
-                auto consequent_entry = analyse_cons(std::move(consequent));
+                auto consequent_entry = analyze_cons(std::move(consequent));
 
-                auto alternative_entry = analyse_cons(std::move(alternative));
+                auto alternative_entry = analyze_cons(std::move(alternative));
 
                 return dummy_entry;
             }
@@ -258,7 +258,7 @@ namespace semantic {
                 }
             }
 
-            auto analyse_cons(std::unique_ptr<syntax::cons_node> cons)
+            auto analyze_cons(std::unique_ptr<syntax::cons_node> cons)
                 -> std::shared_ptr<symbol_table_entry>
             {
                 assert(nullptr != cons);
@@ -347,11 +347,11 @@ namespace semantic {
 
     template<typename T>
     std::pair<std::string, std::shared_ptr<symbol_table_entry>>
-        semantic_analyser<T>::not_found_pair = std::make_pair("",
+        semantic_analyzer<T>::not_found_pair = std::make_pair("",
             std::make_shared<symbol_table_entry>());
 
     template<typename T>
-    std::shared_ptr<symbol_table_entry> semantic_analyser<T>::dummy_entry =
+    std::shared_ptr<symbol_table_entry> semantic_analyzer<T>::dummy_entry =
         std::make_shared<symbol_table_entry>();
 
 }  // namespace semantic

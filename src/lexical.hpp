@@ -20,9 +20,9 @@ std::string token_text[] = {"string", "symbol", "num",  "left",
 
 // TODO: when popo read many one line comment, error occured.
 template <typename Iteratable>
-class lexical_analyser {
+class lexical_analyzer {
 public:
-    lexical_analyser(Iteratable const& ary)
+    lexical_analyzer(Iteratable const& ary)
         : begin_(ary.begin()), end_(ary.end())
     {
     }
@@ -70,7 +70,7 @@ public:
         return Token::eof;
     }
 
-    virtual ~lexical_analyser() = default;
+    virtual ~lexical_analyzer() = default;
 
 private:
     typename Iteratable::const_iterator begin_, end_;

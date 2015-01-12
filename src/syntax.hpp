@@ -74,7 +74,7 @@ class s_expression_parser {
         }
 
     private:
-        lexical::lexical_analyser<Iteratable> lex_;
+        lexical::lexical_analyzer<Iteratable> lex_;
 
 };
 

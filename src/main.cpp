@@ -22,11 +22,11 @@ int main()
     const input_data file_data{std::istreambuf_iterator<char>(fs),
                                std::istreambuf_iterator<char>()};
 
-    semantic::semantic_analyser<input_data> sa(file_data);
+    semantic::semantic_analyzer<input_data> sa(file_data);
 
-    auto symbol_entry = sa.analyse();
+    auto symbol_entry = sa.analyze();
     while (nullptr != symbol_entry) {
-        symbol_entry = sa.analyse();
+        symbol_entry = sa.analyze();
     }
 
 //     syntax::s_expression_parser<input_data> ep(file_data);
