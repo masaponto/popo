@@ -1,0 +1,14 @@
+language: cpp
+compiler:
+    - clang
+before_install:
+    - sudo apt-get update
+    - sudo apt-get install cmake
+before_script:
+    - pwd
+script: "sh ./.travis_build.sh"
+branches:
+  only:
+    - travis_ci
+notifications:
+    email: false
