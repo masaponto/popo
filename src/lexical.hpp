@@ -23,9 +23,27 @@ template <typename Iteratable>
 class lexical_analyzer {
 public:
     lexical_analyzer(Iteratable const& ary)
-        : begin_(ary.begin()), end_(ary.end())
+        : begin_(ary.begin()), end_(ary.end()), line_number(1)
     {
     }
+
+private:
+    typename Iteratable::const_iterator begin_, end_;
+
+    struct token_value {
+        public:
+            token_value() : str(), num() {};
+            ~token_value() {};
+
+        public:
+            std::string symbol;
+            std::string str;
+            int num;
+    } t_val;
+
+
+public:
+    int line_number;
 
 public:
 
@@ -47,6 +65,7 @@ public:
             }
             // right
             else if (*begin_ == ')') {
+//                 std::cout << "line: " << line_number << std::endl;
                 begin_++;
                 return Token::right;
             }
@@ -67,25 +86,12 @@ public:
                 return Token::symbol;
             }
         }
+
+//         std::cout << "line: " << line_number << std::endl;
         return Token::eof;
     }
 
     virtual ~lexical_analyzer() = default;
-
-private:
-    typename Iteratable::const_iterator begin_, end_;
-
-private:
-    struct token_value {
-        public:
-            token_value() : str(), num() {};
-            ~token_value() {};
-
-        public:
-            std::string symbol;
-            std::string str;
-            int num;
-    } t_val;
 
 public:
     token_value& get_lex() { return t_val; }
@@ -105,8 +111,21 @@ private:
         if ('#' == *begin_) {
             if ('|' == *(++begin_)) {
                 begin_++;
-                while (!('|' == *begin_ && '#' == *(++begin_))) {
-                    begin_++;
+                while(true){
+                    if('\n' == *begin_){
+                        line_number++;
+                    }
+
+                    if('|' == *begin_){
+                        begin_++;
+                        if('#' == *begin_){
+                            break;
+                        }
+                    }
+                    else {
+                        begin_++;
+                    }
+
                 }
                 begin_++;
                 pass_space();
@@ -120,6 +139,9 @@ private:
     auto pass_space(void) -> void
     {
         while ((' ' == *begin_ || '\n' == *begin_) && begin_ != end_) {
+            if('\n' == *begin_){
+                line_number++;
+            }
             begin_++;
         }
     }

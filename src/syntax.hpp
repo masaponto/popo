@@ -20,6 +20,12 @@ class s_expression_parser {
             return sexp_car_parse(false);
         }
 
+    public:
+        auto get_line_number() -> int
+        {
+            return lex_.line_number;
+        }
+
     private:
         auto sexp_car_parse(bool already_read_token)
             -> std::unique_ptr<expr_node>

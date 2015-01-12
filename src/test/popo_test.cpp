@@ -19,6 +19,7 @@ TEST(lexical_analyser, lex_test_1) {
   EXPECT_EQ(Token::num, lex.get_next_token());
   EXPECT_EQ(Token::right, lex.get_next_token());
   EXPECT_EQ(Token::eof, lex.get_next_token());
+
 }
 
 TEST(lexical_analyser, lex_test_2) {
@@ -84,6 +85,41 @@ TEST(lexical_analyser, lex_test_4) {
 
   EXPECT_EQ(Token::eof, lex.get_next_token());
 }
+
+TEST(lexical_analyser, line_number_test_1)
+{
+    using namespace popo::lexical;
+    std::string in_data(
+                "           \
+                (define z   \n\
+                    (lambda (a b)\n\
+                        (+ a b)))\n\
+                ; test\
+                ");
+    lexical_analyzer<std::string> lex(in_data);
+
+    while(Token::eof !=lex.get_next_token());
+
+    EXPECT_EQ(lex.line_number, 4);
+}
+
+TEST(lexical_analyser, line_number_test_2){
+
+    using namespace popo::lexical;
+  std::string in_data("\
+            #| \n \
+            (define z\n\
+                (lambda (a b)\n\
+                    (+ a b)))\n\
+            |# \
+            ");
+  lexical_analyzer<std::string> lex(in_data);
+
+    while(Token::eof !=lex.get_next_token());
+
+  EXPECT_EQ(lex.line_number, 5);
+}
+
 
 // s_expression_parser
 TEST(syntax_analyzer, syntax_test_1) {

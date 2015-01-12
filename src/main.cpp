@@ -24,8 +24,10 @@ int main()
 
     semantic::semantic_analyzer<input_data> sa(file_data);
 
+//     while(nullptr != sa.analyze());
     auto symbol_entry = sa.analyze();
     while (nullptr != symbol_entry) {
+        std::cout << "a" << std::endl;
         symbol_entry = sa.analyze();
     }
 

@@ -195,7 +195,6 @@ namespace semantic {
                 -> std::shared_ptr<symbol_table_entry>
             {
                 std::cout << "quote" << std::endl;
-                std::cout << "---" << std::endl;
 
                 auto cons_node = cast_unique_ptr(std::move(cons));
 
