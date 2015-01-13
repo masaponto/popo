@@ -82,7 +82,7 @@ namespace semantic {
                 return entry;
             }
 
-            auto define_procedure(std::unique_ptr<syntax::expr_node>&& cons)
+            auto define_procedure(std::unique_ptr<syntax::expr_node> cons)
                 -> std::shared_ptr<symbol_table_entry>
             {
                 // TODO: this function is push to table_stack and regist to
@@ -155,7 +155,7 @@ namespace semantic {
                            cons->cdr.get())) + 1;
             }
 
-            auto lambda_procedure(std::unique_ptr<syntax::expr_node>&& cons)
+            auto lambda_procedure(std::unique_ptr<syntax::expr_node> cons)
                 -> std::shared_ptr<symbol_table_entry>
             {
                 std::cout << "lambda" << std::endl;
@@ -191,7 +191,7 @@ namespace semantic {
 
                 return entry;
             }
-            auto quote_procedure(std::unique_ptr<syntax::expr_node>&& cons)
+            auto quote_procedure(std::unique_ptr<syntax::expr_node> cons)
                 -> std::shared_ptr<symbol_table_entry>
             {
                 std::cout << "quote" << std::endl;
@@ -206,7 +206,7 @@ namespace semantic {
                 return entry;
             }
 
-            auto if_procedure(std::unique_ptr<syntax::expr_node>&& cons)
+            auto if_procedure(std::unique_ptr<syntax::expr_node> cons)
                 -> std::shared_ptr<symbol_table_entry>
             {
                 std::cout << "if" << std::endl;
@@ -315,7 +315,7 @@ namespace semantic {
             }
 
             template<typename type = syntax::cons_node>
-            auto cast_unique_ptr(std::unique_ptr<syntax::expr_node>&& node)
+            auto cast_unique_ptr(std::unique_ptr<syntax::expr_node> node)
                 -> std::unique_ptr<type>
             {
                 assert(nullptr != node);
