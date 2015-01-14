@@ -177,13 +177,16 @@ namespace semantic {
 
                 // TODO: fix below code.
                 auto& f_cons = function_cons;
+
                 // check function
                 assert(dummy_entry == analyze_cons(std::move(f_cons)));
+                //TODO : don't user dummy_entry
 
                 // set function table
                 // FIXME:
                 // 実質２回めのmoveで何もないものをmoveしているのでpush_backしているが中身は無い
                 function_table.push_back(std::move(function_cons));
+
                 // pop dummy argumeny at symbol stack
                 for (int i = 0; i < symbol_stack.local_symbol_num; ++i) {
                     symbol_stack.table_stack.pop_front();
