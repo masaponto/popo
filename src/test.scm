@@ -1,5 +1,7 @@
 (+ 1 2)
 
+(define i #f)
+
 (define y 4)
 
 (define st_hello "hello")

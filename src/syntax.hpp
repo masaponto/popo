@@ -69,7 +69,10 @@ class s_expression_parser {
                         new symbol_node(lex_.get_lex().symbol));
                     break;
 
-                // TODO add Token::t_true, t_false
+                case lexical::Token::trust:
+                    car = std::unique_ptr<trust_node>(
+                            new trust_node(lex_.get_lex().trust)); 
+                    break;
 
                 default:
                     assert(false);

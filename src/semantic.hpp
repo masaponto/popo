@@ -135,6 +135,13 @@ namespace semantic {
 
                         return entry;
                     }
+                    case syntax::node_type::trust: {
+                        return regist_value_entry<syntax::trust_node>(
+                                symbol, std::move(value_cons_node)); 
+                    }
+
+                    default:
+                        assert(false);
                 }
             }
 

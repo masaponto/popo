@@ -4,7 +4,7 @@
 namespace popo {
 namespace syntax {
 
-    enum struct node_type { num, string, symbol, cons, nil };
+    enum struct node_type { num, string, symbol, cons, nil, trust, };
 
     struct expr_node {
         public:
@@ -37,6 +37,14 @@ namespace syntax {
 
         public:
             std::string val;
+    };
+
+    struct trust_node : public expr_node {
+        public:
+            trust_node(bool value) : expr_node(node_type::trust), val(value){}
+
+        public:
+            bool val;
     };
 
     struct cons_node : public expr_node {

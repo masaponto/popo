@@ -13,10 +13,10 @@ namespace popo {
 
 namespace lexical{
 
-enum struct Token { string, symbol, num, left, right, eof, t_true, t_false };
+enum struct Token { string, symbol, num, left, right, eof, trust };
 
 std::string token_text[] = {"string", "symbol", "num",  "left",
-                            "right",  "eof",    "true", "false"};
+                            "right",  "eof", "trust",};
 
 // TODO: when popo read many one line comment, error occured.
 template <typename Iteratable>
@@ -32,13 +32,14 @@ private:
 
     struct token_value {
         public:
-            token_value() : str(), num() {};
+            token_value() : symbol(), str(), num(), trust() {};
             ~token_value() {};
 
         public:
             std::string symbol;
             std::string str;
             int num;
+            bool trust;
     } t_val;
 
 
@@ -79,7 +80,11 @@ public:
                 parse_string();
                 return Token::string;
             }
-
+            // trust #t, #f
+            else if('#' == *begin_){
+                parse_trust();
+                return Token::trust;
+            }
             // symbol
             else if ('!' <= *begin_ && *begin_ <= '~') {
                 parse_symbol();
@@ -175,6 +180,20 @@ private:
             assert(end_ != begin_);
         }
         t_val.str = str;
+        begin_++;
+    }
+
+    auto parse_trust() -> void
+    {
+        if('f' == *(++begin_)){
+            t_val.trust = true;
+        }
+        else if('f' == *begin_){
+            t_val.trust = false;
+        }
+        else {
+            assert(false);
+        }
         begin_++;
     }
 };
