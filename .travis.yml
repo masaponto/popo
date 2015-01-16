@@ -1,13 +1,13 @@
 language: cpp
 compiler:
-- clang
+    - clang
 before_install:
-- sudo apt-get update
-- sudo apt-get install cmake
+    - sudo apt-get update
+    - sudo apt-get install cmake
 before_script:
-- pwd
+    - pwd
 script: sh ./.travis_build.sh
 notifications:
-  email: false
-  slack:
-    secure: e4DKtedn3xG5NiVTWKxqRin2oxZsaXn/HFbG62kTu+BGcMQ9vff9RUwqzR09GwV6z7dUMd6ck0frL68sMTBBkbDOD9e36h/3D+WPcsC5eKhKOId/tP4lWKey/t5zSPUTO/2lTXCV2cZjPAoBioo4+dTX5Iy/mF9gZrLQ8kgnrC8=
+    email: false
+    slack:
+        secure: e4DKtedn3xG5NiVTWKxqRin2oxZsaXn/HFbG62kTu+BGcMQ9vff9RUwqzR09GwV6z7dUMd6ck0frL68sMTBBkbDOD9e36h/3D+WPcsC5eKhKOId/tP4lWKey/t5zSPUTO/2lTXCV2cZjPAoBioo4+dTX5Iy/mF9gZrLQ8kgnrC8=
