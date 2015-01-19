@@ -19,18 +19,22 @@ namespace semantic {
 
         public:
             semantic_analyzer(const Iteratable& itr)
-                : parser_(itr), symbol_stack(), function_table()
+                : parser_(itr), symbol_stack()
             {
                 for (auto& pair : special_form) {
                     symbol_stack.table_stack.push_front(
                         std::make_pair(pair.first,
-                                           std::make_shared<function_entry>(pair.second)));
+                                       std::make_shared<function_entry>(
+                                           pair.second.argument_num,
+                                           pair.second.function_num)));
                 }
 
                 for (auto& pair : built_in_function) {
                     symbol_stack.table_stack.push_front(
                         std::make_pair(pair.first,
-                                           std::make_shared<function_entry>(pair.second)));
+                                       std::make_shared<function_entry>(
+                                           pair.second.argument_num,
+                                           pair.second.function_num)));
                 }
             };
 
@@ -67,7 +71,8 @@ namespace semantic {
 
             template<typename n_type>
             auto regist_value_entry(std::string symbol,
-                    std::unique_ptr<syntax::cons_node>&& value_node)
+//                     std::unique_ptr<syntax::cons_node>&& value_node)
+                    std::unique_ptr<syntax::cons_node> value_node)
                 -> std::shared_ptr<symbol_table_entry>
             {
 
@@ -170,22 +175,16 @@ namespace semantic {
                 // push dummy argument to symbol stack
                 auto argument_count = push_arguments(argument_cons.get());
 
-                // create symbol entry
-//                 std::shared_ptr<symbol_table_entry> entry =
-//                     std::make_shared<function_entry>(argument_count,
-//                                                      function_table.size());
 
-                // TODO: fix below code.
-//                 auto& f_cons = function_cons;
 
-                // check function
-//                 assert(dummy_entry == analyze_cons(std::move(f_cons)));
-                auto entry = analyze_cons(std::move(function_cons));
+                //TODO: which do we have to use static_pointer_cast or dynamic_pointer_cast
+                std::shared_ptr<function_entry> entry =
+//                     std::static_pointer_cast<function_entry>(
+                    std::dynamic_pointer_cast<function_entry>(
+                        analyze_cons(std::move(function_cons)));
 
-                // set function table
-                // FIXME:
-                // 実質２回めのmoveで何もないものをmoveしているのでpush_backしているが中身は無い
-//                 function_table.push_back(std::move(function_cons));
+                entry->argument_num = argument_count;
+
 
                 // pop dummy argumeny at symbol stack
                 for (int i = 0; i < symbol_stack.local_symbol_num; ++i) {
@@ -298,8 +297,7 @@ namespace semantic {
 
                     case function_type::other:
                         std::cout << "other: " << function_name << std::endl;
-                        return std::make_shared<function_entry>(arg_num, std::move(cons));
-//                         return dummy_entry;
+                        return std::make_shared<function_entry>(std::move(cons));
 
                     default:
                         assert(false);
@@ -342,9 +340,6 @@ namespace semantic {
                     table_stack;
                 int local_symbol_num;
             } symbol_stack;
-
-            std::vector<std::unique_ptr<syntax::cons_node>> function_table;
-
 
     };
 
