@@ -44,15 +44,27 @@ namespace semantic {
         public:
             function_entry(int arg_num, int entry_num)
                 : symbol_table_entry(entry_type::function),
-                  argument_num_(arg_num),
-                  table_entry_num_(entry_num) {};
+                  argument_num(arg_num),
+                  function_num(entry_num), cons() {};
 
             function_entry(int arg_num, function_type num)
                 : function_entry(arg_num, static_cast<int>(num)){};
 
+            function_entry(int arg_num, std::unique_ptr<syntax::expr_node> c)
+                : symbol_table_entry(entry_type::function) ,
+                argument_num(arg_num), function_num(0), cons(std::move(c)) {};
+
+            function_entry(function_entry&& obj)
+                : symbol_table_entry(entry_type::function),
+                argument_num(obj.argument_num), function_num(obj.function_num),
+                cons(std::move(obj.cons))
+        {};
+
+
         public:
-            int argument_num_;
-            int table_entry_num_;
+            int argument_num;
+            int function_num;
+            std::unique_ptr<syntax::expr_node> cons;
     };
 
     struct value_entry : public symbol_table_entry

@@ -171,21 +171,21 @@ namespace semantic {
                 auto argument_count = push_arguments(argument_cons.get());
 
                 // create symbol entry
-                std::shared_ptr<symbol_table_entry> entry =
-                    std::make_shared<function_entry>(argument_count,
-                                                     function_table.size());
+//                 std::shared_ptr<symbol_table_entry> entry =
+//                     std::make_shared<function_entry>(argument_count,
+//                                                      function_table.size());
 
                 // TODO: fix below code.
-                auto& f_cons = function_cons;
+//                 auto& f_cons = function_cons;
 
                 // check function
-                assert(dummy_entry == analyze_cons(std::move(f_cons)));
-                //TODO : don't user dummy_entry
+//                 assert(dummy_entry == analyze_cons(std::move(f_cons)));
+                auto entry = analyze_cons(std::move(function_cons));
 
                 // set function table
                 // FIXME:
                 // 実質２回めのmoveで何もないものをmoveしているのでpush_backしているが中身は無い
-                function_table.push_back(std::move(function_cons));
+//                 function_table.push_back(std::move(function_cons));
 
                 // pop dummy argumeny at symbol stack
                 for (int i = 0; i < symbol_stack.local_symbol_num; ++i) {
@@ -194,6 +194,7 @@ namespace semantic {
 
                 return entry;
             }
+
             auto quote_procedure(std::unique_ptr<syntax::expr_node> cons)
                 -> std::shared_ptr<symbol_table_entry>
             {
@@ -277,7 +278,7 @@ namespace semantic {
                        static_cast<function_entry*>(pair.second.get())->type_);
 
                 auto arg_num =
-                    static_cast<function_entry*>(pair.second.get())->argument_num_;
+                    static_cast<function_entry*>(pair.second.get())->argument_num;
 
                 // argument check of number
                 assert(get_car_depth(cons.get()) == arg_num);
@@ -297,7 +298,8 @@ namespace semantic {
 
                     case function_type::other:
                         std::cout << "other: " << function_name << std::endl;
-                        return dummy_entry;
+                        return std::make_shared<function_entry>(arg_num, std::move(cons));
+//                         return dummy_entry;
 
                     default:
                         assert(false);
@@ -342,7 +344,6 @@ namespace semantic {
             } symbol_stack;
 
             std::vector<std::unique_ptr<syntax::cons_node>> function_table;
-
 
 
     };
