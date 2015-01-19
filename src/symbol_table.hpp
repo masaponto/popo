@@ -24,8 +24,15 @@ namespace semantic {
         multiply = -7,
         divide = -8,
 
+        // basic function
+        atom = -9,
+        eq = -10,
+        car = -11,
+        cdr = -12,
+        cons = 13,
+
         // other
-        other = -9,
+        other = -99,
     };
 
     struct symbol_table_entry {
@@ -139,7 +146,22 @@ namespace semantic {
             function_entry(2, function_type::multiply)),
         std::pair<std::string, function_entry>(
             "/",
-            function_entry(2, function_type::divide))};
+            function_entry(2, function_type::divide)),
+        std::pair<std::string, function_entry>(
+            "atom",
+            function_entry(2, function_type::atom)),
+        std::pair<std::string, function_entry>(
+            "eq",
+            function_entry(2, function_type::eq)),
+        std::pair<std::string, function_entry>(
+            "car",
+            function_entry(2, function_type::car)),
+        std::pair<std::string, function_entry>(
+            "cdr",
+            function_entry(2, function_type::cdr)),
+        std::pair<std::string, function_entry>(
+            "cons",
+            function_entry(2, function_type::cons)), };
 
 } // namespace semantic
 } // namespace popo
