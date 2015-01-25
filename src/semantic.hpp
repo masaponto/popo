@@ -25,16 +25,14 @@ namespace semantic {
                     symbol_stack.table_stack.push_front(
                         std::make_pair(pair.first,
                                        std::make_shared<function_entry>(
-                                           pair.second.argument_num,
-                                           pair.second.function_num)));
+                                           pair.second.argument_num)));
                 }
 
                 for (auto& pair : built_in_function) {
                     symbol_stack.table_stack.push_front(
                         std::make_pair(pair.first,
                                        std::make_shared<function_entry>(
-                                           pair.second.argument_num,
-                                           pair.second.function_num)));
+                                           pair.second.argument_num)));
                 }
             };
 
@@ -142,7 +140,7 @@ namespace semantic {
                     }
                     case syntax::node_type::trust: {
                         return regist_value_entry<syntax::trust_node>(
-                                symbol, std::move(value_cons_node)); 
+                                symbol, std::move(value_cons_node));
                     }
 
                     default:

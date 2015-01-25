@@ -49,28 +49,27 @@ namespace semantic {
     struct function_entry : public symbol_table_entry {
 
         public:
-            function_entry(int arg_num, int entry_num)
+            function_entry(int arg_num)
                 : symbol_table_entry(entry_type::function),
                   argument_num(arg_num),
-                  function_num(entry_num), cons(nullptr) {};
+                  cons(nullptr) {};
 
-            function_entry(int arg_num, function_type num)
-                : function_entry(arg_num, static_cast<int>(num)){};
+//             function_entry(int arg_num)
+//                 : function_entry(arg_num, static_cast<int>(num)){};
 
             function_entry(std::unique_ptr<syntax::expr_node> c)
                 : symbol_table_entry(entry_type::function) ,
-                argument_num(0), function_num(0), cons(std::move(c)) {};
+                argument_num(0), cons(std::move(c)) {};
 
             function_entry(function_entry&& entry)
                 : symbol_table_entry(entry_type::function),
-                argument_num(entry.argument_num), function_num(entry.function_num),
-                cons(std::move(entry.cons)) {};
+                argument_num(entry.argument_num), cons(std::move(entry.cons)) {};
 
 
 
         public:
             int argument_num;
-            int function_num;
+//             int function_num;
             std::unique_ptr<syntax::expr_node> cons;
     };
 
@@ -118,50 +117,58 @@ namespace semantic {
     const std::pair<std::string, function_entry> special_form[] = {
         std::pair<std::string, function_entry>(
             "define",
-            function_entry(2, function_type::sf_define)),
+            function_entry(2)),
         // (define symbol atom | list | function)
         std::pair<std::string, function_entry>(
             "lambda",
-            function_entry(2, function_type::sf_lambda)),
+            function_entry(2)),
         // (lambda list list) -> function
         std::pair<std::string, function_entry>(
             "quote",
-            function_entry(1, function_type::sf_quote)),
+            function_entry(1)),
         // (quota list) -> list
         std::pair<std::string, function_entry>(
             "if",
-            function_entry(3, function_type::sf_if))
+            function_entry(3))
         // (if t | nil | function function)
     };
 
     const std::pair<std::string, function_entry> built_in_function[] = {
         std::pair<std::string, function_entry>(
             "+",
-            function_entry(2, function_type::plus)),
+            function_entry(2)),
         std::pair<std::string, function_entry>(
             "-",
-            function_entry(2, function_type::minus)),
+            function_entry(2)),
         std::pair<std::string, function_entry>(
             "*",
-            function_entry(2, function_type::multiply)),
+            function_entry(2)),
         std::pair<std::string, function_entry>(
             "/",
-            function_entry(2, function_type::divide)),
+            function_entry(2)),
+        // basic function
         std::pair<std::string, function_entry>(
             "atom",
-            function_entry(2, function_type::atom)),
+            function_entry(2)),
         std::pair<std::string, function_entry>(
             "eq",
-            function_entry(2, function_type::eq)),
+            function_entry(2)),
         std::pair<std::string, function_entry>(
             "car",
-            function_entry(2, function_type::car)),
+            function_entry(2)),
         std::pair<std::string, function_entry>(
             "cdr",
-            function_entry(2, function_type::cdr)),
+            function_entry(2)),
         std::pair<std::string, function_entry>(
             "cons",
-            function_entry(2, function_type::cons)), };
+            function_entry(2)),
+        // stdio
+        std::pair<std::string, function_entry>(
+            "read",
+            function_entry(0)),
+        std::pair<std::string, function_entry>(
+            "write",
+            function_entry(1)), };
 
 } // namespace semantic
 } // namespace popo
