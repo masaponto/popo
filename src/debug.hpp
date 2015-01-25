@@ -58,30 +58,6 @@ namespace syntax {
                 assert(false);
         }
 
-//         if (node->type == node_type::nil) {
-//             return;
-//         } else if (node->type == node_type::num) {
-//             std::unique_ptr<num_node> vn(dynamic_cast<num_node*>(node.release()));
-//             std::cout << *get_space_string(depth) << vn->val << std::endl;
-//         } else if (node->type == node_type::string) {
-//             std::unique_ptr<string_node> vn(
-//                 dynamic_cast<string_node*>(node.release()));
-
-//             if (is_func) {
-//                 std::cout << *get_space_string(depth - 1) << '+' << std::flush;
-//             } else {
-//                 std::cout << *get_space_string(depth) << std::flush;
-//             }
-//             std::cout << vn->val << std::endl;
-//         } else if (node->type == node_type::cons) {
-//             std::unique_ptr<cons_node> n(dynamic_cast<cons_node*>(node.release()));
-//             if (node_type::cons == n->car->type) {
-//                 _print_cons<T>(std::move(n->car), depth + 1, true);
-//             } else {
-//                 _print_cons<T>(std::move(n->car), depth, is_func);
-//             }
-//             _print_cons<T>(std::move(n->cdr), depth, false);
-//         }
     }
 
     template <typename T>

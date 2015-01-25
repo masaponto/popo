@@ -290,7 +290,7 @@ namespace semantic {
                 }
 
                 // check function definition
-                assert(entry_type::function == func_entry->type_);
+                assert(entry_type::function == func_entry->type);
 
                 auto arg_num = func_entry->argument_num;
                 std::cout << arg_num << std::endl;
@@ -359,55 +359,6 @@ namespace semantic {
             }
         }
 
-        //             auto analyze_cons(std::unique_ptr<syntax::cons_node>
-        // cons)
-        //                 -> std::shared_ptr<symbol_table_entry>
-        //             {
-        //                 assert(nullptr != cons);
-        ////                 node type check
-        //                 assert(syntax::node_type::symbol == cons->car->type);
-
-        //                 auto function_name =
-        //                     static_cast<syntax::string_node*>(cons->car.get())->val;
-
-        //                 auto& pair = search_function(function_name);
-
-        ////               check function definition
-        //                 assert(entry_type::function ==
-        //                        static_cast<function_entry*>(pair.second.get())->type_);
-
-        //                 auto arg_num =
-        //                     static_cast<function_entry*>(pair.second.get())->argument_num;
-
-        ////                argument check of number
-        //                 assert(get_car_depth(cons.get()) == arg_num);
-
-        //                 switch (divide_function(function_name)) {
-        //                     case function_type::sf_define:
-        //                         return
-        // define_procedure(std::move(cons->cdr));
-
-        //                     case function_type::sf_lambda:
-        //                         return
-        // lambda_procedure(std::move(cons->cdr));
-
-        //                     case function_type::sf_quote:
-        //                         return quote_procedure(std::move(cons->cdr));
-
-        //                     case function_type::sf_if:
-        //                         return if_procedure(std::move(cons->cdr));
-
-        //                     case function_type::other:
-        //                         std::cout << "other: " << function_name <<
-        // std::endl;
-        //                         return
-        // std::make_shared<function_entry>(std::move(cons));
-
-        //                     default:
-        //                         assert(false);
-        //                 }
-        //             }
-
         auto search_function(std::string func_name)
             -> std::pair<std::string, std::shared_ptr<symbol_table_entry>>&
         {
@@ -435,7 +386,7 @@ namespace semantic {
             for (auto& data : symbol_stack.table_stack) {
                 std::cout << "symbol name: " << data.first << " ";
                 if (nullptr != data.second) {
-                    if (entry_type::function == data.second->type_) {
+                    if (entry_type::function == data.second->type) {
                         auto argc = std::static_pointer_cast<function_entry>(
                                         data.second)->argument_num;
 

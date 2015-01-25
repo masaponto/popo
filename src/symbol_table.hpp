@@ -38,12 +38,12 @@ namespace semantic {
     struct symbol_table_entry {
 
         public:
-            symbol_table_entry(entry_type t) : type_(t) {};
-            symbol_table_entry() : type_(entry_type::not_found) {};
+            symbol_table_entry(entry_type t) : type(t) {};
+            symbol_table_entry() : type(entry_type::not_found) {};
             virtual ~symbol_table_entry() {};
 
         public:
-            entry_type type_;
+            entry_type type;
     };
 
     struct function_entry : public symbol_table_entry {
@@ -78,7 +78,7 @@ namespace semantic {
 
         public:
             value_entry(std::string n, syntax::node_type t)
-                : symbol_table_entry(entry_type::value), type_(t)
+                : symbol_table_entry(entry_type::value), type(t)
             {
                 if (t == syntax::node_type::string) {
                     v_string = n;
@@ -88,7 +88,7 @@ namespace semantic {
             };
 
             value_entry(int n, syntax::node_type t)
-                : symbol_table_entry(entry_type::value), type_(t)
+                : symbol_table_entry(entry_type::value), type(t)
             {
                 v_int = n;
             };
@@ -99,19 +99,19 @@ namespace semantic {
             int v_int;
             std::string v_string;
             std::string v_symbol;
-            syntax::node_type type_;
+            syntax::node_type type;
     };
 
     struct list_entry : public symbol_table_entry
     {
         public:
             list_entry(std::unique_ptr<syntax::cons_node>&& list)
-                : symbol_table_entry(entry_type::list), list_(std::move(list))
+                : symbol_table_entry(entry_type::list), list(std::move(list))
             {
             }
 
         private:
-            std::unique_ptr<syntax::cons_node> list_;
+            std::unique_ptr<syntax::cons_node> list;
     };
 
     const std::pair<std::string, function_entry> special_form[] = {
