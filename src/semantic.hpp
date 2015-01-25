@@ -284,6 +284,11 @@ namespace semantic {
 
                 auto func_entry = std::static_pointer_cast<function_entry>(pair.second);
 
+                // when you call function of argument at higher-order function
+                if(nullptr == func_entry){
+                    return nullptr;
+                }
+
                 // check function definition
                 assert(entry_type::function == func_entry->type_);
 
