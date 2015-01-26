@@ -71,7 +71,7 @@ class s_expression_parser {
 
                 case lexical::Token::trust:
                     car = std::unique_ptr<trust_node>(
-                            new trust_node(lex_.get_lex().trust)); 
+                            new trust_node(lex_.get_lex().trust));
                     break;
 
                 default:
