@@ -43,3 +43,6 @@
                     (f (+ x dx))
                     (f x))
                 dx))))
+
+((deriv radian) pi)
+
