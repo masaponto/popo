@@ -53,7 +53,7 @@ public:
         // TODO: when code have many one line comment, popo occured error.
         pass_space();
         pass_one_line_comment();
-        pass_lines_comment();
+
 //                             std::cout << *begin_ << std::endl;
 
         // TODO: add #t and #f procedure
@@ -104,40 +104,10 @@ public:
 private:
     auto pass_one_line_comment(void) -> void
     {
-        if (';' == *begin_) {
+        while (';' == *begin_) {
             while ('\n' != *++begin_ && begin_ != end_)
                 ;
             pass_space();
-        }
-    }
-
-    auto pass_lines_comment(void) -> void
-    {
-        if ('#' == *begin_) {
-            if ('|' == *(++begin_)) {
-                begin_++;
-                while(true){
-                    if('\n' == *begin_){
-                        line_number++;
-                    }
-
-                    if('|' == *begin_){
-                        begin_++;
-                        if('#' == *begin_){
-                            break;
-                        }
-                    }
-                    else {
-                        begin_++;
-                    }
-
-                }
-                begin_++;
-                pass_space();
-                pass_one_line_comment();
-            } else {
-                begin_--;
-            }
         }
     }
 

@@ -107,11 +107,11 @@ TEST(lexical_analyser, line_number_test_2){
 
     using namespace popo::lexical;
   std::string in_data("\
-            #| \n \
-            (define z\n\
-                (lambda (a b)\n\
-                    (+ a b)))\n\
-            |# \
+            ; \n \
+            ;(define z\n\
+            ;    (lambda (a b)\n\
+            ;        (+ a b)))\n\
+            ; \
             ");
   lexical_analyzer<std::string> lex(in_data);
 

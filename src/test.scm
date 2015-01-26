@@ -3,6 +3,15 @@
 
 (define i #f)
 
+;(define x
+;
+;
+;
+;(define x
+;    (lambda (a)
+;        (+ a 1)))
+
+
 (define y 4)
 
 (define st_hello "hello")
@@ -10,7 +19,6 @@
 (define x
     (lambda (a b)
         (+ a b)))
-
 
 (x 1 (+ 1 2))
 
@@ -35,7 +43,7 @@
     (lambda (vx t)
         (* vx t)))
 
-(define deriv 
+(define deriv
     (lambda (f dx)
         (lambda (x)
             (/
