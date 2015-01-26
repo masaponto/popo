@@ -444,6 +444,71 @@ TEST(syntax_analyzer, syntax_test_4) {
 
 }
 
+
+// s_expression_parser
+TEST(syntax_analyzer, syntax_test_5) {
+  using namespace popo;
+  std::string in_data("\
+            ; test \n \
+            ; test \n \
+            (define x 10)                       \
+            ; test \n \
+            ; test \n \
+            ");
+
+
+  // (define x 10)
+  syntax::s_expression_parser<std::string> parser(in_data);
+  auto expr_node = parser.s_exp_parse();
+
+  auto cons_node = std::unique_ptr<syntax::cons_node>(
+      static_cast<syntax::cons_node *>(expr_node.release()));
+
+  auto car = std::move(cons_node->car);
+  EXPECT_EQ(syntax::node_type::symbol, car->type);
+
+  auto symbol_node = std::unique_ptr<syntax::symbol_node>(
+      static_cast<syntax::symbol_node *>(car.release()));
+
+  EXPECT_EQ(symbol_node->val, "define");
+
+  auto cdr = std::move(cons_node->cdr);
+  EXPECT_EQ(syntax::node_type::cons, cdr->type);
+
+  cons_node = std::unique_ptr<syntax::cons_node>(
+      static_cast<syntax::cons_node *>(cdr.release()));
+
+  EXPECT_EQ(syntax::node_type::symbol, cons_node->car->type);
+
+  car = std::move(cons_node->car);
+
+  symbol_node = std::unique_ptr<syntax::symbol_node>(
+      static_cast<syntax::symbol_node *>(car.release()));
+
+  EXPECT_EQ(symbol_node->val, "x");
+
+  cdr = std::move(cons_node->cdr);
+  EXPECT_EQ(syntax::node_type::cons, cdr->type);
+
+  cons_node = std::unique_ptr<syntax::cons_node>(
+      static_cast<syntax::cons_node *>(cdr.release()));
+
+  car = std::move(cons_node->car);
+  EXPECT_EQ(syntax::node_type::num, car->type);
+
+  auto num_node = std::unique_ptr<syntax::num_node>(
+      static_cast<syntax::num_node *>(car.release()));
+
+  EXPECT_EQ(num_node->val, 10);
+
+  cdr = std::move(cons_node->cdr);
+  EXPECT_EQ(syntax::node_type::nil, cdr->type);
+}
+
+
+
+
+
 // int main(int argc, char **argv) {
 //     ::testing::InitGoogleTest(&argc, argv);
 //     return RUN_ALL_TESTS();
