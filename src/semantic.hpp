@@ -155,7 +155,6 @@ namespace semantic {
             auto symbol = static_cast<syntax::symbol_node*>(car)->val;
             symbol_stack.table_stack.push_front(
                 std::make_pair(symbol, nullptr));
-            symbol_stack.local_symbol_num++;
 
             return push_arguments(
                        static_cast<const syntax::cons_node*>(cons->cdr.get())) +
@@ -172,27 +171,20 @@ namespace semantic {
 
             auto argument_cons = cast_unique_ptr(std::move(cons_node->car));
 
-
             // push dummy argument to symbol stack
             auto argument_count = push_arguments(argument_cons.get());
-            std::cout << argument_count << std::endl;
+            std::cout << "argc: " <<  argument_count << std::endl;
 
-            // TODO: which do we have to use static_pointer_cast or
-            // dynamic_pointer_cast
-            auto entry = std::static_pointer_cast<
-                function_entry>(
-                //                 std::dynamic_pointer_cast<function_entry>(
+            auto entry = std::static_pointer_cast<function_entry>(
                 analyze_cons(std::move(function_cons)));
 
-//             entry->argument_num = argument_count;
-
             // pop dummy argumeny at symbol stack
-            for (int i = 0; i < symbol_stack.local_symbol_num; ++i) {
+            for (int i = 0; i < argument_count; ++i) {
                 symbol_stack.table_stack.pop_front();
             }
-            symbol_stack.local_symbol_num -= argument_count;
 
-            return entry;
+            //TODO
+            return std::make_shared<function_entry>(argument_count);
         }
 
         auto quote_procedure(std::unique_ptr<syntax::expr_node> cons)
@@ -254,25 +246,26 @@ namespace semantic {
                 analyze_cons(cast_unique_ptr(std::move(cons->car)));
             }
 
-            return check_argument(cast_unique_ptr(std::move(cons->cdr)),
+            check_argument(cast_unique_ptr(std::move(cons->cdr)),
                                   last_arg_num - 1);
         }
 
         auto other_procedure(std::unique_ptr<syntax::cons_node> cons)
             -> std::shared_ptr<symbol_table_entry>
         {
-            if (syntax::node_type::cons == cons->car->type) {
-                auto func_entry =
-                    std::static_pointer_cast<function_entry>(
-                    analyze_cons(cast_unique_ptr(std::move(cons->car))));
+//             if (syntax::node_type::cons == cons->type) {
 
-                check_argument(cast_unique_ptr(std::move(cons->cdr)),
-                               func_entry ->argument_num);
+//                 auto func_entry =
+//                     std::static_pointer_cast<function_entry>(
+//                     analyze_cons(cast_unique_ptr(std::move(cons))));
 
-                return func_entry;
+//                 check_argument(cast_unique_ptr(std::move(cons->cdr)),
+//                                func_entry ->argument_num);
+//                 analyze_cons()
+//                 return func_entry;
 
-            }
-            else if (syntax::node_type::symbol == cons->car->type) {
+//             }
+//             else if (syntax::node_type::symbol == cons->car->type) {
 
                 auto symbol_node =
                     cast_unique_ptr<syntax::symbol_node>(std::move(cons->car));
@@ -298,9 +291,9 @@ namespace semantic {
                 check_argument(cast_unique_ptr(std::move(cons->cdr)), arg_num);
 
                 return func_entry;
-            } else {
-                assert(false);
-            }
+//             } else {
+//                 assert(false);
+//             }
 
         }
 
@@ -352,7 +345,16 @@ namespace semantic {
                 }
 
             } else if (syntax::node_type::cons == cons->car->type) {
-                return other_procedure(std::move(cons));
+
+                auto f_entry = std::static_pointer_cast<function_entry>(
+                    analyze_cons(cast_unique_ptr(std::move(cons->car))));
+                // TODO: don't use f_entry->argument_num. you want to anonymous
+                // function, but f_entry is higher-order function entry.
+                check_argument(cast_unique_ptr(std::move(cons->cdr)),
+                               f_entry->argument_num);
+
+                return f_entry;
+                //                 return other_procedure(std::move(cons->car));
             }
             else {
                 assert(false);
@@ -402,13 +404,12 @@ namespace semantic {
 
         struct symbol_table_stack {
         public:
-            symbol_table_stack() : table_stack(), local_symbol_num(0) {};
+            symbol_table_stack() : table_stack() {};
 
         public:
             std::list<
                 std::pair<std::string, std::shared_ptr<symbol_table_entry>>>
                 table_stack;
-            int local_symbol_num;
         } symbol_stack;
     };
 
