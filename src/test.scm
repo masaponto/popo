@@ -53,5 +53,4 @@
 
 (+ 1 2)
 
-; ((deriv radian y) pi)
-(deriv (radian 3) y)
+; ((deriv radian  y) pi)

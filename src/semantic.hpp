@@ -7,6 +7,7 @@
 #include <utility>
 #include "syntax.hpp"
 #include "symbol_table.hpp"
+#include "ir.hpp"
 
 //TODO: change procedure, when popo find error.
 //      now: assert -> feture: exception(?) or the other.

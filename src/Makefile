@@ -3,7 +3,8 @@ CXX = clang++
 CXXFLAGS = -std=c++0x -c -Wall
 CMDLINE =
 LDFLAGS =
-HEADERS = lexical.hpp syntax.hpp semantic.hpp node.hpp symbol_table.hpp debug.hpp
+HEADERS = lexical.hpp syntax.hpp semantic.hpp node.hpp \
+		  ir.hpp symbol_table.hpp debug.hpp
 SOURCES = main.cpp
 OBJECTS = main.o
 INPUT_FILE = test.scm
