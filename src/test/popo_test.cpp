@@ -595,8 +595,153 @@ TEST(ir, ir_test1) {
 
 }
 
+TEST(ir, ir_test2) {
 
-// int main(int argc, char **argv) {
-//     ::testing::InitGoogleTest(&argc, argv);
-//     return RUN_ALL_TESTS();
-// }
+    using namespace popo;
+    std::string in_data(
+        "\
+        (define y 10)\
+        (+ 1 y)\
+            ");
+//     t0 = 1
+//     t1 = 10
+//     t2 = t0 + t1
+
+    semantic::semantic_analyzer<std::string> sem(in_data);
+    auto symbol_entry = sem.analyze();
+    while (nullptr != symbol_entry) {
+        symbol_entry = sem.analyze();
+    }
+    auto& ir_men = sem.ir_men;
+    auto instructions = ir_men.get_instructions();
+    auto begin = instructions.begin();
+
+//     t0 = 1
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    auto as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->immediate, 1);
+
+//     t1 = 10
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->immediate, 10);
+
+//     t2 = t0 + t1
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::add);
+
+    EXPECT_EQ(begin, instructions.end());
+}
+
+TEST(ir, ir_test3) {
+
+    using namespace popo;
+    std::string in_data(
+        "\
+        (if (= 1 2)\
+            (+ 1 2)\
+            (- 2 1))\
+            ");
+
+    //      t0 = 1
+    //      t1 = 2
+    //      t2 = t0 eq t1
+    //      if t2 goto l0
+    //      t3 = 2
+    //      t4 = 1
+    //      t5 = t3 + t4
+    //      goto l1
+    //  l0:
+    //      t6 = 1
+    //      t7 = 2
+    //      t8 = t7 - t6
+    //  l1:
+
+    semantic::semantic_analyzer<std::string> sem(in_data);
+    auto symbol_entry = sem.analyze();
+    while (nullptr != symbol_entry) {
+        symbol_entry = sem.analyze();
+    }
+    auto& ir_men = sem.ir_men;
+    auto instructions = ir_men.get_instructions();
+    auto begin = instructions.begin();
+
+    //      t0 = 1
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    auto as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::nop);
+    EXPECT_EQ(as->immediate, 1);
+    //      t1 = 2
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::nop);
+    EXPECT_EQ(as->immediate, 2);
+    //      t2 = t0 eq t1
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::eq);
+    //      if t2 goto l0
+    EXPECT_EQ(ir::ir_type::branch, (*begin)->type);
+    auto cb = static_cast<ir::condition_branch*>((*begin++).release());
+    EXPECT_EQ(cb->label, "l0");
+    EXPECT_EQ(cb->reg_num, 2);
+
+    //      t3 = 1
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::nop);
+    EXPECT_EQ(as->immediate, 1);
+    //      t4 = 2
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::nop);
+    EXPECT_EQ(as->immediate, 2);
+    // t5 = t3 + t4
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::add);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::nop);
+    EXPECT_EQ(as->src_reg0, 3);
+    EXPECT_EQ(as->src_reg1, 4);
+    //      goto l1
+    EXPECT_EQ(ir::ir_type::jmp, (*begin)->type);
+    auto jmp = static_cast<ir::jmp*>((*begin++).release());
+    EXPECT_EQ(jmp->label, "l1");
+    //  l0:
+    EXPECT_EQ(ir::ir_type::label, (*begin)->type);
+    auto lb = static_cast<ir::label*>((*begin++).release());
+    EXPECT_EQ(lb->str, "l0");
+    //      t6 = 1
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::nop);
+    EXPECT_EQ(as->immediate, 2);
+    //      t7 = 2
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::nop);
+    EXPECT_EQ(as->immediate, 1);
+    //      t8 = t6 + t7
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::sub);
+    EXPECT_EQ(as->rop, ir::assignment::relational_op::nop);
+    EXPECT_EQ(as->src_reg0, 6);
+    EXPECT_EQ(as->src_reg1, 7);
+    //  l1:
+    EXPECT_EQ(ir::ir_type::label, (*begin)->type);
+    lb = static_cast<ir::label*>((*begin++).release());
+    EXPECT_EQ(lb->str, "l1");
+
+    EXPECT_EQ(begin, instructions.end());
+}

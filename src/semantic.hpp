@@ -91,7 +91,6 @@ namespace semantic {
         {
             // TODO: this function is push to table_stack and regist to
             // symbol_table.
-
             auto cons_node = cast_unique_ptr(std::move(cons));
 
             // check symbol
@@ -107,12 +106,13 @@ namespace semantic {
             switch (value_cons_node->car->type) {
                 case syntax::node_type::cons: {
 
+                    ir_men.disable_instruction();
                     auto symbol_ptr = analyze_cons(
                         cast_unique_ptr(std::move(value_cons_node->car)));
 
                     symbol_stack.table_stack.push_front(
                         std::make_pair(symbol_node->val, symbol_ptr));
-
+                    ir_men.enable_instruction();
                     return symbol_ptr;
                 }
                 case syntax::node_type::num:
@@ -223,9 +223,15 @@ namespace semantic {
 
             auto test_entry = analyze_cons(std::move(test));
 
+            auto l_count = ir_men.if_call();
+
             auto consequent_entry = analyze_cons(std::move(consequent));
 
+            ir_men.if_second(l_count);
+
             auto alternative_entry = analyze_cons(std::move(alternative));
+
+            ir_men.if_last(l_count);
 
             return dummy_entry;
         }
@@ -253,6 +259,27 @@ namespace semantic {
                 auto num =
                     cast_unique_ptr<syntax::num_node>(std::move(cons->car));
                 ir_men.set_immediate(num->val);
+            }
+            else if(syntax::node_type::symbol == cons->car->type){
+                auto symbol =
+                    cast_unique_ptr<syntax::symbol_node>(std::move(cons->car));
+                auto pair = search_function(symbol->val);
+                assert(not_found_pair != pair);
+                assert(entry_type::value ==
+                           pair.second->type);
+                auto val_entry =
+                    std::static_pointer_cast<value_entry>(pair.second);
+
+                if (syntax::node_type::num == val_entry->type) {
+                    ir_men.set_immediate(val_entry->v_int);
+                } else if (syntax::node_type::string == val_entry->type) {
+                    // TODO set string
+                } else if (syntax::node_type::symbol == val_entry->type) {
+                    // TODO search symbol value
+                    // use search_function(symbol);
+                } else {
+                    assert(false);
+                }
             }
 
             check_argument(cast_unique_ptr(std::move(cons->cdr)),

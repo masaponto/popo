@@ -1,10 +1,11 @@
 
-(+ 1 2)
-(+ 1 (+ 2 3))
+; (+ 1 2)
+; (+ 1 (+ 2 3))
 ; (define i #f)
 
-; (define y 4)
+(define y 10)
 
+(+ 2 y)
 ; (define st_hello "hello")
 ; (define string_hello st_hello)
 ; (define x
@@ -16,9 +17,9 @@
 
 ; (define z (quote (y "hello")))
 
-; (if (+ y 4)
-;      (+ y 4)
-;      (- y 4))
+(if (= y 4)
+     (+ 3 4)
+     (- y 4))
 
 ; (define ff-time
 ;     (lambda (vy)

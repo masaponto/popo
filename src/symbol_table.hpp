@@ -94,12 +94,11 @@ namespace semantic {
             };
 
 //             virtual ~value_entry() {};
-
-        private:
+        public:
+            syntax::node_type type;
             int v_int;
             std::string v_string;
             std::string v_symbol;
-            syntax::node_type type;
     };
 
     struct list_entry : public symbol_table_entry
@@ -139,15 +138,23 @@ namespace semantic {
         std::pair<std::string, function_entry>("-", function_entry(2)),
         std::pair<std::string, function_entry>("*", function_entry(2)),
         std::pair<std::string, function_entry>("/", function_entry(2)),
+
         // basic function
         std::pair<std::string, function_entry>("atom", function_entry(2)),
         std::pair<std::string, function_entry>("eq", function_entry(2)),
         std::pair<std::string, function_entry>("car", function_entry(2)),
         std::pair<std::string, function_entry>("cdr", function_entry(2)),
         std::pair<std::string, function_entry>("cons", function_entry(2)),
+
         // stdio
         std::pair<std::string, function_entry>("read", function_entry(0)),
-        std::pair<std::string, function_entry>("write", function_entry(1)), };
+        std::pair<std::string, function_entry>("write", function_entry(1)),
+
+        //other build in function
+        std::pair<std::string, function_entry>("=", function_entry(2)),
+    };
+
+
 
 } // namespace semantic
 } // namespace popo

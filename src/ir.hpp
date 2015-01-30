@@ -6,6 +6,7 @@
 #include <memory>
 #include <stack>
 
+#include "semantic.hpp"
 
 
 
@@ -47,95 +48,114 @@ namespace popo {
         // t0 = "hello"
         struct assignment : public three_addr_code_base {
 
-            enum struct operation{add, sub, mul, div, nop};
-            public:
-                assignment(int src0, int src1, int dest, std::string ope)
-                    : three_addr_code_base(ir_type::assignment),
-                    src_reg0(src0), src_reg1(src1), dest_reg(dest),
-                    immediate(0)
-                {
-                    if(ope == "+"){
-                        op = operation::add;
-                    }
-                    else if(ope == "-"){
-                        op = operation::sub;
-                    }
-                    else if(ope == "*"){
-                        op = operation::mul;
-                    }
-                    else if(ope == "/"){
-                        op = operation::div;
-                    }
-                    else {
-                        assert(false);
-                    }
-                };
+            enum struct operation { add, sub, mul, div, nop };
+            enum struct relational_op { eq, n_eq, gt, lt, ge, le, nop };
 
-                assignment(int imm, int dest)
-                    :three_addr_code_base(ir_type::assignment),
-                    src_reg0(0), src_reg1(0), dest_reg(dest),
-                    op(operation::nop), immediate(imm) {};
+        public:
+            assignment(int src0, int src1, int dest, std::string ope)
+                : three_addr_code_base(ir_type::assignment),
+                  src_reg0(src0),
+                  src_reg1(src1),
+                  dest_reg(dest),
+                  op(operation::nop),
+                  rop(relational_op::nop),
+                  immediate(0)
+            {
 
-                //TODO add string constructor
-//                 assignment(std::string s, int dest)
-//                     :three_addr_code_base(ir_type::assignment),
-//                     src_reg0(0), src_reg1(0), dest_reg(dest),
-//                     op(operation::nop), immediate(imm) {};
+                if (ope == "+") {
+                    op = operation::add;
+                } else if (ope == "-") {
+                    op = operation::sub;
+                } else if (ope == "*") {
+                    op = operation::mul;
+                } else if (ope == "/") {
+                    op = operation::div;
+                } else if (ope == "=") {
+                    rop = relational_op::eq;
+                } else {
+                    assert(false);
+                }
+            };
 
-            public:
-                int src_reg0;
-                int src_reg1;
-                int dest_reg;
-                operation op;
-                int immediate;
-//                 std::string str;
+            assignment(int imm, int dest)
+                : three_addr_code_base(ir_type::assignment),
+                  src_reg0(0),
+                  src_reg1(0),
+                  dest_reg(dest),
+                  op(operation::nop),
+                  rop(relational_op::nop),
+                  immediate(imm) {};
+
+            // TODO add string constructor
+            //                 assignment(std::string s, int dest)
+            //                     :three_addr_code_base(ir_type::assignment),
+            //                     src_reg0(0), src_reg1(0), dest_reg(dest),
+            //                     op(operation::nop), immediate(imm) {};
+
+        public:
+            int src_reg0;
+            int src_reg1;
+            int dest_reg;
+            operation op;
+            relational_op rop;
+            int immediate;
+            //                 std::string str;
         };
 
-        // if t0 == t1 goto test
+        // if t0 goto label
         struct condition_branch : public three_addr_code_base{
-            enum struct relational_op{eq, n_eq, gt, lt, ge,le};
             public:
-                condition_branch() : three_addr_code_base(ir_type::branch) {};
+                condition_branch(std::string l, int r_num)
+                    : three_addr_code_base(ir_type::branch),
+                    label(l), reg_num(r_num) {};
 
             public:
                 std::string label;
-                int reg_num0;
-                int reg_num1;
-                relational_op rop;
+                int reg_num;
         };
 
         class ir_manager {
             public:
-                ir_manager() : register_size(0), instruction(), symbol()
-                               ,instruction_stack(), register_stack() {};
+                ir_manager()
+                    : register_size(0),
+                      instruction(),
+                      label_count(0),
+                      symbol(),
+                      instruction_stack(),
+                      register_stack(),
+                      is_define(false) {};
 
             public:
-
                 auto get_instructions(void)
-                    -> std::list<std::unique_ptr<three_addr_code_base>>&&
+                    -> std::list<std::unique_ptr<three_addr_code_base>> &&
                 {
                     return std::move(instruction);
                 }
 
-                auto set_function_symbol(std::string symbol)
-                    -> void
+                auto set_function_symbol(std::string symbol) -> void
                 {
+                    if(is_define){
+                        return;
+                    }
                     instruction_stack.push(symbol);
                 }
 
-                auto set_immediate(int imm)
-                    -> void
+                auto set_immediate(int imm) -> void
                 {
+                    if(is_define){
+                        return;
+                    }
                     auto reg_num = assign_imm(imm);
                     register_stack.push(reg_num);
                 }
 
-                auto call(int argc = 2)
-                    -> int
+                auto call() -> int
                 {
+                    if(is_define){
+                        return -1;
+                    }
                     auto function = instruction_stack.top();
                     instruction_stack.pop();
-
                     auto src1 = register_stack.top();
                     register_stack.pop();
                     auto src0 = register_stack.top();
@@ -145,17 +165,66 @@ namespace popo {
                     return dest;
                 }
 
-            private:
+                auto disable_instruction() -> void
+                {
+                    assert(is_define == false);
+                    is_define = true;
+                }
 
+                auto enable_instruction() -> void
+                {
+                    assert(is_define == true);
+                    is_define = false;
+                }
+
+                auto if_call()
+                    -> int
+                {
+                    std::string label0(1, 'l');
+                    label0 += std::to_string(label_count++);
+
+                    instruction.push_back(
+                        std::unique_ptr<condition_branch>(
+                            new condition_branch(label0, (register_size - 1))));
+
+                    return label_count++;
+                }
+
+                auto if_second(int l_count)
+                    -> void
+                {
+                    std::string label0(1, 'l');
+                    label0 += std::to_string(l_count-1);
+
+                    std::string label1(1, 'l');
+                    label1 += std::to_string(l_count);
+
+                    instruction.push_back(
+                        std::unique_ptr<jmp>(new jmp(label1)));
+
+                    instruction.push_back(
+                        std::unique_ptr<label>(new label(label0)));
+                }
+
+                auto if_last(int l_count)
+                    -> void
+                {
+                    std::string label0(1, 'l');
+                    label0 += std::to_string(l_count);
+
+                    instruction.push_back(
+                        std::unique_ptr<label>(new label(label0)));
+                }
+
+            private:
                 auto assign_imm(int imm, int dest = -1) -> decltype(dest)
                 {
-                    if(-1 == dest) {
+                    if (-1 == dest) {
                         dest = register_size++;
                     }
                     assert(dest >= 0);
                     instruction.push_back(
-                            std::unique_ptr<assignment>(
-                                new assignment(imm, dest)));
+                        std::unique_ptr<assignment>(new assignment(imm, dest)));
                     return dest;
                 }
 
@@ -163,26 +232,26 @@ namespace popo {
                         int dest = -1)
                     -> decltype(dest)
                 {
-                    if(-1 == dest) {
+                    if (-1 == dest) {
                         dest = register_size++;
                     }
                     assert(dest >= 0);
-                    instruction.push_back(
-                            std::unique_ptr<assignment>(
-                                new assignment(src0, src1, dest, op)));
+                    instruction.push_back(std::unique_ptr<assignment>(
+                        new assignment(src0, src1, dest, op)));
                     return dest;
                 }
-
-
 
             private:
                 int register_size;
                 std::list<std::unique_ptr<three_addr_code_base>> instruction;
+                int label_count;
 
             private:
                 std::string symbol;
                 std::stack<std::string> instruction_stack;
                 std::stack<int> register_stack;
+
+                bool is_define;
         };
     }
 } // namespace popo
