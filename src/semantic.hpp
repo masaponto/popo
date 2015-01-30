@@ -19,7 +19,9 @@ namespace semantic {
     class semantic_analyzer {
 
     public:
-        semantic_analyzer(const Iteratable& itr) : parser_(itr), symbol_stack()
+        semantic_analyzer(const Iteratable& itr)
+            : parser_(itr), symbol_stack(), ir_men()
+
         {
             for (auto& pair : special_form) {
                 symbol_stack.table_stack.push_front(
@@ -234,6 +236,7 @@ namespace semantic {
         {
             if (syntax::node_type::nil == cons->type) {
                 if (0 == last_arg_num) {
+                    ir_men.call();
                     return;
                 } else {
                     assert(false);
@@ -246,6 +249,11 @@ namespace semantic {
                 // TODO return value of analyze_cons
                 analyze_cons(cast_unique_ptr(std::move(cons->car)));
             }
+            else if(syntax::node_type::num == cons->car->type){
+                auto num =
+                    cast_unique_ptr<syntax::num_node>(std::move(cons->car));
+                ir_men.set_immediate(num->val);
+            }
 
             check_argument(cast_unique_ptr(std::move(cons->cdr)),
                                   last_arg_num - 1);
@@ -254,48 +262,33 @@ namespace semantic {
         auto other_procedure(std::unique_ptr<syntax::cons_node> cons)
             -> std::shared_ptr<symbol_table_entry>
         {
-//             if (syntax::node_type::cons == cons->type) {
 
-//                 auto func_entry =
-//                     std::static_pointer_cast<function_entry>(
-//                     analyze_cons(cast_unique_ptr(std::move(cons))));
+            auto symbol_node =
+                cast_unique_ptr<syntax::symbol_node>(std::move(cons->car));
 
-//                 check_argument(cast_unique_ptr(std::move(cons->cdr)),
-//                                func_entry ->argument_num);
-//                 analyze_cons()
-//                 return func_entry;
+            std::cout << symbol_node->val << std::endl;
+            ir_men.set_function_symbol(symbol_node->val);
 
-//             }
-//             else if (syntax::node_type::symbol == cons->car->type) {
+            auto& pair = search_function(symbol_node->val);
+            assert(not_found_pair != pair);
 
-                auto symbol_node =
-                    cast_unique_ptr<syntax::symbol_node>(std::move(cons->car));
+            auto func_entry =
+                std::static_pointer_cast<function_entry>(pair.second);
 
-                std::cout << symbol_node->val << std::endl;
+            // when you call function of argument at higher-order function
+            if (nullptr == func_entry) {
+                return nullptr;
+            }
 
-                auto& pair = search_function(symbol_node->val);
-                assert(not_found_pair != pair);
+            // check function definition
+            assert(entry_type::function == func_entry->type);
 
-                auto func_entry = std::static_pointer_cast<function_entry>(pair.second);
+            auto arg_num = func_entry->argument_num;
+            std::cout << arg_num << std::endl;
 
-                // when you call function of argument at higher-order function
-                if(nullptr == func_entry){
-                    return nullptr;
-                }
+            check_argument(cast_unique_ptr(std::move(cons->cdr)), arg_num);
 
-                // check function definition
-                assert(entry_type::function == func_entry->type);
-
-                auto arg_num = func_entry->argument_num;
-                std::cout << arg_num << std::endl;
-
-                check_argument(cast_unique_ptr(std::move(cons->cdr)), arg_num);
-
-                return func_entry;
-//             } else {
-//                 assert(false);
-//             }
-
+            return func_entry;
         }
 
         auto divide_function(std::string str) -> function_type
@@ -374,19 +367,21 @@ namespace semantic {
             return not_found_pair;
         }
 
-        template <typename type = syntax::cons_node>
-        auto cast_unique_ptr(std::unique_ptr<syntax::expr_node> node)
+
+    public:
+        template <typename type = syntax::cons_node,
+                 typename src_type = std::unique_ptr<syntax::expr_node>>
+        auto cast_unique_ptr(src_type node)
             -> std::unique_ptr<type>
         {
             assert(nullptr != node);
             return std::unique_ptr<type>(static_cast<type*>(node.release()));
         }
 
-
         auto print_symbol_stack() -> void
         {
             std::cout << "--- symbol stack ---" << std::endl;
-            for (auto& data : symbol_stack.table_stack) {
+            for (auto&& data : symbol_stack.table_stack) {
                 std::cout << "symbol name: " << data.first << " ";
                 if (nullptr != data.second) {
                     if (entry_type::function == data.second->type) {
@@ -399,19 +394,22 @@ namespace semantic {
                 std::cout << std::endl;
             }
         }
+    public:
+        ir::ir_manager ir_men;
 
     private:
         syntax::s_expression_parser<Iteratable> parser_;
 
         struct symbol_table_stack {
-        public:
-            symbol_table_stack() : table_stack() {};
+            public:
+                symbol_table_stack() : table_stack() {};
 
-        public:
-            std::list<
-                std::pair<std::string, std::shared_ptr<symbol_table_entry>>>
-                table_stack;
+            public:
+                std::list<
+                    std::pair<std::string, std::shared_ptr<symbol_table_entry>>>
+                    table_stack;
         } symbol_stack;
+
     };
 
     template<typename T>
