@@ -530,6 +530,44 @@ TEST(ir, ir_test0) {
 
     EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
     auto as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->immediate, 1);
+
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->immediate, 2);
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::add);
+
+    EXPECT_EQ(begin, instructions.end());
+}
+
+TEST(ir, ir_test1) {
+    using namespace popo;
+    std::string in_data(
+        "\
+        (+ 1 2)\
+            ");
+    // t0 = 2
+    // t1 = 1
+    // t3 = t0 + t1
+
+    semantic::semantic_analyzer<std::string> sem(in_data);
+    auto symbol_entry = sem.analyze();
+    while (nullptr != symbol_entry) {
+        symbol_entry = sem.analyze();
+    }
+
+
+    auto& ir_men = sem.ir_men;
+    auto instructions = ir_men.get_instructions();
+    auto begin = instructions.begin();
+
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    auto as = static_cast<ir::assignment*>((*begin++).release());
     EXPECT_EQ(as->immediate, 1);
 
     EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
@@ -542,11 +580,7 @@ TEST(ir, ir_test0) {
 
     EXPECT_EQ(begin, instructions.end());
 
-
-
-
 }
-
 
 
 // int main(int argc, char **argv) {
