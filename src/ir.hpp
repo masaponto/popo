@@ -43,6 +43,8 @@ namespace popo {
         };
 
         // t0 = t1 + t2
+        // t0 = 2
+        // t0 = "hello"
         struct assignment : public three_addr_code_base {
 
             enum struct operation{add, sub, mul, div, nop};
@@ -74,12 +76,19 @@ namespace popo {
                     src_reg0(0), src_reg1(0), dest_reg(dest),
                     op(operation::nop), immediate(imm) {};
 
+                //TODO add string constructor
+//                 assignment(std::string s, int dest)
+//                     :three_addr_code_base(ir_type::assignment),
+//                     src_reg0(0), src_reg1(0), dest_reg(dest),
+//                     op(operation::nop), immediate(imm) {};
+
             public:
                 int src_reg0;
                 int src_reg1;
                 int dest_reg;
                 operation op;
                 int immediate;
+//                 std::string str;
         };
 
         // if t0 == t1 goto test
@@ -131,7 +140,9 @@ namespace popo {
                     register_stack.pop();
                     auto src0 = register_stack.top();
                     register_stack.pop();
-                    return assign_op(src0, src1, function);
+                    auto dest = assign_op(src0, src1, function);
+                    register_stack.push(dest);
+                    return dest;
                 }
 
             private:

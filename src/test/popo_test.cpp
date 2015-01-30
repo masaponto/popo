@@ -549,11 +549,13 @@ TEST(ir, ir_test1) {
     using namespace popo;
     std::string in_data(
         "\
-        (+ 1 2)\
+        (+ 1 (+ 1 2))\
             ");
-    // t0 = 2
+    // t0 = 1
     // t1 = 1
-    // t3 = t0 + t1
+    // t2 = 2
+    // t3 = t2 + t1
+    // t4 = t3 + t0
 
     semantic::semantic_analyzer<std::string> sem(in_data);
     auto symbol_entry = sem.analyze();
@@ -568,11 +570,22 @@ TEST(ir, ir_test1) {
 
     EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
     auto as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
     EXPECT_EQ(as->immediate, 1);
 
     EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
     as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
+    EXPECT_EQ(as->immediate, 1);
+
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::nop);
     EXPECT_EQ(as->immediate, 2);
+
+    EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
+    as = static_cast<ir::assignment*>((*begin++).release());
+    EXPECT_EQ(as->op, ir::assignment::operation::add);
 
     EXPECT_EQ(ir::ir_type::assignment, (*begin)->type);
     as = static_cast<ir::assignment*>((*begin++).release());
