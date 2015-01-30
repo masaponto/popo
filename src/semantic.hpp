@@ -338,7 +338,7 @@ namespace semantic {
             -> std::shared_ptr<symbol_table_entry>
         {
             assert(nullptr != cons);
-            print_symbol_stack();
+//             print_symbol_stack();
 
             if (syntax::node_type::symbol == cons->car->type) {
 

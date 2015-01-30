@@ -30,6 +30,57 @@ int main()
         symbol_entry = sa.analyze();
     }
 
+    std::cout << "----- immediate code -----" << std::endl;
+    auto& a = sa.ir_men;
+    for(auto&& in : a.get_instructions()){
+        auto a = in.release();
+        switch (a->type) {
+            case ir::ir_type::assignment: {
+                auto as = static_cast<ir::assignment*>(a);
+                std::cout << "  t" << as->dest_reg << " = " << std::flush;
+                if(as->op == ir::assignment::operation::nop){
+
+                    if(as->rop == ir::assignment::relational_op::nop){
+                        std::cout << as->immediate << std::endl;
+                    }
+                    else if(as->rop == ir::assignment::relational_op::eq){
+                        std::cout << "t" << as->src_reg0 << " eq t"
+                                  << as->src_reg1 << std::endl;
+                    }
+
+                }
+                else if(as->op == ir::assignment::operation::add){
+                    std::cout << "t" << as->src_reg0 << " + t" << as->src_reg1
+                              << std::endl;
+                }
+                else if(as->op == ir::assignment::operation::sub){
+                    std::cout << "t" << as->src_reg0 << " - t" << as->src_reg1
+                              << std::endl;
+                }
+
+                break;
+            }
+            case ir::ir_type::label:
+            {
+                auto as = static_cast<ir::label*>(a);
+                std::cout << as->str << ":" << std::endl;
+                break;
+            }
+            case ir::ir_type::jmp:
+            {
+                auto as = static_cast<ir::jmp*>(a);
+                std::cout << "  goto " << as->label << std::endl;
+                break;
+            }
+            case ir::ir_type::branch:
+            {
+                auto as = static_cast<ir::condition_branch*>(a);
+                std::cout << "  if t" << as->reg_num << " goto " << as->label << std::endl;
+                break;
+            }
+        }
+    }
+    std::cout << "----- immediate code end -----" << std::endl;
 //     syntax::s_expression_parser<input_data> ep(file_data);
 
 //     auto conscell = ep.s_exp_parse();

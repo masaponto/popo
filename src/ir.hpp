@@ -14,7 +14,7 @@ namespace popo {
     namespace ir {
     // Three address code
 
-        enum struct ir_type { label, jmp, assignment, operation, branch };
+        enum struct ir_type { label, jmp, assignment, branch };
         struct three_addr_code_base {
             public:
                 three_addr_code_base(ir_type t) : type(t) {};
