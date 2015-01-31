@@ -1,16 +1,16 @@
 
-; (+ 1 2)
-; (+ 1 (+ 2 3))
+(+ 1 2)
+(+ 1 (+ 2 3))
 ; (define i #f)
 
 (define y 10)
 
 (+ 2 y)
-; (define st_hello "hello")
+;  (define st_hello "hello")
 ; (define string_hello st_hello)
-; (define x
-;     (lambda (a b)
-;         (+ a b)))
+(define x
+    (lambda (a b)
+        (+ a b)))
 
 
 ; (x 1 (+ 1 2))

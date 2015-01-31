@@ -48,29 +48,37 @@ namespace semantic {
 
     struct function_entry : public symbol_table_entry {
 
-        public:
-            function_entry(int arg_num)
-                : symbol_table_entry(entry_type::function),
-                  argument_num(arg_num),
-                  cons(nullptr) {};
+    public:
+        function_entry(int arg_num)
+            : symbol_table_entry(entry_type::function),
+              argument_num(arg_num),
+              func(nullptr) {};
 
-//             function_entry(int arg_num)
-//                 : function_entry(arg_num, static_cast<int>(num)){};
+        //             function_entry(int arg_num)
+        //                 : function_entry(arg_num, static_cast<int>(num)){};
 
-            function_entry(std::unique_ptr<syntax::expr_node> c)
-                : symbol_table_entry(entry_type::function) ,
-                argument_num(0), cons(std::move(c)) {};
+        function_entry(std::unique_ptr<syntax::expr_node> c)
+            : symbol_table_entry(entry_type::function),
+              argument_num(0),
+              func(std::move(c)) {};
 
-            function_entry(function_entry&& entry)
-                : symbol_table_entry(entry_type::function),
-                argument_num(entry.argument_num), cons(std::move(entry.cons)) {};
+        function_entry(std::unique_ptr<syntax::cons_node> arg_cons,
+                       std::unique_ptr<syntax::cons_node> func_cons)
+            : symbol_table_entry(entry_type::function),
+              argument_num(0),
+              arg(std::move(arg_cons)),
+              func(std::move(func_cons)) {};
 
+        //             function_entry(function_entry&& entry)
+        //                 : symbol_table_entry(entry_type::function),
+        //                 argument_num(entry.argument_num),
+        // cons(std::move(entry.cons)) {};
 
-
-        public:
-            int argument_num;
-//             int function_num;
-            std::unique_ptr<syntax::expr_node> cons;
+    public:
+        int argument_num;
+        //             int function_num;
+        std::unique_ptr<syntax::expr_node> arg;
+        std::unique_ptr<syntax::expr_node> func;
     };
 
     struct value_entry : public symbol_table_entry

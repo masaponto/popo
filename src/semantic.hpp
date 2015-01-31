@@ -175,19 +175,22 @@ namespace semantic {
             auto argument_cons = cast_unique_ptr(std::move(cons_node->car));
 
             // push dummy argument to symbol stack
-            auto argument_count = push_arguments(argument_cons.get());
-            std::cout << "argc: " <<  argument_count << std::endl;
+            //             auto argument_count =
+            // push_arguments(argument_cons.get());
+            //             std::cout << "argc: " << argument_count << std::endl;
 
-            auto entry = std::static_pointer_cast<function_entry>(
-                analyze_cons(std::move(function_cons)));
+            //             auto entry =
+            // std::static_pointer_cast<function_entry>(
+            //                 analyze_cons(std::move(function_cons)));
 
             // pop dummy argumeny at symbol stack
-            for (int i = 0; i < argument_count; ++i) {
-                symbol_stack.table_stack.pop_front();
-            }
+//             for (int i = 0; i < argument_count; ++i) {
+//                 symbol_stack.table_stack.pop_front();
+//             }
 
-            //TODO
-            return std::make_shared<function_entry>(argument_count);
+            // TODO
+            return std::make_shared<function_entry>(std::move(argument_cons),
+                                                    std::move(function_cons));
         }
 
         auto quote_procedure(std::unique_ptr<syntax::expr_node> cons)
@@ -253,6 +256,7 @@ namespace semantic {
 
             if (syntax::node_type::cons == cons->car->type) {
                 // TODO return value of analyze_cons
+                std::cout << "test" << std::endl;
                 analyze_cons(cast_unique_ptr(std::move(cons->car)));
             }
             else if(syntax::node_type::num == cons->car->type){
@@ -265,6 +269,7 @@ namespace semantic {
                     cast_unique_ptr<syntax::symbol_node>(std::move(cons->car));
                 auto pair = search_function(symbol->val);
                 assert(not_found_pair != pair);
+
                 assert(entry_type::value ==
                            pair.second->type);
                 auto val_entry =
@@ -304,7 +309,7 @@ namespace semantic {
 
             // when you call function of argument at higher-order function
             if (nullptr == func_entry) {
-                return nullptr;
+                return std::make_shared<function_entry>(std::move(cons));
             }
 
             // check function definition
