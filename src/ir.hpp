@@ -14,7 +14,10 @@ namespace popo {
     namespace ir {
     // Three address code
 
-        enum struct ir_type { label, jmp, assignment, branch };
+        enum struct ir_type {
+            label, jmp, assignment, branch, call, param, arg, ret
+        };
+
         struct three_addr_code_base {
             public:
                 three_addr_code_base(ir_type t) : type(t) {};
@@ -114,6 +117,50 @@ namespace popo {
                 int reg_num;
         };
 
+
+        // t0 = call label
+        struct call : public three_addr_code_base {
+            public:
+                call(std::string l, int reg)
+                    : three_addr_code_base(ir_type::call),
+                      label(l),
+                      reg_num(reg) {};
+
+            public:
+                std::string label;
+                int reg_num;
+        };
+
+        // param t0
+        struct param : public three_addr_code_base {
+            public:
+                param(int reg)
+                    : three_addr_code_base(ir_type::param), reg_num(reg){};
+
+            public:
+                int reg_num;
+        };
+
+        // arg t1
+        struct arg : three_addr_code_base{
+            public:
+                arg(int reg)
+                    : three_addr_code_base(ir_type::arg), reg_num(reg) {};
+
+            public:
+                int reg_num;
+        };
+
+        struct ret : three_addr_code_base{
+            public:
+                ret(int reg)
+                    :three_addr_code_base(ir_type::ret), reg_num(reg) {};
+
+            public:
+                int reg_num;
+        };
+
+
         class ir_manager {
             public:
                 ir_manager()
@@ -149,18 +196,49 @@ namespace popo {
                     register_stack.push(reg_num);
                 }
 
-                auto call() -> int
+                auto set_label(std::string l) -> void
                 {
-                    if(is_define){
+                    instruction.push_back(std::unique_ptr<label>(
+                        new label(std::to_string(register_size) + l)));
+                }
+
+                auto set_return() -> void
+                {
+                    instruction.push_back(
+                            std::unique_ptr<ret>(new ret(register_size-1)));
+                }
+
+                auto call_function(int argc = 2) -> int
+                {
+                    if (is_define) {
                         return -1;
                     }
                     auto function = instruction_stack.top();
                     instruction_stack.pop();
-                    auto src1 = register_stack.top();
-                    register_stack.pop();
-                    auto src0 = register_stack.top();
-                    register_stack.pop();
-                    auto dest = assign_op(src0, src1, function);
+
+                    for(int i=0; i<argc; ++i){
+                        auto p = register_stack.top();
+                        register_stack.pop();
+                        instruction.push_back(
+                            std::unique_ptr<param>(new param(p)));
+                    }
+
+//                     auto src1 = register_stack.top();
+//                     register_stack.pop();
+//                     auto src0 = register_stack.top();
+//                     register_stack.pop();
+
+//                     instruction.push_back(
+//                         std::unique_ptr<param>(new param(src1)));
+
+//                     instruction.push_back(
+//                         std::unique_ptr<param>(new param(src0)));
+
+                    auto dest = register_size++;
+                    instruction.push_back(std::unique_ptr<call>(
+                        new call(function, dest)));
+
+//                     auto dest = assign_op(src0, src1, function);
                     register_stack.push(dest);
                     return dest;
                 }

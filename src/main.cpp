@@ -30,57 +30,81 @@ int main()
         symbol_entry = sa.analyze();
     }
 
-    std::cout << "----- immediate code -----" << std::endl;
-    auto& a = sa.ir_men;
-    for(auto&& in : a.get_instructions()){
-        auto a = in.release();
-        switch (a->type) {
-            case ir::ir_type::assignment: {
-                auto as = static_cast<ir::assignment*>(a);
-                std::cout << "  t" << as->dest_reg << " = " << std::flush;
-                if(as->op == ir::assignment::operation::nop){
+//     std::cout << "----- immediate code -----" << std::endl;
+//     auto& a = sa.ir_men;
+//     for(auto&& in : a.get_instructions()){
+//         auto a = in.release();
+//         switch (a->type) {
+//             case ir::ir_type::assignment: {
+//                 auto as = static_cast<ir::assignment*>(a);
+//                 std::cout << "  t" << as->dest_reg << " = " << std::flush;
+//                 if(as->op == ir::assignment::operation::nop){
 
-                    if(as->rop == ir::assignment::relational_op::nop){
-                        std::cout << as->immediate << std::endl;
-                    }
-                    else if(as->rop == ir::assignment::relational_op::eq){
-                        std::cout << "t" << as->src_reg0 << " eq t"
-                                  << as->src_reg1 << std::endl;
-                    }
+//                     if(as->rop == ir::assignment::relational_op::nop){
+//                         std::cout << as->immediate << std::endl;
+//                     }
+//                     else if(as->rop == ir::assignment::relational_op::eq){
+//                         std::cout << "t" << as->src_reg0 << " eq t"
+//                                   << as->src_reg1 << std::endl;
+//                     }
 
-                }
-                else if(as->op == ir::assignment::operation::add){
-                    std::cout << "t" << as->src_reg0 << " + t" << as->src_reg1
-                              << std::endl;
-                }
-                else if(as->op == ir::assignment::operation::sub){
-                    std::cout << "t" << as->src_reg0 << " - t" << as->src_reg1
-                              << std::endl;
-                }
+//                 }
+//                 else if(as->op == ir::assignment::operation::add){
+//                     std::cout << "t" << as->src_reg0 << " + t" << as->src_reg1
+//                               << std::endl;
+//                 }
+//                 else if(as->op == ir::assignment::operation::sub){
+//                     std::cout << "t" << as->src_reg0 << " - t" << as->src_reg1
+//                               << std::endl;
+//                 }
 
-                break;
-            }
-            case ir::ir_type::label:
-            {
-                auto as = static_cast<ir::label*>(a);
-                std::cout << as->str << ":" << std::endl;
-                break;
-            }
-            case ir::ir_type::jmp:
-            {
-                auto as = static_cast<ir::jmp*>(a);
-                std::cout << "  goto " << as->label << std::endl;
-                break;
-            }
-            case ir::ir_type::branch:
-            {
-                auto as = static_cast<ir::condition_branch*>(a);
-                std::cout << "  if t" << as->reg_num << " goto " << as->label << std::endl;
-                break;
-            }
-        }
-    }
-    std::cout << "----- immediate code end -----" << std::endl;
+//                 break;
+//             }
+//             case ir::ir_type::label:
+//             {
+//                 auto as = static_cast<ir::label*>(a);
+//                 std::cout << as->str << ":" << std::endl;
+//                 break;
+//             }
+//             case ir::ir_type::jmp:
+//             {
+//                 auto as = static_cast<ir::jmp*>(a);
+//                 std::cout << "  goto " << as->label << std::endl;
+//                 break;
+//             }
+//             case ir::ir_type::branch:
+//             {
+//                 auto as = static_cast<ir::condition_branch*>(a);
+//                 std::cout << "  if t" << as->reg_num << " goto " << as->label
+//                           << std::endl;
+//                 break;
+//             }
+//             case ir::ir_type::param:
+//             {
+//                 auto pr = static_cast<ir::param*>(a);
+//                 std::cout << "  param t" << pr->reg_num << std::endl;
+//                 break;
+//             }
+//             case ir::ir_type::arg:
+//             {
+//                 break;
+//             }
+//             case ir::ir_type::call:
+//             {
+//                 auto cl = static_cast<ir::call*>(a);
+//                 std::cout << "  t" << cl->reg_num << " = call " << cl->label
+//                           << std::endl;
+//                 break;
+//             }
+//             case ir::ir_type::ret:
+//             {
+//                 auto re = static_cast<ir::ret*>(a);
+//                 std::cout << "  ret t" << re->reg_num << std::endl;
+//                 break;
+//             }
+//         }
+//     }
+//     std::cout << "----- immediate code end -----" << std::endl;
 //     syntax::s_expression_parser<input_data> ep(file_data);
 
 //     auto conscell = ep.s_exp_parse();
