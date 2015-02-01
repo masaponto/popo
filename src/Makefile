@@ -20,7 +20,7 @@ main.o: $(HEADERS)
 
 $(EXECUTABLE): $(OBJECTS)
 	ctags -R .
-#      gosh $(INPUT_FILE)
+	gosh $(INPUT_FILE)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(EXECUTABLE)
 
 run: $(EXECUTABLE)
