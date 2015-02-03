@@ -1,0 +1,13 @@
+push
+pop
+app
+ret
+
+param
+
+brn
+
+add
+mul
+div
+sub
