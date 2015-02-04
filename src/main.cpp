@@ -30,7 +30,9 @@ int main()
         symbol_entry = sa.analyze();
     }
 
-//     std::cout << "----- immediate code -----" << std::endl;
+    std::cout << "----- immediate code -----" << std::endl;
+    sa.ir_manager.output_ir_code();
+
 //     auto& a = sa.ir_men;
 //     for(auto&& in : a.get_instructions()){
 //         auto a = in.release();
@@ -104,7 +106,7 @@ int main()
 //             }
 //         }
 //     }
-//     std::cout << "----- immediate code end -----" << std::endl;
+    std::cout << "----- immediate code end -----" << std::endl;
 //     syntax::s_expression_parser<input_data> ep(file_data);
 
 //     auto conscell = ep.s_exp_parse();
