@@ -8,7 +8,7 @@
 #include "syntax.hpp"
 #include "semantic.hpp"
 #include "debug.hpp"
-
+#include "stack_vm.hpp"
 
 int main()
 {
@@ -29,6 +29,33 @@ int main()
     while (nullptr != symbol_entry) {
         symbol_entry = sa.analyze();
     }
+
+
+    std::cout << "====stack_vm======" << std::endl;
+
+    std::cout << "code :" << std::endl;
+
+    std::string src( "\
+push 2\n\
+push 3\n\
+push add\n\
+apply\n\
+push 10\n\
+push 3\n\
+push sub\n\
+apply\n\
+aaa:\n\
+");
+
+    std::cout << src << std::endl;
+
+    stack_vm::vm pvm(src);
+    std::cout << "result :" << std::endl;
+
+    pvm.run();
+
+
+
 
 //     std::cout << "----- immediate code -----" << std::endl;
 //     auto& a = sa.ir_men;
