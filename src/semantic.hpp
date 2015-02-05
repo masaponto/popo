@@ -56,7 +56,7 @@ namespace popo {
             -> std::pair<std::string, std::shared_ptr<symbol_table_entry>>
         {
             assert(nullptr != cons);
-//             print_symbol_stack();
+            print_symbol_stack();
 
             if (syntax::node_type::symbol == cons->car->type) {
 
@@ -222,7 +222,7 @@ namespace popo {
                     static_cast<syntax::cons_node*>(cons->cdr.get()));
 
                 auto clojure = static_cast<clojure_entry*>(pair.second.get());
-                assert(argc == clojure->arg_count);
+//                 assert(argc == clojure->arg_count);
             }
             ir_manager.create_function(symbol);
 
@@ -264,7 +264,7 @@ namespace popo {
             symbol_stack_.push_front(
                 std::make_pair(symbol,
                                std::make_shared<value_entry>(
-                                   "", syntax::node_type::string)));
+                                   symbol, syntax::node_type::string)));
 
             auto argc = push_arguments(static_cast<const syntax::cons_node*>(
                             cons->cdr.get())) +

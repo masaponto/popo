@@ -13,13 +13,11 @@ namespace popo {
         class ir_manager {
         public:
             ir_manager()
-                :
-                  ir_define_(),
+                : ir_define_(),
                   ir_procedure_(),
                   closure_number_(0),
                   is_define(false),
                   symbol() {};
-
 
         private:
             std::list<std::string> ir_define_;
@@ -30,9 +28,16 @@ namespace popo {
             std::string symbol;
 
         public:
-            auto create_clojure() -> void
+            auto create_clojure(std::string name = "") -> void
             {
                 std::string label("");
+                if(name != ""){
+                    label += name;
+                    label += ":";
+                    ir_define_.push_back(label);
+                    return;
+                }
+
                 if (!is_define) {
                     label += "clojure";
                     label += std::to_string(closure_number_++);
@@ -79,7 +84,7 @@ namespace popo {
                 symbol = sym;
             }
 
-            auto define_disable() -> void {is_define = false;}
+            auto define_disable() -> void { is_define = false; }
 
             auto output_ir_code(void) -> void
             {

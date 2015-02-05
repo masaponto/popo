@@ -147,8 +147,10 @@ const std::pair<std::string, int> special_form[] = {
 //     std::pair<std::string, int>("lambda", 2),
     std::make_pair("lambda", 2),
 //     (lambda list list) -> function
+    std::make_pair("quote", 1),
 //     std::pair<std::string, int>("quote", 1),
     // (quota list) -> list
+    std::make_pair("if", 3),
 //     std::pair<std::string, int>("if", 3)
     // (if t | nil | function function)
 };
@@ -156,12 +158,20 @@ const std::pair<std::string, int> special_form[] = {
 const std::pair<std::string, int> built_in_function[] = {
     //
     std::make_pair("+", 2),
+    std::make_pair("-", 2),
+    std::make_pair("*", 2),
+    std::make_pair("/", 2),
 //     std::pair<std::string, int>("+", 2),
 //     std::pair<std::string, int>("-", 2),
 //     std::pair<std::string, int>("*", 2),
 //     std::pair<std::string, int>("/", 2),
 
     // basic function
+    std::make_pair("atom", 2),
+    std::make_pair("eq", 2),
+    std::make_pair("car", 2),
+    std::make_pair("cdr", 2),
+    std::make_pair("cons", 2),
 //     std::pair<std::string, int>("atom", 2),
 //     std::pair<std::string, int>("eq", 2),
 //     std::pair<std::string, int>("car", 2),
@@ -169,10 +179,13 @@ const std::pair<std::string, int> built_in_function[] = {
 //     std::pair<std::string, int>("cons", 2),
 
     // stdio
+    std::make_pair("read", 0),
+    std::make_pair("write", 1),
 //     std::pair<std::string, int>("read", 0),
 //     std::pair<std::string, int>("write", 1),
 
     // other build in function
+    std::make_pair("=", 2),
 //     std::pair<std::string, int>("=", 2),
 };
 

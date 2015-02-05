@@ -3,19 +3,19 @@
 
 ; (define i #f)
 
-(define y 10)
+; (define y 10)
 ; (+ 1 (+ 2 3))
 
-(+ 2 y)
+; (+ 2 y)
 
-(define x y)
-(+ x y)
+; (define x y)
+; (+ x y)
 
 ; (define st_hello "hello")
 ; (define string_hello st_hello)
-(define x
-    (lambda (a b)
-        (+ a b)))
+; (define x
+;     (lambda (a b)
+;         (+ a b)))
 
 
 
@@ -25,7 +25,7 @@
 ;      (+ 3 4)
 ;      (- y 4))
 
-(x 1 (+ 1 2))
+; (x 1 (+ 1 2))
 
 ; (define ff-time
 ;     (lambda (vy)
@@ -44,6 +44,8 @@
 ;     (lambda (vx t)
 ;         (* vx t)))
 
+
+
 ; (define deriv
 ;     (lambda (f dx)
 ;         (lambda (x)
@@ -53,10 +55,10 @@
 ;                     (f x))
 ;                 dx))))
 
-; (define test
-;     (lambda (a)
-;         (lambda (c)
-;             (+ a c))))
+(define test
+    (lambda (a)
+        (lambda (c)
+            (a 1 c))))
 
 ; (+ 1 2)
 ; error is occured by below code.
