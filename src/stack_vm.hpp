@@ -5,7 +5,6 @@
 #include <stack>
 #include <cassert>
 
-
 namespace popo {
     namespace stack_vm {
 
@@ -13,46 +12,39 @@ namespace popo {
         struct functions {
         public:
             functions (std::string f, std::list<T> c)
-                : func_name(f), code(c) {};
-
-
-            // public:
-            //     auto add_function(std::list<string> ope, list<string>::iterator it) -> void
-            //     {
-
-
-            //     }
-
+                : func_name(f), func_code(c) {};
 
         public:
-            std::string func_name;
-            std::list<T> code;
+            const std::string func_name;
+            const std::list<T> func_code;
 
         };
 
 
-        enum struct operate { push, main, func, param, apply, pop };
+        enum struct operate { push, main, func, param, apply, pop, end};
 
         struct instruction {
         public:
             instruction (std::vector<std::string> inst_vec)
             {
-
-                std::string op_s = inst_vec[0];
+                const std::string op_s = inst_vec[0];
 
                 if (op_s == "\tpop") {
                     op = operate::pop;
-
                 } else if (op_s == "\tpush") {
                     op = operate::push;
-
                 } else if (op_s == "\tapply") {
                     op = operate::apply;
-
+                }  else if (op_s == "\tend") {
+                    op = operate::end;
+                } else if (op_s == "param") {
+                    op = operate::param;
                 } else if (op_s == "main:") {
                     op = operate::main;
+                } else if (*(op_s.end() - 1 ) == ':') {
+                    op = operate::func;
+                    func_name = op_s;
                 }
-
 
                 if (inst_vec.size() != 1) {
                     operand = inst_vec[1];
@@ -62,6 +54,7 @@ namespace popo {
 
         public:
             std::string operand;
+            std::string func_name = "";
             operate op;
 
         };
@@ -71,22 +64,18 @@ namespace popo {
 
         struct element {
         public :
-            element(std::string operand)
+            element(const std::string ope)
+                :operand(ope)
             {
-                ope = operand;
 
-                if (ope == "add") {
+                if (operand == "add") {
                     type = element_type::add;
-
-                } else if (ope == "sub") {
+                } else if (operand == "sub") {
                     type = element_type::sub;
-
-                } else if (ope == "mul") {
+                } else if (operand == "mul") {
                     type = element_type::mul;
-
-                } else if (ope == "div") {
+                } else if (operand == "div") {
                     type = element_type::div;
-
                 } else {
                     type = element_type::data;
                 }
@@ -96,8 +85,11 @@ namespace popo {
         public:
             auto get_data(void) -> std::string
             {
-                return ope;
+                return operand;
             }
+
+
+
 
         // public:
         //     auto operator + (element e) -> element
@@ -120,7 +112,7 @@ namespace popo {
 
         public:
             element_type type;
-            std::string ope;
+            const std::string operand;
         };
 
 
@@ -171,7 +163,7 @@ namespace popo {
             }
 
         public:
-            auto run(std::list<instruction> inst_list) -> void
+            auto run(const std::list<instruction> inst_list) -> void
             {
 
                 auto it = inst_list.begin();
@@ -180,15 +172,68 @@ namespace popo {
                     // if (it -> operate = "main:") {
                     // }
 
-                    if (it->op == operate::main) {
-                        std::cout << "function define" << std::endl;
 
-                        //while it*
+                    // TODO: change to case sentence
 
-                    } else {
-                        stack_manager(*it);
+                    switch(it->op) {
+                    case operate::main:
+                        {
+                            std::cout << "main function" << std::endl;
+                            break;
+                        }
+
+                    case operate::func:
+                        {
+                            std::cout << "function define" << std::endl;
+
+                            const std::string func_name = it->func_name;
+                            std::list<instruction> func_code;
+
+                            while(it->op != operate::end) {
+                                func_code.push_back(*it);
+                                ++it;
+                            }
+
+                            const functions<instruction> func(func_name, func_code);
+                            function_table.push_back(func);
+
+                            std::cout << func.func_name << std::endl;
+                            break;
+                        }
+
+                    default:
+                        {
+                            stack_manager(*it);
+                        }
 
                     }
+
+                    // if (it->op == operate::main) {
+                    //     std::cout << "main function" << std::endl;
+
+                    //     //while it*
+
+                    // } else if (it->op == operate::func) {
+                    //     std::cout << "function define" << std::endl;
+
+                    //     const std::string func_name = it->func_name;
+                    //     std::list<instruction> func_code;
+
+                    //     while(it->op != operate::end) {
+                    //         func_code.push_back(*it);
+                    //         ++it;
+                    //     }
+
+                    //     const functions<instruction> func(func_name, func_code);
+                    //     function_table.push_back(func);
+
+                    //     std::cout << func.func_name << std::endl;
+
+                    // }
+                    // else {
+                    //     stack_manager(*it);
+
+                    // }
 
                     ++it;
                 }
@@ -252,6 +297,12 @@ namespace popo {
                                 auto mul = [](int a, int b){ return a * b; };
                                 calc(stack, mul);
                                 break;
+                            }
+
+                        default :
+                            {
+
+
                             }
 
                         }
