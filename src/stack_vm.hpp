@@ -3,10 +3,11 @@
 #include <sstream>
 #include <vector>
 #include <stack>
+#include <cassert>
+
 
 namespace popo {
     namespace stack_vm {
-
 
         template<typename T>
         struct functions {
@@ -15,12 +16,12 @@ namespace popo {
                 : func_name(f), code(c) {};
 
 
-        // public:
-        //     auto add_function(std::list<string> ope, list<string>::iterator it) -> void
-        //     {
+            // public:
+            //     auto add_function(std::list<string> ope, list<string>::iterator it) -> void
+            //     {
 
 
-        //     }
+            //     }
 
 
         public:
@@ -30,40 +31,96 @@ namespace popo {
         };
 
 
-        struct operation {
+        enum struct operate { push, main, func, param, apply, pop };
+
+        struct instruction {
         public:
-            operation (std::vector<std::string> ops)
-                : operate(ops[0])
+            instruction (std::vector<std::string> inst_vec)
             {
-                if (ops.size() != 1) {
-                    val = ops[1];
+
+                std::string op_s = inst_vec[0];
+
+                if (op_s == "\tpop") {
+                    op = operate::pop;
+
+                } else if (op_s == "\tpush") {
+                    op = operate::push;
+
+                } else if (op_s == "\tapply") {
+                    op = operate::apply;
+
+                } else if (op_s == "main:") {
+                    op = operate::main;
+                }
+
+
+                if (inst_vec.size() != 1) {
+                    operand = inst_vec[1];
                 }
 
             };
 
         public:
-            std::string operate, val;
+            std::string operand;
+            operate op;
 
         };
 
 
-        //enum struct element_type {num, string};
-        struct elem {
+        enum struct element_type {data, add, sub, mul, div};
+
+        struct element {
         public :
-            auto set_data(std::string d) -> void
+            element(std::string operand)
             {
-                data = d;
+                ope = operand;
+
+                if (ope == "add") {
+                    type = element_type::add;
+
+                } else if (ope == "sub") {
+                    type = element_type::sub;
+
+                } else if (ope == "mul") {
+                    type = element_type::mul;
+
+                } else if (ope == "div") {
+                    type = element_type::div;
+
+                } else {
+                    type = element_type::data;
+                }
+
             }
 
+        public:
             auto get_data(void) -> std::string
             {
-                return data;
+                return ope;
             }
+
+        // public:
+        //     auto operator + (element e) -> element
+        //     {
+        //         // assert(this->type != element_type::data
+        //         //        || e.type != element_type::data);
+
+
+        //         auto num1 = 1;
+        //         auto num2 = 2;
+
+
+        //         // auto num1 = std::stoi(this->ope);
+        //         // auto num2 = std::stoi(e.ope);
+        //         element e_(std::to_string( num1 + num2 ));
+
+        //         return e_;
+        //     }
 
 
         public:
-            //element_type type;
-            std::string data;
+            element_type type;
+            std::string ope;
         };
 
 
@@ -71,86 +128,136 @@ namespace popo {
         {
 
         public:
-            vm (std::string src)
-                : ss(src) {}
+            vm (std::string ir_code)
+                : ir_code_ss(ir_code) {}
 
-        public :
-            auto run() -> void
+        private:
+            std::stringstream ir_code_ss;
+            std::list<instruction> inst_list;
+            std::stack<element> stack;
+            std::list< functions<instruction> > function_table;
+
+
+        public:
+            auto parse() -> void
             {
 
-                std::string str1, str2;
-                std::list<std::string> code_list;
+                std::string s;
+                std::list<std::string> ir_list;
+                std::vector<std::string> inst_vec;
 
-                while( std::getline(ss, str1, '\n') ) {
-                    code_list.push_back(str1);
+                while( std::getline(ir_code_ss, s, '\n') ) {
+                    ir_list.push_back(s);
                 }
 
-                auto it = code_list.begin();
-                while ( it != code_list.end() ) {
 
-                    std::stringstream ss2(*it);
+                for (auto it = ir_list.begin(); it != ir_list.end(); ++it) {
+                    std::stringstream inst_ss(*it);
 
-                    while( std::getline(ss2, str2, ' ') ){
-                        ope.push_back(str2);
+                    while( std::getline(inst_ss, s, ' ') ){
+                        inst_vec.push_back(s);
                     }
 
-                    operation op(ope);
+                    instruction inst(inst_vec);
 
-                    if (*(op.operate.end() - 1) == ':') {
-                        std::cout << "function define" << std::endl;
+                    inst_list.push_back(inst);
 
-
-
-                    } else {
-
-                        stack_manager(op);
-
-                    }
-
-                    ope.clear();
-
-                    ++it;
+                    inst_vec.clear();
                 }
+
+
+                run(inst_list);
 
             }
 
-
-        public :
-            auto stack_manager( operation ops ) -> void
+        public:
+            auto run(std::list<instruction> inst_list) -> void
             {
 
-                std::string op = ops.operate;
-                elem e1, e2, e3;
+                auto it = inst_list.begin();
+                while ( it != inst_list.end() ) {
 
+                    // if (it -> operate = "main:") {
+                    // }
 
-                if (op == "pop") {
+                    if (it->op == operate::main) {
+                        std::cout << "function define" << std::endl;
 
-                    stack.pop();
+                        //while it*
 
-                } else if (op == "push") {
-                    elem e;
-                    e.set_data(ops.val);
-                    stack.push(e);
+                    } else {
+                        stack_manager(*it);
 
-                } else if (op == "apply") {
-                    e1 = stack.top();
-                    stack.pop();
-
-                    if (e1.get_data() == "add") {
-                        auto f = [](int a, int b){ return a + b; };
-                        calc(stack, f);
-                    }
-                    else if (e1.get_data() == "sub") {
-                        auto f = [](int a, int b){ return b - a; };
-                        calc(stack, f);
-                    }
-                    else if (e1.get_data() == "mul") {
-                        auto f = [](int a, int b){ return a * b; };
-                        calc(stack, f);
                     }
 
+                    ++it;
                 }
+            }
 
+
+
+        public :
+            auto stack_manager(const instruction inst ) -> void
+            {
+
+                switch(inst.op) {
+
+                case operate::pop :
+                    {
+                        stack.pop();
+                        break;
+                    }
+
+                case operate::push :
+                    {
+                        element e(inst.operand);
+                        stack.push(e);
+                        break;
+                    }
+
+                case operate::apply :
+                    {
+                        element e_ = stack.top();
+                        stack.pop();
+
+                        // enum struct element_type {data, add, sub, mul, div};
+
+                        switch(e_.type) {
+
+                        case element_type::add :
+                            {
+                                // element e1 = stack.top();
+                                // stack.pop();
+
+                                // element e2 = stack.top();
+                                // stack.pop();
+
+                                // stack.push(e1+e2);
+
+
+                                auto add = [](int a, int b){ return a + b; };
+                                calc(stack, add);
+                                break;
+                            }
+
+                        case element_type::sub :
+                            {
+                                auto sub = [](int a, int b){ return b - a; };
+                                calc(stack, sub);
+                                break;
+                            }
+
+                        case element_type::mul :
+                            {
+                                auto mul = [](int a, int b){ return a * b; };
+                                calc(stack, mul);
+                                break;
+                            }
+
+                        }
+                        break;
+                    }
+                }
 
             }
 
@@ -158,33 +265,23 @@ namespace popo {
             template<typename T, typename Fanc>
             auto calc(std::stack<T>, Fanc f) -> void
             {
-                elem e1, e2, e3;
 
-                e1 = stack.top();
+                element e1 = stack.top();
                 stack.pop();
-                e2 = stack.top();
+                element e2 = stack.top();
                 stack.pop();
 
                 auto num1 = std::atoi(e1.get_data().c_str());
                 auto num2 = std::atoi(e2.get_data().c_str());
 
-                e3.set_data( std::to_string( f(num1,num2) ) );
+                element e3( std::to_string( f(num1,num2) ) );
                 stack.push(e3);
 
                 std::cout << stack.top().get_data() << std::endl;
             }
 
 
-        private:
-            std::string line;
-            std::stringstream ss;
-
-            std::vector<std::string> ope;
-            std::stack<elem> stack;
-            std::list< functions<operation> > function_table;
-
         };
-
 
     }
 }

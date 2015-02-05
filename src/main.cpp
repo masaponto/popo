@@ -31,28 +31,26 @@ int main()
     }
 
 
-    std::cout << "====stack_vm======" << std::endl;
+    std::cout << "====ir======" << std::endl;
 
-    std::cout << "code :" << std::endl;
-
-    std::string src( "\
-push 2\n\
-push 3\n\
-push add\n\
-apply\n\
-push 10\n\
-push 3\n\
-push sub\n\
-apply\n\
-aaa:\n\
+    std::string ir_code( "\
+main:\n\
+\tpush 2\n\
+\tpush 3\n\
+\tpush add\n\
+\tapply\n\
+\tpush 10\n\
+\tpush 3\n\
+\tpush sub\n\
+\tapply\n\
 ");
 
-    std::cout << src << std::endl;
+    std::cout << ir_code << std::endl;
 
-    stack_vm::vm pvm(src);
-    std::cout << "result :" << std::endl;
+    stack_vm::vm pvm(ir_code);
 
-    pvm.run();
+    std::cout << "===vm run :====" << std::endl;
+    pvm.parse();
 
 
 
