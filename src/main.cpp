@@ -34,13 +34,22 @@ int main()
     std::cout << "====ir======" << std::endl;
 
     std::string ir_code( "\
-test:\n\
+test1:\n\
 \tparam x\n\
 \tparam y\n\
 \tpush x\n\
 \tpush y\n\
-\tadd\n\
-\tend\n\
+\tpush add\n\
+\tapply\n\
+\tret\n\
+test2:\n\
+\tparam x\n\
+\tparam y\n\
+\tpush x\n\
+\tpush y\n\
+\tpush sub\n\
+\tapply\n\
+\tret\n\
 main:\n\
 \tpush 2\n\
 \tpush 3\n\
@@ -50,6 +59,14 @@ main:\n\
 \tpush 3\n\
 \tpush sub\n\
 \tapply\n\
+\tpush 3\n\
+\tpush 5\n\
+\tpush test1\n\
+\tapply \n\
+\tpush 3\n\
+\tpush 5\n\
+\tpush test2\n\
+\tapply \n\
 ");
 
     std::cout << ir_code << std::endl;

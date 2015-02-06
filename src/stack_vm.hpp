@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -8,79 +10,37 @@
 namespace popo {
     namespace stack_vm {
 
+        struct var {
+        public:
+            var(std::string l, std::string d) : label(l), data(d) {}
+        public:
+            std::string label, data;
+        };
+
         template<typename T>
         struct functions {
         public:
             functions (std::string f, std::list<T> c)
-                : func_name(f), func_code(c) {};
+                : name(f), code(c) {};
 
         public:
-            const std::string func_name;
-            const std::list<T> func_code;
-
+            const std::string name;
+            std::list<T> code;
+            std::list<var> var_table;
+            std::stack<std::string> var_stack;
         };
 
-
-        enum struct operate { push, main, func, param, apply, pop, end};
-
-        struct instruction {
-        public:
-            instruction (std::vector<std::string> inst_vec)
-            {
-                const std::string op_s = inst_vec[0];
-
-                if (op_s == "\tpop") {
-                    op = operate::pop;
-                } else if (op_s == "\tpush") {
-                    op = operate::push;
-                } else if (op_s == "\tapply") {
-                    op = operate::apply;
-                }  else if (op_s == "\tend") {
-                    op = operate::end;
-                } else if (op_s == "param") {
-                    op = operate::param;
-                } else if (op_s == "main:") {
-                    op = operate::main;
-                } else if (*(op_s.end() - 1 ) == ':') {
-                    op = operate::func;
-                    func_name = op_s;
-                }
-
-                if (inst_vec.size() != 1) {
-                    operand = inst_vec[1];
-                }
-
-            };
-
-        public:
-            std::string operand;
-            std::string func_name = "";
-            operate op;
-
-        };
-
-
-        enum struct element_type {data, add, sub, mul, div};
+        enum struct element_type {data, add, sub, mul, div, counter, func};
 
         struct element {
         public :
-            element(const std::string ope)
-                :operand(ope)
-            {
+            element() {}
+            element(const element_type t) :type(t) {}
+            element(const element_type t, std::string o) :type(t), operand(o) {}
 
-                if (operand == "add") {
-                    type = element_type::add;
-                } else if (operand == "sub") {
-                    type = element_type::sub;
-                } else if (operand == "mul") {
-                    type = element_type::mul;
-                } else if (operand == "div") {
-                    type = element_type::div;
-                } else {
-                    type = element_type::data;
-                }
-
-            }
+        public:
+            element_type type;
+            std::string operand;
 
         public:
             auto get_data(void) -> std::string
@@ -88,37 +48,67 @@ namespace popo {
                 return operand;
             }
 
+                                       // public:
+                                       //    auto operator + (std::unique_ptr<element> p) -> std::unique_ptr<element>
+                                       //    {
+                                       //         // assert(this->type != element_type::data
+                                       //         //        || e.type != element_type::data);
 
 
-
-        // public:
-        //     auto operator + (element e) -> element
-        //     {
-        //         // assert(this->type != element_type::data
-        //         //        || e.type != element_type::data);
+                                       //        //auto num1 = 1;
+                                       //        //auto num2 = 2;
 
 
-        //         auto num1 = 1;
-        //         auto num2 = 2;
+                                       //        // auto num1 = std::stoi(this->ope);
+                                       //        // auto num2 = std::stoi(e.ope);
 
+                                       //        //element e_(std::to_string( num1 + num2));
+                                       //        //element e_("ababaa");
 
-        //         // auto num1 = std::stoi(this->ope);
-        //         // auto num2 = std::stoi(e.ope);
-        //         element e_(std::to_string( num1 + num2 ));
+                                       //        return p;
+                                       //    }
 
-        //         return e_;
-        //     }
+                                       };
 
+        enum struct operate { push, main, func, param, apply, pop, ret };
+
+        struct instruction {
+        public:
+            instruction (operate o) :op(o) {}
+            instruction (operate o, element e) :op(o), elm(e) {}
+            instruction (operate o, std::string n) :op(o), name(n) {}
 
         public:
-            element_type type;
-            const std::string operand;
+            operate op;
+            element elm;
+            std::string name;
         };
+
+        // struct operation : element
+        // {
+        // public :
+        //     operation(const std::string ope) : element();
+
+        // };
+
+
+        // struct program_counter: element
+        // {
+        // public :
+        //     program_counter(std::list<instruction>::iterator c)
+        //         : pc(c)
+        //     {
+        //         type = element_type::counter;
+        //     }
+
+        // public :
+        //     const std::list<instruction>::iterator pc;
+
+        // };
 
 
         class vm
         {
-
         public:
             vm (std::string ir_code)
                 : ir_code_ss(ir_code) {}
@@ -129,11 +119,9 @@ namespace popo {
             std::stack<element> stack;
             std::list< functions<instruction> > function_table;
 
-
         public:
             auto parse() -> void
             {
-
                 std::string s;
                 std::list<std::string> ir_list;
                 std::vector<std::string> inst_vec;
@@ -142,7 +130,6 @@ namespace popo {
                     ir_list.push_back(s);
                 }
 
-
                 for (auto it = ir_list.begin(); it != ir_list.end(); ++it) {
                     std::stringstream inst_ss(*it);
 
@@ -150,17 +137,87 @@ namespace popo {
                         inst_vec.push_back(s);
                     }
 
-                    instruction inst(inst_vec);
-
-                    inst_list.push_back(inst);
-
+                    inst_list.push_back( create_inst(inst_vec) );
                     inst_vec.clear();
                 }
 
-
                 run(inst_list);
+            }
+
+
+        public:
+            auto create_inst(std::vector<std::string> inst_vec) -> instruction
+            {
+                const std::string op_s = inst_vec[0];
+                operate op;
+
+                if (op_s == "\tpop") {
+                    op = operate::pop;
+                }
+                else if (op_s == "\tapply") {
+                    op = operate::apply;
+                }
+                else if (op_s == "\tret") {
+                    op = operate::ret;
+                }
+                else if (op_s == "main:") {
+                    op = operate::main;
+                }
+                else if (*(op_s.end() - 1 ) == ':') {
+                    op = operate::func;
+                    std::string fn_name = op_s;
+                    fn_name.erase(fn_name.end() - 1);
+                    return instruction(op, fn_name);
+                }
+                else if (op_s == "\tpush") {
+                    op = operate::push;
+                    return instruction(op, create_element(inst_vec[1]));
+                }
+                else if (op_s == "\tparam") {
+                    op = operate::param;
+                    return instruction(op, inst_vec[1]);
+                }
+                else {
+                    //std::assert();
+                }
+
+                return instruction(op);
 
             }
+
+        public:
+            auto create_element(const std::string operand) -> element
+            {
+                element_type type;
+
+                // for (auto it = function_table.begin(); it != function_table.end(); ++it)
+                //     {
+                //         std::cout << "aa" << std::endl;
+                //         std::cout << it->name << std::endl;
+                //         if (operand == it->name) {
+                //             return element(element_type::func);
+                //         }
+                //     }
+
+                if (operand == "add") {
+                    type = element_type::add;
+                }
+                else if (operand == "sub") {
+                    type = element_type::sub;
+                }
+                else if (operand == "mul") {
+                    type = element_type::mul;
+                }
+                else if (operand == "div") {
+                    type = element_type::div;
+                }
+                else {
+                    return element(element_type::data, operand);
+                }
+
+                return element(type);
+            }
+
 
         public:
             auto run(const std::list<instruction> inst_list) -> void
@@ -168,28 +225,20 @@ namespace popo {
 
                 auto it = inst_list.begin();
                 while ( it != inst_list.end() ) {
-
-                    // if (it -> operate = "main:") {
-                    // }
-
-
-                    // TODO: change to case sentence
-
                     switch(it->op) {
                     case operate::main:
                         {
                             std::cout << "main function" << std::endl;
                             break;
                         }
-
                     case operate::func:
                         {
                             std::cout << "function define" << std::endl;
 
-                            const std::string func_name = it->func_name;
+                            const std::string func_name = it->name;
                             std::list<instruction> func_code;
 
-                            while(it->op != operate::end) {
+                            while(it->op != operate::ret) {
                                 func_code.push_back(*it);
                                 ++it;
                             }
@@ -197,126 +246,139 @@ namespace popo {
                             const functions<instruction> func(func_name, func_code);
                             function_table.push_back(func);
 
-                            std::cout << func.func_name << std::endl;
+                            std::cout << func.name << std::endl;
                             break;
                         }
-
                     default:
                         {
                             stack_manager(*it);
                         }
 
                     }
-
-                    // if (it->op == operate::main) {
-                    //     std::cout << "main function" << std::endl;
-
-                    //     //while it*
-
-                    // } else if (it->op == operate::func) {
-                    //     std::cout << "function define" << std::endl;
-
-                    //     const std::string func_name = it->func_name;
-                    //     std::list<instruction> func_code;
-
-                    //     while(it->op != operate::end) {
-                    //         func_code.push_back(*it);
-                    //         ++it;
-                    //     }
-
-                    //     const functions<instruction> func(func_name, func_code);
-                    //     function_table.push_back(func);
-
-                    //     std::cout << func.func_name << std::endl;
-
-                    // }
-                    // else {
-                    //     stack_manager(*it);
-
-                    // }
-
                     ++it;
                 }
             }
 
-
-
         public :
             auto stack_manager(const instruction inst ) -> void
             {
+                std::stack<element> arg_stack;
 
                 switch(inst.op) {
+                case operate::ret :
+                    {
+                        break;
+                    }
 
                 case operate::pop :
                     {
+                        arg_stack.push(stack.top());
                         stack.pop();
                         break;
                     }
-
                 case operate::push :
                     {
-                        element e(inst.operand);
-                        stack.push(e);
+                        //if (arg_stack)
+                        stack.push(inst.elm);
                         break;
                     }
-
                 case operate::apply :
                     {
-                        element e_ = stack.top();
+                        const element e_ = stack.top();
                         stack.pop();
 
                         // enum struct element_type {data, add, sub, mul, div};
 
                         switch(e_.type) {
-
                         case element_type::add :
                             {
                                 // element e1 = stack.top();
                                 // stack.pop();
-
                                 // element e2 = stack.top();
                                 // stack.pop();
 
-                                // stack.push(e1+e2);
+                                // auto po = std::unique_ptr<element>(e2);
 
+                                // std::cout << "abbbabba" << std::endl;
+                                // stack.push(e1+e2);
 
                                 auto add = [](int a, int b){ return a + b; };
                                 calc(stack, add);
                                 break;
                             }
-
                         case element_type::sub :
                             {
                                 auto sub = [](int a, int b){ return b - a; };
                                 calc(stack, sub);
                                 break;
                             }
-
                         case element_type::mul :
                             {
                                 auto mul = [](int a, int b){ return a * b; };
                                 calc(stack, mul);
                                 break;
                             }
-
-                        default :
+                        case element_type::data :
                             {
+                                std::cout << "func call" << std::endl;
 
-
+                                for(auto it = function_table.begin(); it != function_table.end(); ++it)
+                                    {
+                                        if (it->name == e_.operand) {
+                                            std::cout << e_.operand << " is called " << std::endl;
+                                            run_function(*it);
+                                        }
+                                    }
+                                break;
                             }
-
+                        default :
+                            {}
                         }
                         break;
                     }
-                }
 
+
+                    // case operate::param :
+                //     {
+                //         arg_stack.push(stack.top());
+                //         stack.pop();
+                //         break;
+                //     }
+
+                    assert(!arg_stack.empty());
+                }
+            }
+
+            auto run_function(functions<instruction> func) -> void
+            {
+                for(auto inst_it = func.code.begin();
+                    inst_it != func.code.end(); ++inst_it) {
+
+                    if (inst_it->op == operate::param) {
+
+                        var v(inst_it->name, stack.top().get_data());
+                        stack.pop();
+                        func.var_table.push_back(v);
+
+                        for(auto it = func.code.begin();
+                            it != func.code.end(); ++it) {
+
+                            if (it->elm.operand == v.label ) {
+                                it->elm = element(element_type::data, v.data);
+                            }
+                        }
+
+
+                    } else {
+                        stack_manager(*inst_it);
+                    }
+                }
             }
 
 
             template<typename T, typename Fanc>
             auto calc(std::stack<T>, Fanc f) -> void
             {
-
                 element e1 = stack.top();
                 stack.pop();
                 element e2 = stack.top();
@@ -325,12 +387,12 @@ namespace popo {
                 auto num1 = std::atoi(e1.get_data().c_str());
                 auto num2 = std::atoi(e2.get_data().c_str());
 
-                element e3( std::to_string( f(num1,num2) ) );
+                element e3(element_type::data, std::to_string( f(num1,num2) ) );
                 stack.push(e3);
 
                 std::cout << stack.top().get_data() << std::endl;
+                stack.pop();
             }
-
 
         };
 
