@@ -10,6 +10,21 @@
 #include "debug.hpp"
 #include "stack_vm.hpp"
 
+
+auto run_vm(std::string ir_code) -> void
+{
+    std::cout << "=== src ===" << std::endl;
+
+    std::cout << ir_code << std::endl;
+    popo::stack_vm::vm pvm(ir_code);
+
+    std::cout << "=== result ===" << std::endl;
+    pvm.parse();
+    std::cout << std::endl;
+}
+
+
+
 int main()
 {
     using namespace popo;
@@ -20,139 +35,68 @@ int main()
     using input_data = std::list<char>;
 
     const input_data file_data{std::istreambuf_iterator<char>(fs),
-                               std::istreambuf_iterator<char>()};
+            std::istreambuf_iterator<char>()};
 
     semantic::semantic_analyzer<input_data> sa(file_data);
 
-//     while(nullptr != sa.analyze());
-    auto symbol_entry = sa.analyze();
+
+        auto symbol_entry = sa.analyze();
     while (nullptr != symbol_entry) {
         symbol_entry = sa.analyze();
     }
 
 
     std::cout << "===== ir ======" << std::endl;
+    std::cout << "===vm run ====" << std::endl;
 
-    std::string ir_code( "\
-test1:\n\
-\tparam x\n\
-\tparam y\n\
-\tpush x\n\
-\tpush y\n\
-\tpush add\n\
-\tapply\n\
-\tret\n\
-test2:\n\
-\tparam x\n\
-\tparam y\n\
-\tpush x\n\
-\tpush y\n\
-\tpush test1\n\
-\tapply\n\
-\tret\n\
+    std::string ir_code1("\
 main:\n\
-\tpush 2\n\
-\tpush 3\n\
-\tpush add\n\
+\tpush_int 3\n\
+\tpush_int 5\n\
+\tpush_symbol +\n\
 \tapply\n\
-\tpush 10\n\
-\tpush 3\n\
-\tpush test1\n\
-\tapply \n\
-\tpush 10\n\
-\tpush 8\n\
-\tpush test2\n\
-\tapply \n\
+\twrite\n\
 ");
 
-    std::cout << ir_code << std::endl;
+    run_vm(ir_code1);
 
-    stack_vm::vm pvm(ir_code);
 
-    std::cout << "===vm run ====" << std::endl;
-    pvm.parse();
+    std::string ir_code2("\
+main:\n\
+\tpush_int 3\n\
+\tpush_symbol x\n\
+\tpush_symbol define\n\
+\tapply\n\
+\tpush_symbol x\n\
+\twrite\n\
+ ");
 
-//     std::cout << "----- immediate code -----" << std::endl;
-//     auto& a = sa.ir_men;
-//     for(auto&& in : a.get_instructions()){
-//         auto a = in.release();
-//         switch (a->type) {
-//             case ir::ir_type::assignment: {
-//                 auto as = static_cast<ir::assignment*>(a);
-//                 std::cout << "  t" << as->dest_reg << " = " << std::flush;
-//                 if(as->op == ir::assignment::operation::nop){
+    run_vm(ir_code2);
 
-//                     if(as->rop == ir::assignment::relational_op::nop){
-//                         std::cout << as->immediate << std::endl;
-//                     }
-//                     else if(as->rop == ir::assignment::relational_op::eq){
-//                         std::cout << "t" << as->src_reg0 << " eq t"
-//                                   << as->src_reg1 << std::endl;
-//                     }
 
-//                 }
-//                 else if(as->op == ir::assignment::operation::add){
-//                     std::cout << "t" << as->src_reg0 << " + t" << as->src_reg1
-//                               << std::endl;
-//                 }
-//                 else if(as->op == ir::assignment::operation::sub){
-//                     std::cout << "t" << as->src_reg0 << " - t" << as->src_reg1
-//                               << std::endl;
-//                 }
+    std::string ir_code3("\
+clojure_0:\n\
+\tparam x\n\
+\tparam y\n\
+\tpush_symbol y\n\
+\tpush_symbol x\n\
+\tpush_symbol +\n\
+\tapply\n\
+\treturn\n\
+main:\n\
+\tpush_symbol clojure_0\n\
+\tpush_symbol f\n\
+\tpush_symbol define\n\
+\tapply\n\
+\tpush_int 3\n\
+\tpush_int 4\n\
+\tpush_symbol f\n\
+\tapply\n\
+\twrite\n\
+");
 
-//                 break;
-//             }
-//             case ir::ir_type::label:
-//             {
-//                 auto as = static_cast<ir::label*>(a);
-//                 std::cout << as->str << ":" << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::jmp:
-//             {
-//                 auto as = static_cast<ir::jmp*>(a);
-//                 std::cout << "  goto " << as->label << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::branch:
-//             {
-//                 auto as = static_cast<ir::condition_branch*>(a);
-//                 std::cout << "  if t" << as->reg_num << " goto " << as->label
-//                           << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::param:
-//             {
-//                 auto pr = static_cast<ir::param*>(a);
-//                 std::cout << "  param t" << pr->reg_num << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::arg:
-//             {
-//                 break;
-//             }
-//             case ir::ir_type::call:
-//             {
-//                 auto cl = static_cast<ir::call*>(a);
-//                 std::cout << "  t" << cl->reg_num << " = call " << cl->label
-//                           << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::ret:
-//             {
-//                 auto re = static_cast<ir::ret*>(a);
-//                 std::cout << "  ret t" << re->reg_num << std::endl;
-//                 break;
-//             }
-//         }
-//     }
-//     std::cout << "----- immediate code end -----" << std::endl;
-//     syntax::s_expression_parser<input_data> ep(file_data);
+    std::cout << ir_code3 << std::endl;
 
-//     auto conscell = ep.s_exp_parse();
-//     while (nullptr != conscell) {
-//         syntax::print_cons<input_data>(std::move(conscell));
-//         std::cout << std::endl;
-//         conscell = ep.s_exp_parse();
-//     }
+    //run_vm(ir_code3);
+
 }

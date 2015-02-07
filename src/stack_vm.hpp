@@ -7,95 +7,22 @@
 #include <stack>
 #include <cassert>
 
+#include "ir_instruction.hpp"
+
 namespace popo {
     namespace stack_vm {
 
-        struct var {
+        struct function {
         public:
-            var(std::string l, std::string d) : label(l), data(d) {}
-        public:
-            std::string label, data;
-        };
-
-        template<typename T>
-        struct functions {
-        public:
-            functions (std::string f, std::list<T> c)
+            function (std::string f, std::list<instruction> c)
                 : name(f), code(c) {};
 
         public:
             const std::string name;
-            std::list<T> code;
+            std::list<instruction> code;
             std::list<var> var_table;
             std::stack<std::string> var_stack;
         };
-
-        enum struct element_type {data, add, sub, mul, div, counter, func};
-
-        struct element {
-        public :
-            element() {}
-            element(const element_type t) :type(t) {}
-            element(const element_type t, std::string o) :type(t), operand(o) {}
-
-        public:
-            element_type type;
-            std::string operand;
-        };
-
-        // public:
-        //    auto operator + (std::unique_ptr<element> p) -> std::unique_ptr<element>
-        //    {
-        //         // assert(this->type != element_type::data
-        //         //        || e.type != element_type::data);
-
-
-        //        //auto num1 = 1;
-        //        //auto num2 = 2;
-
-
-        //        // auto num1 = std::stoi(this->ope);
-        //        // auto num2 = std::stoi(e.ope);
-
-        //        //element e_(std::to_string( num1 + num2));
-        //        //element e_("ababaa");
-
-        //        return p;
-        //    }
-
-
-        enum struct operate { push, main, func, param, apply, pop, ret };
-
-        struct instruction {
-        public:
-            instruction (operate o) :op(o) {}
-            instruction (operate o, element e) :op(o), elm(e) {}
-            instruction (operate o, std::string n) :op(o), name(n) {}
-
-        public:
-            operate op;
-            element elm;
-            std::string name;
-        };
-
-        // struct operation : element
-        // {
-        // public :
-        //     operation(const std::string ope) : element();
-        // };
-        // struct program_counter: element
-        // {
-        // public :
-        //     program_counter(std::list<instruction>::iterator c)
-        //         : pc(c)
-        //     {
-        //         type = element_type::counter;
-        //     }
-
-        // public :
-        //     const std::list<instruction>::iterator pc;
-
-        // };
 
 
         class vm
@@ -108,7 +35,9 @@ namespace popo {
             std::stringstream ir_code_ss;
             std::list<instruction> inst_list;
             std::stack<element> stack;
-            std::list< functions<instruction> > function_table;
+            std::list<function> function_table;
+            std::stack<function> function_stack;
+            std::list<var> var_table;
 
         public:
             auto parse() -> void
@@ -137,80 +66,6 @@ namespace popo {
 
 
         public:
-            auto create_inst(std::vector<std::string> inst_vec) -> instruction
-            {
-                const std::string op_s = inst_vec[0];
-                operate op;
-
-                if (op_s == "\tpop") {
-                    op = operate::pop;
-                }
-                else if (op_s == "\tapply") {
-                    op = operate::apply;
-                }
-                else if (op_s == "\tret") {
-                    op = operate::ret;
-                }
-                else if (op_s == "main:") {
-                    op = operate::main;
-                }
-                else if (*(op_s.end() - 1 ) == ':') {
-                    op = operate::func;
-                    std::string fn_name = op_s;
-                    fn_name.erase(fn_name.end() - 1);
-                    return instruction(op, fn_name);
-                }
-                else if (op_s == "\tpush") {
-                    op = operate::push;
-                    return instruction(op, create_element(inst_vec[1]));
-                }
-                else if (op_s == "\tparam") {
-                    op = operate::param;
-                    return instruction(op, inst_vec[1]);
-                }
-                else {
-                    //std::assert();
-                }
-
-                return instruction(op);
-
-            }
-
-        public:
-            auto create_element(const std::string operand) -> element
-            {
-                element_type type;
-
-                // for (auto it = function_table.begin(); it != function_table.end(); ++it)
-                //     {
-                //         std::cout << "aa" << std::endl;
-                //         std::cout << it->name << std::endl;
-                //         if (operand == it->name) {
-                //             return element(element_type::func);
-                //         }
-                //     }
-
-                if (operand == "add") {
-                    type = element_type::add;
-                }
-                else if (operand == "sub") {
-                    type = element_type::sub;
-                }
-                else if (operand == "mul") {
-                    type = element_type::mul;
-                }
-                else if (operand == "div") {
-                    type = element_type::div;
-                }
-                else {
-                    return element(element_type::data, operand);
-                }
-
-                return element(type);
-            }
-
-
-        public:
             auto run(const std::list<instruction> inst_list) -> void
             {
 
@@ -234,7 +89,7 @@ namespace popo {
                                 ++it;
                             }
 
-                            const functions<instruction> func(func_name, func_code);
+                            const function func(func_name, func_code);
                             function_table.push_back(func);
 
                             std::cout << func.name << std::endl;
@@ -260,25 +115,51 @@ namespace popo {
                     {
                         break;
                     }
-
                 case operate::pop :
                     {
                         arg_stack.push(stack.top());
                         stack.pop();
                         break;
                     }
-                case operate::push :
+                case operate::write :
                     {
-                        //if (arg_stack)
+                        if (!stack.empty()) {
+                            std::cout << stack.top().operand << std::endl;
+                        } else {
+                            std::cout << "Ooops, stack is empty :(" << std::endl;
+                        }
+                    }
+                case operate::push_int :
+                case operate::push_float :
+                case operate::push_string :
+                case operate::push_bool :
+                case operate::push_list :
+                    {
                         stack.push(inst.elm);
                         break;
                     }
+                case operate::push_symbol :
+                    {
+                        bool find_flag = false;
+
+                        for(auto v_it = var_table.begin();
+                            v_it != var_table.end(); ++v_it) {
+                            if (v_it->label == inst.elm.operand ) {
+                                stack.push(element(v_it->type, v_it->data));
+                                find_flag = true;
+                                break;
+                            }
+                        }
+                        if(!find_flag) {
+                            stack.push(inst.elm);
+                        }
+                        break;
+                    }
+
                 case operate::apply :
                     {
                         const element e_ = stack.top();
                         stack.pop();
-
-                        // enum struct element_type {data, add, sub, mul, div};
 
                         switch(e_.type) {
                         case element_type::add :
@@ -320,32 +201,49 @@ namespace popo {
                                     }
                                 break;
                             }
+                        case element_type::define :
+                            {
+                                element label_e = stack.top();
+                                stack.pop();
+                                element data_e = stack.top();
+                                stack.pop();
+
+                                var v(label_e.operand, data_e.operand, data_e.type);
+
+                                var_table.push_back(v);
+                                std::cout << "define var " << v.label << "  "<< v.data << std::endl;
+
+                                // for(auto it = inst_list.begin();
+                                //     it != inst_list.end(); ++it) {
+                                //     if (it->elm.operand == v.label ) {
+                                //         std::cout << "aa" << std::endl;
+                                //         it->op =
+                                //         it->elm = element(data_e.type, v.data);
+                                //     }
+                                // }
+
+                                break;
+                            }
+
+
                         default :
                             {}
                         }
                         break;
                     }
 
-
-                    // case operate::param :
-                    //     {
-                    //         arg_stack.push(stack.top());
-                    //         stack.pop();
-                    //         break;
-                    //     }
-
                     assert(!arg_stack.empty());
                 }
             }
 
-            auto run_function(functions<instruction> func) -> void
+            auto run_function(function func) -> void
             {
                 for(auto inst_it = func.code.begin();
                     inst_it != func.code.end(); ++inst_it) {
 
                     if (inst_it->op == operate::param) {
 
-                        var v(inst_it->name, stack.top().operand);
+                        var v(inst_it->name, stack.top().operand, stack.top().type);
                         stack.pop();
                         func.var_table.push_back(v);
 
@@ -378,9 +276,118 @@ namespace popo {
 
                 element e3(element_type::data, std::to_string( f(num1,num2) ) );
                 stack.push(e3);
+            }
 
-                std::cout << stack.top().operand << std::endl;
-                //stack.pop();
+
+        public:
+            auto create_inst(std::vector<std::string> inst_vec) -> instruction
+            {
+                const std::string op_s = inst_vec[0];
+                operate op;
+
+                if (op_s == "\tpop") {
+                    op = operate::pop;
+                }
+                else if (op_s == "\tapply") {
+                    op = operate::apply;
+                }
+                else if (op_s == "\treturn") {
+                    op = operate::ret;
+                }
+                else if (op_s == "\tread") {
+                    op = operate::read;
+                }
+                else if (op_s == "\twrite") {
+                    op = operate::write;
+                }
+                else if (op_s == "main:") {
+                    op = operate::main;
+                }
+                else if (*(op_s.end() - 1 ) == ':') {
+                    std::string fn_name = op_s;
+                    fn_name.erase(fn_name.end() - 1);
+                    return instruction(operate::func, fn_name);
+                }
+
+                else if (op_s == "\tpush_int") {
+                    return instruction(operate::push_int, element(element_type::integer, inst_vec[1]));
+                }
+                else if (op_s == "\tpush_float") {
+                    return instruction(operate::push_float, element(element_type::real, inst_vec[1]));
+                }
+                else if (op_s == "\tpush_string") {
+                    return instruction(operate::push_string, element(element_type::string, inst_vec[1]));
+                }
+                else if (op_s == "\tpush_bool") {
+                    return instruction(operate::push_bool, element(element_type::boolean, inst_vec[1]));
+                }
+                else if (op_s == "\tpush_list") {
+                    return instruction(operate::push_list, element(element_type::list, inst_vec[1]));
+                }
+                else if (op_s == "\tpush_symbol") {
+                    return instruction(operate::push_symbol, create_op_element(inst_vec[1]));
+                }
+                else if (op_s == "\tparam") {
+                    op = operate::param;
+                }
+                else if (op_s == "\tmake_clojure") {
+                    op = operate::make_clojure;
+                }
+                // op_s == "branch"
+                else {
+                    op = operate::branch;
+                }
+
+                return instruction(op);
+
+            }
+
+        public:
+            auto create_op_element(const std::string operand) -> element
+            {
+                element_type type;
+
+                if (operand == "+") {
+                    type = element_type::add;
+                }
+                else if (operand == "-") {
+                    type = element_type::sub;
+                }
+                else if (operand == "*") {
+                    type = element_type::mul;
+                }
+                else if (operand == "/") {
+                    type = element_type::div;
+                }
+                else if (operand == "=") {
+                    type = element_type::eq;
+                }
+                else if (operand == "<") {
+                    type = element_type::lt;
+                }
+                else if (operand == ">") {
+                    type = element_type::mt;
+                }
+                else if (operand == "<=") {
+                    type = element_type::lte;
+                }
+                else if (operand == ">=") {
+                    type = element_type::lte;
+                }
+                else if (operand == "&") {
+                    type = element_type::land;
+                }
+                else if (operand == "|") {
+                    type = element_type::lor;
+                }
+                else if (operand == "define") {
+                    type = element_type::define;
+                }
+                else {
+                    type = element_type::func;
+                    return element(type, operand);
+                }
+                return element(type);
             }
 
         };
