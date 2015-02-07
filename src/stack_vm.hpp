@@ -41,34 +41,28 @@ namespace popo {
         public:
             element_type type;
             std::string operand;
+        };
 
-        public:
-            auto get_data(void) -> std::string
-            {
-                return operand;
-            }
-
-                                       // public:
-                                       //    auto operator + (std::unique_ptr<element> p) -> std::unique_ptr<element>
-                                       //    {
-                                       //         // assert(this->type != element_type::data
-                                       //         //        || e.type != element_type::data);
+        // public:
+        //    auto operator + (std::unique_ptr<element> p) -> std::unique_ptr<element>
+        //    {
+        //         // assert(this->type != element_type::data
+        //         //        || e.type != element_type::data);
 
 
-                                       //        //auto num1 = 1;
-                                       //        //auto num2 = 2;
+        //        //auto num1 = 1;
+        //        //auto num2 = 2;
 
 
-                                       //        // auto num1 = std::stoi(this->ope);
-                                       //        // auto num2 = std::stoi(e.ope);
+        //        // auto num1 = std::stoi(this->ope);
+        //        // auto num2 = std::stoi(e.ope);
 
-                                       //        //element e_(std::to_string( num1 + num2));
-                                       //        //element e_("ababaa");
+        //        //element e_(std::to_string( num1 + num2));
+        //        //element e_("ababaa");
 
-                                       //        return p;
-                                       //    }
+        //        return p;
+        //    }
 
-                                       };
 
         enum struct operate { push, main, func, param, apply, pop, ret };
 
@@ -88,10 +82,7 @@ namespace popo {
         // {
         // public :
         //     operation(const std::string ope) : element();
-
         // };
-
-
         // struct program_counter: element
         // {
         // public :
@@ -320,12 +311,10 @@ namespace popo {
                             }
                         case element_type::data :
                             {
-                                std::cout << "func call" << std::endl;
-
                                 for(auto it = function_table.begin(); it != function_table.end(); ++it)
                                     {
                                         if (it->name == e_.operand) {
-                                            std::cout << e_.operand << " is called " << std::endl;
+                                            std::cout << "function " << e_.operand << " is called " << std::endl;
                                             run_function(*it);
                                         }
                                     }
@@ -339,11 +328,11 @@ namespace popo {
 
 
                     // case operate::param :
-                //     {
-                //         arg_stack.push(stack.top());
-                //         stack.pop();
-                //         break;
-                //     }
+                    //     {
+                    //         arg_stack.push(stack.top());
+                    //         stack.pop();
+                    //         break;
+                    //     }
 
                     assert(!arg_stack.empty());
                 }
@@ -356,7 +345,7 @@ namespace popo {
 
                     if (inst_it->op == operate::param) {
 
-                        var v(inst_it->name, stack.top().get_data());
+                        var v(inst_it->name, stack.top().operand);
                         stack.pop();
                         func.var_table.push_back(v);
 
@@ -384,14 +373,14 @@ namespace popo {
                 element e2 = stack.top();
                 stack.pop();
 
-                auto num1 = std::atoi(e1.get_data().c_str());
-                auto num2 = std::atoi(e2.get_data().c_str());
+                auto num1 = std::atoi(e1.operand.c_str());
+                auto num2 = std::atoi(e2.operand.c_str());
 
                 element e3(element_type::data, std::to_string( f(num1,num2) ) );
                 stack.push(e3);
 
-                std::cout << stack.top().get_data() << std::endl;
-                stack.pop();
+                std::cout << stack.top().operand << std::endl;
+                //stack.pop();
             }
 
         };

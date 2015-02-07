@@ -31,7 +31,7 @@ int main()
     }
 
 
-    std::cout << "====ir======" << std::endl;
+    std::cout << "===== ir ======" << std::endl;
 
     std::string ir_code( "\
 test1:\n\
@@ -47,7 +47,7 @@ test2:\n\
 \tparam y\n\
 \tpush x\n\
 \tpush y\n\
-\tpush sub\n\
+\tpush test1\n\
 \tapply\n\
 \tret\n\
 main:\n\
@@ -57,14 +57,10 @@ main:\n\
 \tapply\n\
 \tpush 10\n\
 \tpush 3\n\
-\tpush sub\n\
-\tapply\n\
-\tpush 3\n\
-\tpush 5\n\
 \tpush test1\n\
 \tapply \n\
-\tpush 3\n\
-\tpush 5\n\
+\tpush 10\n\
+\tpush 8\n\
 \tpush test2\n\
 \tapply \n\
 ");
@@ -73,11 +69,8 @@ main:\n\
 
     stack_vm::vm pvm(ir_code);
 
-    std::cout << "===vm run :====" << std::endl;
+    std::cout << "===vm run ====" << std::endl;
     pvm.parse();
-
-
-
 
 //     std::cout << "----- immediate code -----" << std::endl;
 //     auto& a = sa.ir_men;

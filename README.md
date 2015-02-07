@@ -27,6 +27,12 @@ http://d.hatena.ne.jp/hogelog/20070929/p1
 - Lisp 一夜漬け
 http://www.haun.org/kent/lisp1/1.html#BACKGROUND
 
+-
+http://home.a00.itscom.net/hatada/lp2014/chap07/stack-machine.html
+
+-
+http://home.a00.itscom.net/hatada/lp2014/chap07/stack-machine.html
+
 ###TODO
 - create symbol stack
 
