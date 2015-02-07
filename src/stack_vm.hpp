@@ -208,6 +208,15 @@ namespace popo {
                                 element data_e = stack.top();
                                 stack.pop();
 
+                                // for (auto it = function_table.begin();
+                                //      it != function_table.end(); ++it) {
+                                //     if (it->name == label_e.operand) {
+                                //         it->name = data_e.operand;
+                                //     }
+                                // }
+
+
+
                                 var v(label_e.operand, data_e.operand, data_e.type);
 
                                 var_table.push_back(v);
@@ -271,8 +280,8 @@ namespace popo {
                 element e2 = stack.top();
                 stack.pop();
 
-                auto num1 = std::atoi(e1.operand.c_str());
-                auto num2 = std::atoi(e2.operand.c_str());
+                auto num1 = std::stoi(e1.operand);
+                auto num2 = std::stoi(e2.operand);
 
                 element e3(element_type::data, std::to_string( f(num1,num2) ) );
                 stack.push(e3);
