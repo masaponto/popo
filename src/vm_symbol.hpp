@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <list>
+#include <memory>
 
 #include "ir_instruction.hpp"
 
@@ -28,13 +29,17 @@ namespace popo {
 
         struct function {
         public :
-            function (std::string n, int num, std::list<instruction> c)
-                : name(n), arg_num(num), code(c) {};
+            //function (std::string n, int num)
+            function (std::string n, int num, std::list<std::unique_ptr<instruction>> c)
+                : name(n), arg_num(num)
+            {
+                //code = std::move(c);
+            };
 
         public:
             std::string name;
             int arg_num;
-            std::list<instruction> code;
+            //std::list<std::unique_ptr<instruction>> code;
         };
 
 

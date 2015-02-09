@@ -22,11 +22,11 @@ namespace popo {
 
         private:
             std::stringstream ir_code_ss;
-            std::list< std::unique_ptr<instruction> > instruction_list;
+            std::list<std::unique_ptr<instruction>> instruction_list;
 
-            std::stack< std::unique_ptr<element> > stack;
+            std::stack<std::unique_ptr<element>> stack;
 
-            std::map<std::string, function> function_table;
+            std::map<std::string, std::unique_ptr<function>> function_table;
             //std::stack<function> function_stack;
             //std::list<var> var_table;
 
@@ -70,31 +70,50 @@ namespace popo {
                             break;
                         }
 
-                        // case operate::func:
-                    //     {
-                    //         std::cout << "function define" << std::endl;
+                    case operation::func:
+                        {
+                            std::cout << "function define" << std::endl;
 
-                    //         const std::string func_name = it->name;
-                    //         std::list<instruction> func_code;
-                    //         int arg_num = 0;
+                            auto op_ins = std::unique_ptr<op_instruction>
+                                (static_cast<op_instruction *>((*it).release()));
 
-                    //         while(it->op != operate::ret) {
+                            auto func_ele = std::unique_ptr<func_element>
+                                (static_cast<func_element *>((op_ins->operand).release()));
 
-                    //             if(it->op == operate::param) {
-                    //                 arg_num++;
-                    //             }
+                            const std::string func_name = func_ele->data;
 
-                    //             func_code.push_back(*it);
-                    //             ++it;
-                    //         }
+                            std::cout << func_name << std::endl;
 
-                    //         //function_table.push_back(function func(func_name, arg_num, func_code););
-                    //         function_table.insert( make_pair(func_name, function(func_name, arg_num, func_code) ) );
+                            std::list<std::unique_ptr<instruction>> func_code;
+                            int arg_num = 0;
+                            int ret_num = 1;
 
-                    //         std::cout << func_name << std::endl;
-                    //         //it = parse_func(it);
-                    //         break;
-                    //     }
+                            while(ret_num == 0) {
+
+                                if((*it)->op == operation::ret) {
+                                    ret_num--;
+                                }
+                                else if((*it)->op == operation::func) {
+                                    ret_num++;
+                                }
+
+                                if((*it)->op == operation::param) {
+                                    arg_num++;
+                                }
+
+                                func_code.push_back(std::move(*it));
+                                ++it;
+                            }
+
+
+                            // function_table.insert( make_pair(func_name, std::unique_ptr<function>
+                            //                                  (new function(func_name, arg_num, std::move(func_code) ) ) ) );
+
+                            //         std::cout << func_name << std::endl;
+                            //         //it = parse_func(it);
+                             break;
+                        }
+
                     default:
                         {
                             stack_manager( std::move(*it) );
@@ -104,14 +123,6 @@ namespace popo {
                 }
             }
 
-        // public :
-        //     auto parse_func(std::list<instruction>::iterator it) -> std::list<instruction>::iterator
-        //     {
-
-
-        //         return it;
-        //     }
-
 
         public :
             auto stack_manager(std::unique_ptr<instruction> ins ) -> void
@@ -119,173 +130,168 @@ namespace popo {
 
                 // std::stack<element> arg_stack;
 
-                 switch(ins->op) {
-                 case operation::ret :
-                     {
-                         break;
-                     }
-                 case operation::pop :
-                     {
-                         //arg_stack.push(stack.top());
-                         //stack.pop();
-                         break;
-                     }
-                 case operation::write :
-                     {
-                         if (!stack.empty()) {
-                             auto e = std::move(stack.top());
+                switch(ins->op) {
+                case operation::ret :
+                    {
+                        break;
+                    }
+                case operation::pop :
+                    {
+                        //arg_stack.push(stack.top());
+                        //stack.pop();
+                        break;
+                    }
+                case operation::write :
+                    {
+                        if (!stack.empty()) {
+                            auto e = std::move(stack.top());
+                            stack.pop();
 
-                             auto e_ = std::unique_ptr<int_element>
-                                     (static_cast<int_element *>(e.release()));
-
-                             std::cout << e_->data << std::endl;
-
-                         } else {
-                             std::cout << "Ooops, stack is empty :(" << std::endl;
-                         }
-                     }
-                 case operation::push_int :
-                // case operation::push_float :
-                // case operation::push_string :
-                // case operation::push_bool :
-                // case operation::push_list :
-                     {
-                         auto op_ins = std::unique_ptr<op_instruction>
-                             (static_cast<op_instruction *>(ins.release()));
-
-                         stack.push(std::move(op_ins->operand));
-                         break;
-                     }
-                 case operation::push_symbol :
-                     {
-                         auto op_ins = std::unique_ptr<op_instruction>
-                             (static_cast<op_instruction *>(ins.release()));
-
-                         // auto sym_it = symbol_table.find(op_ins->operand);
-
-                         // if (sym_it != symbol_table.end() ) {
-
-                         //     if ((*sym_it)->sclass == sym_class::var) {
-
-                         //         stack.push( element(sym_it->name, it->data) );
-                         //     }
-
-                         // }
-                         // else {
-
-                         stack.push(std::move(op_ins->operand));
-
-                         //}
-
-                         break;
-                     }
-
-                 case operation::apply :
-                     {
-                         auto func_e = std::move( stack.top() );
-                         stack.pop();
-
-                         switch(func_e->type) {
-                         case element_type::add :
-                             {
-                                 auto e1 = std::move( stack.top() );
-                                 stack.pop();
-
-                                 auto e1_ = std::unique_ptr<int_element>
-                                     (static_cast<int_element *>(e1.release()));
-
-                                 // switch(e1->type) {
-                                 // case element_type::integer :
-
-                                 //     auto e1_ = std::unique_ptr<int_element>
-                                 //         (static_cast<int_element *>(e1.release()));
-                                 //     break;
+                            switch(e->type) {
+                            case element_type::integer :
+                                {
+                                    auto e_int = std::unique_ptr<int_element>
+                                        (static_cast<int_element *>(e.release()));
+                                    std::cout << e_int->data << std::endl;
+                                    break;
+                                }
+                            case element_type::real :
+                                {
+                                    auto e_real = std::unique_ptr<real_element>
+                                        (static_cast<real_element *>(e.release()));
+                                    std::cout << e_real->data << std::endl;
+                                    break;
+                                }
+                            }
 
 
-                                 // }
+                        } else {
+                            std::cout << "Ooops, stack is empty :(" << std::endl;
+                        }
+                    }
+                case operation::push_int :
+                case operation::push_float :
+                    // case operation::push_string :
+                    // case operation::push_bool :
+                    // case operation::push_list :
+                    {
+                        auto op_ins = std::unique_ptr<op_instruction>
+                            (static_cast<op_instruction *>(ins.release()));
 
-                                 auto e2 = std::move( stack.top() );
-                                 stack.pop();
+                        stack.push(std::move(op_ins->operand));
+                        break;
+                    }
+                case operation::push_symbol :
+                    {
+                        auto op_ins = std::unique_ptr<op_instruction>
+                            (static_cast<op_instruction *>(ins.release()));
 
-                                 auto e2_ = std::unique_ptr<int_element>
-                                     (static_cast<int_element *>(e2.release()));
+                        // auto sym_it = symbol_table.find(op_ins->operand);
+
+                        // if (sym_it != symbol_table.end() ) {
+
+                        //     if ((*sym_it)->sclass == sym_class::var) {
+
+                        //         stack.push( element(sym_it->name, it->data) );
+                        //     }
+
+                        // }
+                        // else {
+
+                        stack.push(std::move(op_ins->operand));
+
+                        //}
+
+                        break;
+                    }
+
+                case operation::apply :
+                    {
+                        auto func_e = std::move( stack.top() );
+                        stack.pop();
+
+                        switch(func_e->type) {
+                        case element_type::add :
+                            {
+                                auto add_ii = [](int a, int b)->int{ return a + b; };
+                                auto add_fi = [](float a, int b)->float{ return a + b; };
+                                auto add_if = [](int a, float b)->float{ return a + b; };
+                                auto add_ff = [](float a, float b)->float{ return a + b; };
+                                calc(add_ii, add_fi, add_if, add_ff);
+                                break;
+                            }
+                        case element_type::sub :
+                            {
+                                auto sub_ii = [](int a, int b)->int{ return a - b; };
+                                auto sub_fi = [](float a, int b)->float{ return a - b; };
+                                auto sub_if = [](int a, float b)->float{ return a - b; };
+                                auto sub_ff = [](float a, float b)->float{ return a - b; };
+                                calc(sub_ii, sub_fi, sub_if, sub_ff);
+                                break;
+                            }
+                        case element_type::mul :
+                            {
+                                auto mul_ii = [](int a, int b)->int{ return a * b; };
+                                auto mul_fi = [](float a, int b)->float{ return a * b; };
+                                auto mul_if = [](int a, float b)->float{ return a * b; };
+                                auto mul_ff = [](float a, float b)->float{ return a * b; };
+                                calc(mul_ii, mul_fi, mul_if, mul_ff);
+                                break;
+                            }
+                        case element_type::div :
+                            {
+                                auto div_ii = [](int a, int b)->int{ return a / b; };
+                                auto div_fi = [](float a, int b)->float{ return a / b; };
+                                auto div_if = [](int a, float b)->float{ return a / b; };
+                                auto div_ff = [](float a, float b)->float{ return a / b; };
+                                calc(div_ii, div_fi, div_if, div_ff);
+                                break;
+                            }
+
+                            //         case element_type::data :
+                            //             {
+                            //                 // for(auto it = function_table.begin(); it != function_table.end(); ++it)
+                            //                 //     {
+                            //                 //         if (it->name == e_.operand) {
+                            //                 //             std::cout << "function " << e_.operand << " is called " << std::endl;
+                            //                 //             //run_function(*it);
+                            //                 //         }
+                            //                 //     }
+                            //                 break;
+                            //             }
+                            //         case element_type::define :
+                            //             {
+                            //                 element name_e = stack.top();
+                            //                 stack.pop();
+                            //                 element data_e = stack.top();
+                            //                 stack.pop();
+
+                            //                 auto v = std::unique_ptr<var_entry>( new var_entry(name_e.operand, data_e.type, data_e.operand) );
+                            //                 //symbol_table.insert( make_pair(name_e.operand, v) );
+
+                            //                 std::cout << "define var " << v->name << "  "<< v->data << std::endl;
+
+                            //                 // for(auto it = inst_list.begin();
+                            //                 //     it != inst_list.end(); ++it) {
+                            //                 //     if (it->elm.operand == v.label ) {
+                            //                 //         std::cout << "aa" << std::endl;
+                            //                 //         it->op =
+                            //                 //         it->elm = element(data_e.type, v.data);
+                            //                 //     }
+                            //                 // }
+
+                            break;
+                        }
 
 
-                                 // switch(e2->type) {
-                                 // case element_type::integer :
-                                 //     auto e2_ = std::unique_ptr<int_element>
-                                 //         (static_cast<int_element *>(e2.release()));
-                                 //     break;
-                                 // }
+                        //         default :
+                        //             {}
+                        //         }
+                        //         break;
+                    }
 
-                                 std::unique_ptr<element> e3( new int_element( e1_->data + e2_->data));
-
-
-                                 // auto po = std::unique_ptr<element>(e2);
-
-                                 // std::cout << "abbbabba" << std::endl;
-                                 stack.push(std::move(e3));
-
-                                 //auto add = [](int a, int b){ return a + b; };
-                                 //calc(stack, add);
-                                 break;
-                             }
-                //         case element_type::sub :
-                //             {
-                //                 auto sub = [](int a, int b){ return b - a; };
-                //                 calc(stack, sub);
-                //                 break;
-                //             }
-                //         case element_type::mul :
-                //             {
-                //                 auto mul = [](int a, int b){ return a * b; };
-                //                 calc(stack, mul);
-                //                 break;
-                //             }
-                //         case element_type::data :
-                //             {
-                //                 // for(auto it = function_table.begin(); it != function_table.end(); ++it)
-                //                 //     {
-                //                 //         if (it->name == e_.operand) {
-                //                 //             std::cout << "function " << e_.operand << " is called " << std::endl;
-                //                 //             //run_function(*it);
-                //                 //         }
-                //                 //     }
-                //                 break;
-                //             }
-                //         case element_type::define :
-                //             {
-                //                 element name_e = stack.top();
-                //                 stack.pop();
-                //                 element data_e = stack.top();
-                //                 stack.pop();
-
-                //                 auto v = std::unique_ptr<var_entry>( new var_entry(name_e.operand, data_e.type, data_e.operand) );
-                //                 //symbol_table.insert( make_pair(name_e.operand, v) );
-
-                //                 std::cout << "define var " << v->name << "  "<< v->data << std::endl;
-
-                //                 // for(auto it = inst_list.begin();
-                //                 //     it != inst_list.end(); ++it) {
-                //                 //     if (it->elm.operand == v.label ) {
-                //                 //         std::cout << "aa" << std::endl;
-                //                 //         it->op =
-                //                 //         it->elm = element(data_e.type, v.data);
-                //                 //     }
-                //                 // }
-
-                             break;
-                         }
-
-
-                //         default :
-                //             {}
-                //         }
-                //         break;
-                     }
-
-                     //     assert(!arg_stack.empty());
-                 }
+                    //     assert(!arg_stack.empty());
+                }
             }
 
 
@@ -316,22 +322,63 @@ namespace popo {
             // }
 
 
-            // template<typename T, typename Fanc>
-            // auto calc(std::stack<T>, Fanc f) -> void
-            // {
-            //     element e1 = stack.top();
-            //     stack.pop();
-            //     element e2 = stack.top();
-            //     stack.pop();
+            template<typename Func1, typename Func2, typename Func3, typename Func4>
+            auto calc(Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
+            {
 
-            //     auto num1 = std::stoi(e1.operand);
-            //     auto num2 = std::stoi(e2.operand);
+                auto e2 = std::move( stack.top() );
+                stack.pop();
+                auto e1 = std::move( stack.top() );
+                stack.pop();
 
-            //     element e3(element_type::data, std::to_string( f(num1,num2) ) );
-            //     stack.push(e3);
-            // }
+                if (e1->type == element_type::integer
+                    && e2->type == element_type::integer) {
 
+                    auto e1_int = std::unique_ptr<int_element>
+                        (static_cast<int_element *>(e1.release()));
+                    auto e2_int = std::unique_ptr<int_element>
+                        (static_cast<int_element *>(e2.release()));
 
+                    std::unique_ptr<element> e3( new int_element( f1( e1_int->data, e2_int->data ) ) );
+                    stack.push(std::move(e3));
+
+                }
+                else if (e1->type == element_type::real
+                         && e2->type == element_type::integer) {
+
+                    auto e1_real = std::unique_ptr<real_element>
+                        (static_cast<real_element *>(e1.release()));
+
+                    auto e2_int = std::unique_ptr<int_element>
+                        (static_cast<int_element *>(e2.release()));
+
+                    std::unique_ptr<element> e3( new real_element( f2(e1_real->data,e2_int->data) ) );
+                    stack.push(std::move(e3));
+                }
+                else if (e1->type == element_type::integer
+                         && e2->type == element_type::real) {
+
+                    auto e1_int = std::unique_ptr<int_element>
+                        (static_cast<int_element *>(e1.release()));
+
+                    auto e2_real = std::unique_ptr<real_element>
+                        (static_cast<real_element *>(e2.release()));
+
+                    std::unique_ptr<element> e3( new real_element( f3(e1_int->data, e2_real->data) ) );
+                    stack.push(std::move(e3));
+                }
+                else {
+
+                    auto e1_real = std::unique_ptr<real_element>
+                        (static_cast<real_element *>(e1.release()));
+
+                    auto e2_real = std::unique_ptr<real_element>
+                        (static_cast<real_element *>(e2.release()));
+
+                    std::unique_ptr<element> e3( new real_element( f4(e1_real->data, e2_real->data) ) );
+                    stack.push(std::move(e3));
+                }
+            }
 
         public:
             auto create_inst(std::vector<std::string> inst_vec) -> std::unique_ptr<instruction>
@@ -358,23 +405,27 @@ namespace popo {
                     op = operation::main;
                 }
 
-                // else if (*(op_s.end() - 1 ) == ':') {
-                //     std::string fn_name = op_s;
-                //     fn_name.erase(fn_name.end() - 1);
-                //     return instruction(operation::func, fn_name);
-                // }
+                else if (*(op_s.end() - 1 ) == ':') {
+                    std::string fn_name = op_s;
+                    fn_name.erase(fn_name.end() - 1);
+                    return std::unique_ptr<op_instruction>
+                        ( new op_instruction( operation::func, std::unique_ptr<element>
+                                              ( new func_element( fn_name ) ) ) );
+                }
 
                 else if (op_s == "\tpush_int") {
                     //std::unique_ptr<element> int_e(new int_element( std::stoi(inst_vec[1])) );
                     //return std::unique_ptr<op_instruction>( new op_instruction(operation::push_int, int_e) );
                     return std::unique_ptr<op_instruction>
                         ( new op_instruction( operation::push_int, std::unique_ptr<element>
-                                             ( new int_element( std::stoi( inst_vec[1] ) ) ) ) );
+                                              ( new int_element( std::stoi( inst_vec[1] ) ) ) ) );
+                }
+                else if (op_s == "\tpush_float") {
+                    return std::unique_ptr<op_instruction>
+                        ( new op_instruction( operation::push_float, std::unique_ptr<element>
+                                              ( new real_element( std::stof( inst_vec[1] ) ) ) ) );
                 }
 
-                // else if (op_s == "\tpush_float") {
-                //     return instruction(operation::push_float, element(element_type::real, inst_vec[1]));
-                // }
                 // else if (op_s == "\tpush_string") {
                 //     return instruction(operation::push_string, element(element_type::string, inst_vec[1]));
                 // }
@@ -389,69 +440,70 @@ namespace popo {
                     return std::unique_ptr<op_instruction>
                         ( new op_instruction( operation::push_symbol, create_op_element( inst_vec[1] ) ) );
                 }
-                // else if (op_s == "\tparam") {
-                //     op = operation::param;
-                // }
+                else if (op_s == "\tparam") {
+                    return std::unique_ptr<op_instruction>
+                        ( new op_instruction( operation::param, create_op_element( inst_vec[1] ) ) );
+                }
                 // else if (op_s == "\tmake_clojure") {
                 //     op = operation::make_clojure;
                 // }
 
                 // // op_s == "branch"
-                // else {
-                //     op = operation::branch;
-                // }
+                else {
+                    op = operation::branch;
+                }
 
                 return std::unique_ptr<instruction>( new instruction(op) );
 
             }
 
-         public:
+        public:
             auto create_op_element(const std::string operand) -> std::unique_ptr<element>
             {
-                 element_type type;
+                element_type type;
 
-                 if (operand == "+") {
-                     type = element_type::add;
-                 }
-                 else if (operand == "-") {
-                     type = element_type::sub;
-                 }
-                 else if (operand == "*") {
-                     type = element_type::mul;
-                 }
-                 else if (operand == "/") {
-                     type = element_type::div;
-                 }
-                 else if (operand == "=") {
-                     type = element_type::eq;
-                 }
-                 else if (operand == "<") {
-                     type = element_type::lt;
-                 }
-                 else if (operand == ">") {
-                     type = element_type::mt;
-                 }
-                 else if (operand == "<=") {
-                     type = element_type::lte;
-                 }
-                 else if (operand == ">=") {
-                     type = element_type::lte;
-                 }
-                 else if (operand == "&") {
-                     type = element_type::land;
-                 }
-                 else if (operand == "|") {
-                     type = element_type::lor;
-                 }
-                 else if (operand == "define") {
-                     type = element_type::define;
-                 }
-                 else {
-                     return std::unique_ptr<element>( new func_element(operand) );
-                 }
+                if (operand == "+") {
+                    type = element_type::add;
+                }
+                else if (operand == "-") {
+                    type = element_type::sub;
+                }
+                else if (operand == "*") {
+                    type = element_type::mul;
+                }
+                else if (operand == "/") {
+                    type = element_type::div;
+                }
+                else if (operand == "=") {
+                    type = element_type::eq;
+                }
+                else if (operand == "<") {
+                    type = element_type::lt;
+                }
+                else if (operand == ">") {
+                    type = element_type::mt;
+                }
+                else if (operand == "<=") {
+                    type = element_type::lte;
+                }
+                else if (operand == ">=") {
+                    type = element_type::mte;
+                }
+                else if (operand == "&") {
+                    type = element_type::land;
+                }
+                else if (operand == "|") {
+                    type = element_type::lor;
+                }
+                else if (operand == "define") {
+                    type = element_type::define;
+                }
+                else {
+                    return std::unique_ptr<element>( new func_element(operand) );
+                }
 
-                 return std::unique_ptr<element>( new element(type) );
-             }
+                return std::unique_ptr<element>( new element(type) );
+            }
 
         };
 

@@ -4,6 +4,7 @@
 #include <vector>
 #include <list>
 #include <cassert>
+#include <memory>
 
 #include "syntax.hpp"
 #include "semantic.hpp"
@@ -60,6 +61,17 @@ main:\n\
 
     run_vm(ir_code1);
 
+    std::string ir_code1_("\
+main:\n\
+\tpush_int 3\n\
+\tpush_float 5.22\n\
+\tpush_symbol /\n\
+\tapply\n\
+\twrite\n\
+");
+
+    //run_vm(ir_code1_);
+
 
     std::string ir_code2("\
 main:\n\
@@ -71,7 +83,9 @@ main:\n\
 \twrite\n\
  ");
 
-    //run_vm(ir_code2);
+    //std::cout << ir_code2 << std::endl;
+
+    run_vm(ir_code2);
 
 
     std::string ir_code3("\
@@ -97,6 +111,6 @@ main:\n\
 
     //std::cout << ir_code3 << std::endl;
 
-    //run_vm(ir_code3);
+    run_vm(ir_code3);
 
 }
