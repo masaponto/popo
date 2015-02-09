@@ -1,3 +1,5 @@
+#include <memory>
+
 namespace popo {
     namespace stack_vm {
 
@@ -6,43 +8,89 @@ namespace popo {
                 add, sub, mul, div, eq,
                 lt, mt, lte, mte, land, lor,
                 cons, car, cdr,
-                func, data, define};
+                func, data, define
+                };
+
+
         struct element {
         public :
-            element() {}
-            element(const element_type t) :type(t) {}
-            element(const element_type t, std::string o) :type(t), operand(o) {}
+            element(){}
+            element(element_type t) :type(t) {}
 
         public:
             element_type type;
-            std::string operand;
         };
 
-        struct var {
+        struct int_element : element {
         public:
-            var(std::string l, std::string d, element_type t) : label(l), data(d), type(t) {}
+            int_element(int op) : element(element_type::integer), data(op) {}
         public:
-            std::string label, data;
-            element_type type;
+            int data;
+        };
+
+        struct real_element : element {
+        public:
+            real_element(float op) : element(element_type::real), data(op) {}
+        public:
+            float data;
+        };
+
+        struct string_element : element {
+        public:
+            string_element(std::string op) : element(element_type::string), data(op) {}
+        public:
+            std::string data;
+        };
+
+        struct bool_element : element {
+        public:
+            bool_element(bool op) : element(element_type::boolean), data(op) {}
+        public:
+            bool data;
+        };
+
+        template<typename T>
+        struct list_element : element {
+        public:
+            list_element(std::list<T> op) : element(element_type::list), data(op) {}
+        public:
+            std::list<T> data;
+        };
+
+        struct func_element : element {
+        public:
+            func_element(std::string op) : element(element_type::func), data(op) {}
+        public:
+            std::string data;
         };
 
 
-        enum struct operate {
+        enum struct operation {
             push_int, push_float, push_string, push_symbol, push_bool, push_list,
                 pop, main, func, param, apply, ret, make_clojure, branch,
                 read, write, make_list
                 };
+
         struct instruction {
         public:
-            instruction (operate o) :op(o) {}
-            instruction (operate o, element e) :op(o), elm(e) {}
-            instruction (operate o, std::string n) :op(o), name(n) {}
+            instruction (operation o) :op(o) {}
 
         public:
-            operate op;
-            element elm;
-            std::string name;
+            operation op;
         };
+
+        struct op_instruction : instruction {
+        public:
+            op_instruction(operation o, std::unique_ptr<element> e )
+                : instruction(o)
+            {
+                operand = std::move(e);
+            }
+
+        public :
+            std::unique_ptr<element> operand;
+        };
+
 
     }
 }

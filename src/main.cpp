@@ -71,7 +71,7 @@ main:\n\
 \twrite\n\
  ");
 
-    run_vm(ir_code2);
+    //run_vm(ir_code2);
 
 
     std::string ir_code3("\
@@ -95,7 +95,7 @@ main:\n\
 \twrite\n\
 ");
 
-    std::cout << ir_code3 << std::endl;
+    //std::cout << ir_code3 << std::endl;
 
     //run_vm(ir_code3);
 
