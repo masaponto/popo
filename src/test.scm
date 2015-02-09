@@ -1,4 +1,5 @@
 
+
 ; (+ 1 2)
 
 ; (define i #f)
@@ -16,8 +17,6 @@
 ; (define x
 ;     (lambda (a b)
 ;         (+ a b)))
-
-
 
 ; (define z (quote (y "hello")))
 
@@ -59,6 +58,8 @@
     (lambda (a)
         (lambda (c)
             (a 1 c))))
+
+(lambda (x) (+ x 1))
 
 ; (+ 1 2)
 ; error is occured by below code.

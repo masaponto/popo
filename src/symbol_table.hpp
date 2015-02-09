@@ -47,11 +47,13 @@ public:
 };
 
 struct clojure_entry : public symbol_table_entry {
-    public:
-        clojure_entry(int argc) : symbol_table_entry(entry_type::clojure), arg_count(argc) {};
+public:
+    clojure_entry(int argc, std::string l)
+        : symbol_table_entry(entry_type::clojure), arg_count(argc), label(l) {};
 
-    public:
-        int arg_count;
+public:
+    int arg_count;
+    std::string label;
 };
 
 struct value_entry : public symbol_table_entry {
@@ -73,6 +75,7 @@ public:
     syntax::node_type node_type;
 
 };
+//TODO add another entry
 
 // struct function_entry : public symbol_table_entry {
 // public:

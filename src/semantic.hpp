@@ -26,7 +26,7 @@ namespace popo {
                 symbol_stack_.push_front(
                     std::make_pair(pair.first,
                                    std::shared_ptr<clojure_entry>(
-                                       new clojure_entry(pair.second))));
+                                       new clojure_entry(pair.second, ""))));
             }
 
             for (auto& pair : built_in_function) {
@@ -34,7 +34,7 @@ namespace popo {
                 symbol_stack_.push_front(
                     std::make_pair(pair.first,
                                    std::shared_ptr<clojure_entry>(
-                                       new clojure_entry(pair.second))));
+                                       new clojure_entry(pair.second, ""))));
             }
         };
 
@@ -93,7 +93,10 @@ namespace popo {
 
                 analyze_cons(static_cast<syntax::cons_node*>(cons->car.get()));
                 analyze_cons(static_cast<syntax::cons_node*>(cons->cdr.get()));
-            } else {
+            } else if(syntax::node_type::num == cons->car->type) {
+//                 static_cast<syntax::num_node*>(cons->car.get());
+            }
+            else {
                 assert(false);
             }
             return not_found_pair;
@@ -107,7 +110,8 @@ namespace popo {
 
             auto symbol_node =
                 static_cast<syntax::symbol_node*>(cons->car.get());
-            ir_manager.define_enable(symbol_node->val);
+//             ir_manager.define_enable(symbol_node->val);
+//             ir_manager.define_enable();
 
             auto value_cons_node =
                 static_cast<syntax::cons_node*>(cons->cdr.get());
@@ -117,12 +121,12 @@ namespace popo {
                 //                 auto clojure = static_cast<clojure_entry*>(
                 //                     analyze_cons(static_cast<syntax::cons_node*>(
                 //                                      value_cons_node->car.get())).second.get());
-
-                symbol_stack_.push_front(std::make_pair(
-                    symbol_node->val,
+                auto entry =
                     analyze_cons(static_cast<syntax::cons_node*>(
-                                     value_cons_node->car.get())).second));
+                                     value_cons_node->car.get())).second;
 
+                symbol_stack_.push_front(
+                    std::make_pair(symbol_node->val, entry));
             } else if (syntax::node_type::num == value_cons_node->car->type) {
 
                 auto num_node =
@@ -148,7 +152,7 @@ namespace popo {
 
             assert(syntax::node_type::nil == value_cons_node->cdr->type);
 
-            ir_manager.define_disable();
+//             ir_manager.define_disable();
             return not_found_pair;
         }
 
@@ -159,17 +163,18 @@ namespace popo {
 
             auto func_cons = static_cast<syntax::cons_node*>(cons->cdr.get());
 
-            ir_manager.create_clojure();
-            auto argc = push_arguments(
-                static_cast<syntax::cons_node*>(cons->car.get()));
 
             assert(syntax::node_type::cons == func_cons->car->type);
             assert(syntax::node_type::nil == func_cons->cdr->type);
 
-            analyze_cons(
-                    static_cast<syntax::cons_node*>(func_cons->car.get()));
+            auto argc = push_arguments(
+                    static_cast<syntax::cons_node*>(cons->car.get()));
 
-            return std::make_pair("", std::make_shared<clojure_entry>(argc));
+            auto entry = analyze_cons(
+                static_cast<syntax::cons_node*>(func_cons->car.get())).second;
+
+            return std::make_pair("",
+                                  std::make_shared<clojure_entry>(argc, ""));
         }
 
         auto quote_procedure(const syntax::cons_node* cons)
@@ -224,7 +229,6 @@ namespace popo {
                 auto clojure = static_cast<clojure_entry*>(pair.second.get());
 //                 assert(argc == clojure->arg_count);
             }
-            ir_manager.create_function(symbol);
 
             return not_found_pair;
         }
@@ -269,7 +273,7 @@ namespace popo {
             auto argc = push_arguments(static_cast<const syntax::cons_node*>(
                             cons->cdr.get())) +
                         1;
-            ir_manager.push_params(symbol);
+//             ir_manager.push_params(symbol);
 
             return argc;
         }
@@ -298,24 +302,24 @@ namespace popo {
 
                         switch (v_entry->node_type) {
                             case syntax::node_type::num:
-                                ir_manager.push_args(
-                                    std::to_string(v_entry->int_value));
+//                                 ir_manager.push_args(
+//                                     std::to_string(v_entry->int_value));
                                 break;
 
                             case syntax::node_type::string:
-                                ir_manager.push_args(v_entry->string_value);
+//                                 ir_manager.push_args(v_entry->string_value);
                                 break;
                         }
 
                         break;
                     }
                     case entry_type::clojure:
-                        ir_manager.push_args(search_symbol(symbol).first);
+//                         ir_manager.push_args(search_symbol(symbol).first);
                         break;
                 }
 
             } else {
-                ir_manager.push_args(cons->car.get()->to_string());
+//                 ir_manager.push_args(cons->car.get()->to_string());
             }
             //             const auto car = cons->car.get();
             //             assert(syntax::node_type::symbol == car->type);

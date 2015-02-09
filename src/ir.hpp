@@ -28,63 +28,55 @@ namespace popo {
             std::string symbol;
 
         public:
-            auto create_clojure(std::string name = "") -> void
-            {
-                std::string label("");
-                if(name != ""){
-                    label += name;
-                    label += ":";
-                    ir_define_.push_back(label);
-                    return;
-                }
+//             auto create_clojure(std::string name = "") -> std::string
+//             {
+//                 std::string label("");
+//                     label += "clojure_";
+//                     label += std::to_string(closure_number_++);
+//                 ir_define_.push_back(label + ":");
+//                 return label;
+//             }
 
-                if (!is_define) {
-                    label += "clojure";
-                    label += std::to_string(closure_number_++);
-                    label += ":";
-                } else {
-                    label += symbol;
-                }
-                label += ":";
-                ir_define_.push_back(label);
-            }
+//             auto push_params(std::string p) -> void
+//             {
+//                 std::string param = "\tparam " + p;
+//                 ir_define_.push_back(param);
+//             }
 
-            auto push_params(std::string p) -> void
-            {
-                std::string param = "\tparam " + p;
-                ir_define_.push_back(param);
-            }
+//             auto push_args(std::string p) -> void
+//             {
+//                 std::string param = "\tpush " + p;
+//                 if (is_define) {
+//                     ir_define_.push_back(param);
+//                 } else {
+//                     ir_procedure_.push_back(param);
+//                 }
+//             }
 
-            auto push_args(std::string p) -> void
-            {
-                std::string param = "\tpush " + p;
-                if (is_define) {
-                    ir_define_.push_back(param);
-                } else {
-                    ir_procedure_.push_back(param);
-                }
-            }
+//             auto create_label(std::string l) -> void
+//             {
+//                 ir_define_.push_back(l + ":");
+//             }
 
-            auto create_function(std::string f) -> void
-            {
-                std::string symbol = "\tpush " + f;
-                std::string apply = "\tapply";
-                if (is_define) {
-                    ir_define_.push_back(symbol);
-                    ir_define_.push_back(apply);
-                } else {
-                    ir_procedure_.push_back(symbol);
-                    ir_procedure_.push_back(apply);
-                }
-            }
+//             auto create_function(std::string f) -> void
+//             {
+//                 std::string symbol = "\tpush " + f;
+//                 std::string apply = "\tapply";
+//                 if (is_define) {
+//                     ir_define_.push_back(symbol);
+//                     ir_define_.push_back(apply);
+//                 } else {
+//                     ir_procedure_.push_back(symbol);
+//                     ir_procedure_.push_back(apply);
+//                 }
+//             }
 
-            auto define_enable(std::string sym) -> void
-            {
-                is_define = true;
-                symbol = sym;
-            }
+//             auto define_enable() -> void
+//             {
+//                 is_define = true;
+//             }
 
-            auto define_disable() -> void { is_define = false; }
+//             auto define_disable() -> void { is_define = false; }
 
             auto output_ir_code(void) -> void
             {
