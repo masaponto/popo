@@ -6,7 +6,7 @@
 #include <cassert>
 
 #include "syntax.hpp"
-#include "semantic.hpp"
+#include "semantic_ir.hpp"
 #include "debug.hpp"
 
 
@@ -24,14 +24,16 @@ int main()
 
     semantic::semantic_analyzer<input_data> sa(file_data);
 
-//     while(nullptr != sa.analyze());
-    auto symbol_entry = sa.analyze();
-    while (nullptr != symbol_entry) {
-        symbol_entry = sa.analyze();
+    std::cout << "----- immediate code -----" << std::endl;
+    auto ir_list = sa.analyze();
+    while (!ir_list.empty()) {
+        for (auto ir : ir_list) {
+            std::cout << ir << std::endl;
+        }
+        std::cout << std::endl;
+        ir_list = sa.analyze();
     }
 
-    std::cout << "----- immediate code -----" << std::endl;
-    sa.ir_manager.output_ir_code();
 
 //     auto& a = sa.ir_men;
 //     for(auto&& in : a.get_instructions()){

@@ -5,7 +5,7 @@
 #include <cassert>
 #include <memory>
 
-#include "semantic.hpp"
+// #include "semantic.hpp"
 
 namespace popo {
     namespace ir {
@@ -28,6 +28,11 @@ namespace popo {
             std::string symbol;
 
         public:
+            auto add_procedure(std::list<std::string> list)
+                -> void
+            {
+                ir_procedure_.insert(ir_procedure_.end(), list.begin(), list.end());
+            }
 //             auto create_clojure(std::string name = "") -> std::string
 //             {
 //                 std::string label("");

@@ -1,11 +1,9 @@
+(+ 1 2)
 
+(define i #f)
 
-; (+ 1 2)
-
-; (define i #f)
-
-; (define y 10)
-; (+ 1 (+ 2 3))
+(define y 10)
+(+ 1 (+ 2 3))
 
 ; (+ 2 y)
 
@@ -54,12 +52,12 @@
 ;                     (f x))
 ;                 dx))))
 
-(define test
-    (lambda (a)
-        (lambda (c)
-            (a 1 c))))
+; (define test
+;     (lambda (a)
+;         (lambda (c)
+;             (a 1 c))))
 
-(lambda (x) (+ x 1))
+; (lambda (x) (+ x 1))
 
 ; (+ 1 2)
 ; error is occured by below code.
