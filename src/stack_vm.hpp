@@ -31,6 +31,8 @@ namespace popo {
 
             std::map< std::string, std::shared_ptr<symbol_entry>> symbol_table;
 
+            std::list<std::shared_ptr<std::map< std::string, std::shared_ptr<symbol_entry>>>> symbol_table_list;
+
         public:
             auto parse() -> void
             {
@@ -78,8 +80,6 @@ namespace popo {
 
                             const std::string func_name = func_ele->data;
 
-                            std::cout << func_name << std::endl;
-
                             std::list<std::shared_ptr<instruction>> func_code;
                             int arg_num = 0;
                             int ret_num = 1;
@@ -111,6 +111,7 @@ namespace popo {
 
                     default:
                         {
+                            //std::shared_ptr<std::map< std::string, std::shared_ptr<symbol_entry>>>(new global_sym);
                             stack_manager( std::move(*it) );
                         }
 
@@ -122,8 +123,6 @@ namespace popo {
         public :
             auto stack_manager(std::shared_ptr<instruction> ins ) -> void
             {
-
-                // std::stack<element> arg_stack;
 
                 switch(ins->op) {
                 case operation::ret :
@@ -160,7 +159,6 @@ namespace popo {
                                 std::cout << "not implemented" << std::endl;
                             }
 
-
                         } else {
                             std::cout << "Ooops, stack is empty :(" << std::endl;
                         }
@@ -173,9 +171,7 @@ namespace popo {
                     // case operation::push_bool :
                     // case operation::push_list :
                     {
-
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
-
                         stack.push(std::move(op_ins->operand));
                         break;
                     }
@@ -183,12 +179,10 @@ namespace popo {
                     {
 
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
-                        //assert(nullptr != el.get());
 
                         if (op_ins->operand->type == element_type::symbol) {
 
                             auto el = std::static_pointer_cast<symbol_element>(op_ins->operand);
-                            //std::cout << el->data << std::endl;
 
                             auto sym_it = symbol_table.find(el->data);
 
@@ -197,9 +191,13 @@ namespace popo {
                                 if (sym_it->second->sclass == sym_class::var) {
                                     auto e = std::static_pointer_cast<var_entry>( sym_it->second );
                                     stack.push( e->data );
+                                } else {
+                                    std::cout << "func found" << std::endl;
+                                    stack.push(std::move(el));
                                 }
 
                             } else {
+                                std::cout << el->data << std::endl;
                                 stack.push(std::move(el));
                             }
 
@@ -252,18 +250,27 @@ namespace popo {
                                 calc(div_ii, div_fi, div_if, div_ff);
                                 break;
                             }
+                        case element_type::symbol :
+                            {
+                                auto symbol_e = std::static_pointer_cast<symbol_element>(func_e);
+                                auto sym_it = symbol_table.find(symbol_e->data);
 
-                            //         case element_type::data :
-                            //             {
-                            //                 // for(auto it = function_table.begin(); it != function_table.end(); ++it)
-                            //                 //     {
-                            //                 //         if (it->name == e_.operand) {
-                            //                 //             std::cout << "function " << e_.operand << " is called " << std::endl;
-                            //                 //             //run_function(*it);
-                            //                 //         }
-                            //                 //     }
-                            //                 break;
-                            //             }
+                                if (sym_it != symbol_table.end()
+                                    && sym_it->second->sclass == sym_class::func ) {
+
+                                    auto func_e = std::static_pointer_cast<func_entry>( sym_it->second );
+
+                                    // for(auto it = func_e->func->code.begin();
+                                    //     it != func_e->func->code.end(); ++it) {
+
+                                    run_func(func_e->func->code);
+                                    // }
+
+                                }
+
+                                break;
+                            }
+
                         case element_type::define :
                             {
                                 auto name_e = std::move(stack.top());
@@ -322,72 +329,55 @@ namespace popo {
                                         break;
                                     }
 
-                                } //case
+                                    break;
+                                } //end define case
 
-                                // default:
-                            //     {
-                            //         std::cout << "not yet" << std::endl;
-                            //         break;
-                            //    }
+                                break;
+                            }
+                        default:
+                            {
 
-                                //auto v = std::shared_ptr<var_entry>( new var_entry(name_e->, std::move(stack.pop())) );
-                            //                 //symbol_table.insert( make_pair(name_e.operand, v) );
-
-                            //                 std::cout << "define var " << v->name << "  "<< v->data << std::endl;
-
-                            //                 // for(auto it = inst_list.begin();
-                            //                 //     it != inst_list.end(); ++it) {
-                            //                 //     if (it->elm.operand == v.label ) {
-                            //                 //         std::cout << "aa" << std::endl;
-                            //                 //         it->op =
-                            //                 //         it->elm = element(data_e.type, v.data);
-                            //                 //     }
-                            //                 // }
+                                std::cout << "ccccc" << std::endl;
                                 break;
                             }
 
                             break;
-                        }
-
-
-                        //         default :
-                        //             {}
-                        //         }
-                        //         break;
+                        } // end apply case
 
                     }
 
 
-                    //assert(!arg_stack.empty());
                 }
             }
 
 
-            // auto run_function(function func) -> void
-            // {
-            //     for(auto inst_it = func.code.begin();
-            //         inst_it != func.code.end(); ++inst_it) {
+            auto run_func(std::list<std::shared_ptr<instruction>> code) -> void
+            {
+                for(auto inst_it = code.begin();
+                    inst_it != code.end(); ++inst_it) {
 
-            //         if (inst_it->op == operation::param) {
+                    if ((*inst_it)->op == operation::param) {
 
-            //             var v(inst_it->name, stack.top().operand, stack.top().type);
-            //             stack.pop();
-            //             func.var_table.push_back(v);
+                        auto op_ins = std::static_pointer_cast<op_instruction>(*inst_it);
 
-            //             for(auto it = func.code.begin();
-            //                 it != func.code.end(); ++it) {
+                        auto arg_e = stack.top();
+                        stack.pop();
+                        //              func.var_table.push_back(v);
 
-            //                 if (it->elm.operand == v.label ) {
-            //                     it->elm = element(element_type::data, v.data);
-            //                 }
-            //             }
+            //              for(auto it = func.code.begin();
+            //                  it != func.code.end(); ++it) {
+
+            //                  if (it->elm.operand == v.label ) {
+            //                      it->elm = element(element_type::data, v.data);
+            //                  }
+                    }
 
 
-            //         } else {
-            //             stack_manager(*inst_it);
-            //         }
-            //     }
-            // }
+            //          } else {
+            //              stack_manager(*inst_it);
+            //          }
+                }
+            }
 
 
             template<typename Func1, typename Func2, typename Func3, typename Func4>
