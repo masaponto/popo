@@ -19,7 +19,13 @@ namespace popo {
 
     public:
         semantic_analyzer(const Iteratable& itr)
-            : parser_(itr), symbol_stack_(), ir_manager_(), clojure_number(0), definition()
+            : parser_(itr),
+              symbol_stack_(),
+              ir_manager_(),
+              clojure_number(0),
+              definition(),
+              consequent_number(0),
+              alternative_number(0)
         {
             for (auto&& pair : special_form) {
 
@@ -44,6 +50,8 @@ namespace popo {
             symbol_stack_;
         ir::ir_manager ir_manager_;
         int clojure_number;
+        int consequent_number;
+        int alternative_number;
 
     public:
         std::list<std::string> definition;
@@ -56,10 +64,9 @@ namespace popo {
             if (nullptr == conscell) {
                 return std::list<std::string>();
             }
-            std::unique_ptr<syntax::cons_node> head_node(
-                    new syntax::cons_node(
-                        std::move(conscell),
-                        std::unique_ptr<syntax::cons_node>(new syntax::cons_node())));
+            std::unique_ptr<syntax::cons_node> head_node(new syntax::cons_node(
+                std::move(conscell),
+                std::unique_ptr<syntax::cons_node>(new syntax::cons_node())));
 
             return analyze_node(std::move(head_node));
         }
@@ -71,29 +78,29 @@ namespace popo {
             std::list<std::string> s_list;
             switch (node->type) {
                 case syntax::node_type::cons: {
-                    auto c_list = analyze_cons(cast_unique_ptr(std::move(node)));
-                    s_list.insert(
-                        s_list.end(), c_list.begin(), c_list.end());
+                    auto c_list =
+                        analyze_cons(cast_unique_ptr(std::move(node)));
+                    s_list.insert(s_list.end(), c_list.begin(), c_list.end());
                     break;
                 }
                 case syntax::node_type::num: {
                     auto n_node = static_cast<syntax::num_node*>(node.get());
                     auto s = "push_int " + n_node->to_string();
-//                     std::cout << s << std::endl;
+                    //                     std::cout << s << std::endl;
                     s_list.push_back(s);
                     break;
                 }
                 case syntax::node_type::string: {
                     auto s_node = static_cast<syntax::string_node*>(node.get());
                     auto s = "push_string " + s_node->val;
-//                     std::cout << s << std::endl;
+                    //                     std::cout << s << std::endl;
                     s_list.push_back(s);
                     break;
                 }
                 case syntax::node_type::symbol: {
                     auto s_node = static_cast<syntax::symbol_node*>(node.get());
                     auto s = "push_symbol " + s_node->val;
-//                     std::cout << s << std::endl;
+                    //                     std::cout << s << std::endl;
                     s_list.push_back(s);
                     break;
                 }
@@ -101,7 +108,7 @@ namespace popo {
                     auto t_node = static_cast<syntax::trust_node*>(node.get());
                     auto s = "push_trust " + t_node->to_string();
                     s_list.push_back(s);
-//                     std::cout << s << std::endl;
+                    //                     std::cout << s << std::endl;
                     break;
                 }
                 case syntax::node_type::nil: {
@@ -112,7 +119,8 @@ namespace popo {
             return s_list;
         }
 
-        auto analyze_cons(std::unique_ptr<syntax::cons_node> cons) -> std::list<std::string>
+        auto analyze_cons(std::unique_ptr<syntax::cons_node> cons)
+            -> std::list<std::string>
         {
             std::list<std::string> s_list;
             switch (cons->car->type) {
@@ -123,10 +131,14 @@ namespace popo {
 
                     auto car = cast_unique_ptr(std::move(cons->car));
 
-                                        auto apply = "apply";
-                    if(syntax::node_type::symbol == car->car->type){
-                        auto symbol_node = cast_unique_ptr<syntax::symbol_node>(std::move(car->car));
-                        if("lambda" == symbol_node->val){
+                    auto apply = "apply";
+                    if (syntax::node_type::symbol == car->car->type) {
+                        auto symbol_node = cast_unique_ptr<syntax::symbol_node>(
+                            std::move(car->car));
+                        if ("lambda" == symbol_node->val) {
+                            apply = "";
+                        }
+                        else if("if" == symbol_node->val){
                             apply = "";
                         }
                         car->car.reset(symbol_node.release());
@@ -134,7 +146,6 @@ namespace popo {
                     auto car_node =
                         cast_unique_ptr<syntax::expr_node, syntax::cons_node>(
                             std::move(car));
-
 
                     auto car_list = analyze_node(std::move(car_node));
                     s_list.insert(
@@ -146,12 +157,12 @@ namespace popo {
 
                 case syntax::node_type::symbol: {
 
-                    //TODO
+                    // TODO
                     auto s_node = cast_unique_ptr<syntax::symbol_node>(
                         std::move(cons->car));
                     auto symbol = s_node->val;
                     cons->car.reset(
-                            dynamic_cast<syntax::expr_node*>(s_node.release()));
+                        dynamic_cast<syntax::expr_node*>(s_node.release()));
 
                     if (is_special_form(symbol)) {
                         return special_form_procedure(std::move(cons));
@@ -182,17 +193,16 @@ namespace popo {
             auto s_node =
                 cast_unique_ptr<syntax::symbol_node>(std::move(cons->car));
 
-            if("quote" == s_node->val){
-                auto quote_args_cons = std::move(cast_unique_ptr(std::move(cons->cdr))->car);
+            if ("quote" == s_node->val) {
+                auto quote_args_cons =
+                    std::move(cast_unique_ptr(std::move(cons->cdr))->car);
                 assert(syntax::node_type::cons == quote_args_cons->type);
 
                 auto a_list = analyze_node(std::move(quote_args_cons));
-                r_list.insert(
-                        r_list.end(), a_list.begin(), a_list.end());
+                r_list.insert(r_list.end(), a_list.begin(), a_list.end());
 
                 r_list.push_back("make_list " + std::to_string(a_list.size()));
-            }
-            else if("lambda" == s_node->val){
+            } else if ("lambda" == s_node->val) {
 
                 std::list<std::string> def_tmp;
                 auto cdr = cast_unique_ptr(std::move(cons->cdr));
@@ -207,7 +217,6 @@ namespace popo {
                 def_tmp.insert(
                     def_tmp.begin(), func_list.begin(), func_list.end());
 
-
                 // argument node
                 auto args_node = std::move(cdr->car);
                 assert(syntax::node_type::cons == args_node->type);
@@ -218,42 +227,85 @@ namespace popo {
                         s.insert(0, "param");
                     });
 
-                def_tmp.insert(def_tmp.begin(), arg_list.begin(), arg_list.end());
+                def_tmp.insert(
+                    def_tmp.begin(), arg_list.begin(), arg_list.end());
 
                 // label
                 auto clojure = "clojure_" + std::to_string(clojure_number++);
                 def_tmp.push_front(clojure + ":");
 
-                definition.insert(definition.end(), def_tmp.begin(), def_tmp.end());
+                definition.insert(
+                    definition.end(), def_tmp.begin(), def_tmp.end());
                 definition.push_back("\n");
 
                 r_list.push_back("push_clojure " + clojure + "\n");
 
+            } else if ("if" == s_node->val) {
+
+                // test node
+                auto test_node = std::move(cons->cdr);
+                auto test_cons = cast_unique_ptr(std::move(test_node));
+                auto test_list = analyze_node(
+                    std::unique_ptr<syntax::cons_node>(new syntax::cons_node(
+                        std::move(test_cons->car),
+                        std::unique_ptr<syntax::cons_node>(
+                            new syntax::cons_node()))));
+                r_list.insert(
+                    r_list.begin(), test_list.begin(), test_list.end());
+                r_list.push_back(
+                    "branch true_" + std::to_string(consequent_number + 1) +
+                    ", false_" + std::to_string(alternative_number + 1));
+
+                // consequent node
+                auto consequent = std::move(test_cons->cdr);
+                auto consequent_cons = cast_unique_ptr(std::move(consequent));
+                auto conse = analyze_node(std::unique_ptr<syntax::cons_node>(
+                    new syntax::cons_node(std::move(consequent_cons->car),
+                                          std::unique_ptr<syntax::cons_node>(
+                                              new syntax::cons_node()))));
+
+                conse.push_front("true_" + std::to_string(consequent_number++) +
+                                 ":");
+                conse.push_back("return");
+                definition.insert(definition.end(), conse.begin(), conse.end());
+
+                // alternative node
+                auto alternative = std::move(consequent_cons->cdr);
+                auto alternative_cons = cast_unique_ptr(std::move(alternative));
+                auto alter = analyze_node(std::unique_ptr<syntax::cons_node>(
+                    new syntax::cons_node(std::move(alternative_cons->car),
+                                          std::unique_ptr<syntax::cons_node>(
+                                              new syntax::cons_node()))));
+
+                alter.push_front("false_" +
+                                 std::to_string(alternative_number++) + ":");
+                alter.push_back("return");
+                definition.insert(definition.end(), alter.begin(), alter.end());
 
             }
-//             else if("define" == s_node->val){
+            //             else if("define" == s_node->val){
 
-//             }
+            //             }
             else {
                 assert(false);
             }
 
             return r_list;
-
         }
 
-        auto is_special_form(std::string symbol)
-            -> bool
+        auto is_special_form(std::string symbol) -> bool
         {
             if ("quote" == symbol) {
                 return true;
-            }
-            else if("lambda" == symbol) {
+            } else if ("lambda" == symbol) {
                 return true;
             }
-//             else if ("if" == symbol) {
-//                 return true;
-//             }
+            else if("if" == symbol) {
+                return true;
+            }
+            //             else if ("if" == symbol) {
+            //                 return true;
+            //             }
             else {
                 return false;
             }
@@ -261,10 +313,12 @@ namespace popo {
 
         template <typename dest_type = syntax::cons_node,
                   typename src_type = syntax::expr_node>
-        auto cast_unique_ptr(std::unique_ptr<src_type> node) -> std::unique_ptr<dest_type>
+        auto cast_unique_ptr(std::unique_ptr<src_type> node)
+            -> std::unique_ptr<dest_type>
         {
             assert(nullptr != node);
-            return std::unique_ptr<dest_type>(static_cast<dest_type*>(node.release()));
+            return std::unique_ptr<dest_type>(
+                static_cast<dest_type*>(node.release()));
         }
     };
 

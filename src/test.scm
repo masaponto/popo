@@ -2,7 +2,7 @@
 
 ; (define i #f)
 
-; (define y 10)
+(define y 10)
 ; (+ 1 (+ 2 3))
 
 ; (+ 2 y)
@@ -18,9 +18,9 @@
 
 ; (define z (quote (y "hello")))
 
-; (if (= y 4)
-;      (+ 3 4)
-;      (- y 4))
+(if (= y 4)
+     (+ 3 4)
+     (- y 4))
 
 ; (x 1 (+ 1 2))
 
@@ -52,12 +52,12 @@
 ;                     (f x))
 ;                 dx))))
 
-(define test
-    (lambda (a)
-        (lambda (c)
-            (a 1 c))))
+; (define test
+;     (lambda (a)
+;         (lambda (c)
+;             (a 1 c))))
 
-((lambda (x) (+ x 1)) 2)
+; ((lambda (x) (+ x 1)) 2)
 
 ; (+ 1 2)
 ; error is occured by below code.
