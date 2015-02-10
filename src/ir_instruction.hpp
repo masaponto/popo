@@ -83,14 +83,14 @@ namespace popo {
 
         struct op_instruction : instruction {
         public:
-            op_instruction(operation o, std::unique_ptr<element> e)
+            op_instruction(operation o, std::shared_ptr<element> e)
                 : instruction(o)
             {
                 operand = std::move(e);
             }
 
         public :
-            std::unique_ptr<element> operand;
+            std::shared_ptr<element> operand;
         };
 
 

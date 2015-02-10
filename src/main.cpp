@@ -74,15 +74,16 @@ main:\n\
 
     std::string ir_code2("\
 main:\n\
-\tpush_int 3\n\
+\tpush_float 3.3\n\
 \tpush_symbol x\n\
 \tpush_symbol define\n\
 \tapply\n\
 \tpush_symbol x\n\
+\tpush_int 4\n\
+\tpush_symbol +\n\
+\tapply\n\
 \twrite\n\
  ");
-
-    std::cout << ir_code2 << std::endl;
 
     run_vm(ir_code2);
 
@@ -108,8 +109,6 @@ main:\n\
 \twrite\n\
 ");
 
-    //std::cout << ir_code3 << std::endl;
-
-    //run_vm(ir_code3);
+    run_vm(ir_code3);
 
 }

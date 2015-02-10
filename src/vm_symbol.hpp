@@ -32,26 +32,26 @@ namespace popo {
         struct function {
         public :
             //function (std::string n, int num)
-            function (std::string n, int num, std::list<std::unique_ptr<instruction>> c)
+            function (std::string n, int num, std::list<std::shared_ptr<instruction>> c)
                 : name(n), arg_num(num)
             {
-                //code = std::move(c);
+                code = std::move(c);
             };
 
         public:
             std::string name;
             int arg_num;
-            //std::list<std::unique_ptr<instruction>> code;
+            std::list<std::shared_ptr<instruction>> code;
         };
 
 
         struct func_entry : symbol_entry {
         public:
-            func_entry (std::string n, function f)
+            func_entry (std::string n, std::shared_ptr<function> f)
                 : symbol_entry(sym_class::func, n), func(f) {}
 
         public:
-            function func;
+            std::shared_ptr<function> func;
         };
 
 

@@ -23,11 +23,11 @@ namespace popo {
 
         private:
             std::stringstream ir_code_ss;
-            std::list<std::unique_ptr<instruction>> instruction_list;
+            std::list<std::shared_ptr<instruction>> instruction_list;
 
-            std::stack<std::unique_ptr<element>> stack;
+            std::stack<std::shared_ptr<element>> stack;
 
-            std::map<std::string, std::unique_ptr<function>> function_table;
+            std::map<std::string, std::shared_ptr<function>> function_table;
             //std::stack<function> function_stack;
             //std::list<var> var_table;
 
@@ -75,17 +75,14 @@ namespace popo {
                         {
                             std::cout << "function define" << std::endl;
 
-                            auto op_ins = std::unique_ptr<op_instruction>
-                                (static_cast<op_instruction *>((*it).release()));
-
-                            auto func_ele = std::unique_ptr<symbol_element>
-                                (static_cast<symbol_element *>((op_ins->operand).release()));
+                            auto op_ins = std::static_pointer_cast<op_instruction>(*it);
+                            auto func_ele = std::static_pointer_cast<symbol_element>(op_ins->operand);
 
                             const std::string func_name = func_ele->data;
 
                             std::cout << func_name << std::endl;
 
-                            std::list<std::unique_ptr<instruction>> func_code;
+                            std::list<std::shared_ptr<instruction>> func_code;
                             int arg_num = 0;
                             int ret_num = 1;
 
@@ -107,12 +104,11 @@ namespace popo {
                             }
 
 
-                            // function_table.insert( make_pair(func_name, std::unique_ptr<function>
-                            //                                  (new function(func_name, arg_num, std::move(func_code) ) ) ) );
+                            function_table.insert( make_pair(func_name, std::shared_ptr<function>
+                                                             (new function(func_name, arg_num, std::move(func_code) ) ) ) );
 
-                            //         std::cout << func_name << std::endl;
-                            //         //it = parse_func(it);
-                             break;
+                            std::cout << func_name << std::endl;
+                            break;
                         }
 
                     default:
@@ -122,12 +118,11 @@ namespace popo {
 
                     }
                 }
-                // assert(!stack.empty());
             }
 
 
         public :
-            auto stack_manager(std::unique_ptr<instruction> ins ) -> void
+            auto stack_manager(std::shared_ptr<instruction> ins ) -> void
             {
 
                 // std::stack<element> arg_stack;
@@ -152,15 +147,14 @@ namespace popo {
                             switch(e->type) {
                             case element_type::integer :
                                 {
-                                    auto e_int = std::unique_ptr<int_element>
-                                        (static_cast<int_element *>(e.release()));
+                                    auto e_int = std::static_pointer_cast<int_element>(e);
+
                                     std::cout << e_int->data << std::endl;
                                     break;
                                 }
                             case element_type::real :
                                 {
-                                    auto e_real = std::unique_ptr<real_element>
-                                        (static_cast<real_element *>(e.release()));
+                                    auto e_real = std::static_pointer_cast<real_element>(e);
                                     std::cout << e_real->data << std::endl;
                                     break;
                                 }
@@ -181,28 +175,26 @@ namespace popo {
                     // case operation::push_bool :
                     // case operation::push_list :
                     {
-                        auto op_ins = std::unique_ptr<op_instruction>
-                            (static_cast<op_instruction *>(ins.release()));
+
+                        auto op_ins = std::static_pointer_cast<op_instruction>(ins);
 
                         stack.push(std::move(op_ins->operand));
                         break;
                     }
                 case operation::push_symbol :
                     {
-                        auto op_ins = std::unique_ptr<op_instruction>
-                            (static_cast<op_instruction *>(ins.release()));
 
-                        auto el = std::unique_ptr<symbol_element>
-                            (static_cast<symbol_element *>(op_ins->operand.release()));
+                        auto op_ins = std::static_pointer_cast<op_instruction>(ins);
 
+                        auto el = std::static_pointer_cast<symbol_element>(op_ins->operand);
+                        assert(nullptr == el.get());
                         auto sym_it = symbol_table.find(el->data);
 
                         if (sym_it != symbol_table.end() ) {
 
-
                             if (sym_it->second->sclass == sym_class::var) {
                                 auto e = std::static_pointer_cast<var_entry>( sym_it->second );
-                                stack.push( std::unique_ptr<element>( (e->data).get() ) );
+                                stack.push( e->data );
                             }
 
                         }
@@ -218,10 +210,12 @@ namespace popo {
                     {
                         auto func_e = std::move( stack.top() );
                         stack.pop();
+                        std::cout << "aababa" << std::endl;
 
                         switch(func_e->type) {
                         case element_type::add :
                             {
+
                                 auto add_ii = [](int a, int b)->int{ return a + b; };
                                 auto add_fi = [](float a, int b)->float{ return a + b; };
                                 auto add_if = [](int a, float b)->float{ return a + b; };
@@ -276,38 +270,63 @@ namespace popo {
                                 auto data_e = std::move(stack.top());
                                 stack.pop();
 
-                                auto name_sym_e = std::unique_ptr<symbol_element>
-                                    (static_cast<symbol_element *>(name_e.release()));
+                                auto name_sym_e = std::static_pointer_cast<symbol_element>(name_e);
 
                                 switch(data_e->type) {
 
                                 case element_type::integer :
                                         {
-                                            auto e_int = std::shared_ptr<int_element>
-                                                (static_cast<int_element *>(data_e.release()));
 
-                                            std::shared_ptr<symbol_entry> d
+                                            auto e_int = std::static_pointer_cast<int_element>(data_e);
+
+                                            std::shared_ptr<symbol_entry> int_var
                                                 ( new var_entry(name_sym_e->data, std::move(e_int)));
 
-                                            symbol_table.insert(make_pair(name_sym_e->data, d));
+                                            symbol_table.insert(make_pair(name_sym_e->data, std::move(int_var)));
 
-                                            //std::cout << e_int->data << std::endl;
                                             break;
                                         }
                                 case element_type::real:
                                     {
-                                        auto e_real = std::unique_ptr<real_element>
-                                                (static_cast<real_element *>(data_e.release()));
-                                        std::cout << e_real->data << std::endl;
+                                        auto e_real = std::static_pointer_cast<real_element>(data_e);
+
+                                        std::shared_ptr<symbol_entry> real_var
+                                            ( new var_entry(name_sym_e->data, std::move(e_real)));
+
+                                        symbol_table.insert(make_pair(name_sym_e->data, std::move(real_var)));
+
+                                        break;
+                                    }
+                                case element_type::symbol:
+                                    {
+                                        auto e_func = std::static_pointer_cast<symbol_element>(data_e);
+
+                                        auto fn_it = function_table.find(e_func->data);
+
+
+                                        if(fn_it != function_table.end()) {
+
+                                            std::shared_ptr<symbol_entry> func
+                                                ( new func_entry(name_sym_e->data, fn_it->second));
+
+                                            symbol_table.insert(make_pair(name_sym_e->data, std::move(func)));
+
+                                            //std::cout << "a" << std::endl;
+                                        }
+                                        else {
+                                            std::cout << "Oooops the function is not defined" << std::endl;
+                                        }
 
                                         break;
                                     }
 
-                                }
+                                } //case
 
-
-
-
+                                // default:
+                            //     {
+                            //         std::cout << "not yet" << std::endl;
+                            //         break;
+                            //    }
 
                                 //auto v = std::shared_ptr<var_entry>( new var_entry(name_e->, std::move(stack.pop())) );
                             //                 //symbol_table.insert( make_pair(name_e.operand, v) );
@@ -381,54 +400,45 @@ namespace popo {
                 if (e1->type == element_type::integer
                     && e2->type == element_type::integer) {
 
-                    auto e1_int = std::unique_ptr<int_element>
-                        (static_cast<int_element *>(e1.release()));
-                    auto e2_int = std::unique_ptr<int_element>
-                        (static_cast<int_element *>(e2.release()));
+                    auto e1_int = std::static_pointer_cast<int_element>(e1);
+                    auto e2_int = std::static_pointer_cast<int_element>(e2);
 
-                    std::unique_ptr<element> e3( new int_element( f1( e1_int->data, e2_int->data ) ) );
+                    std::shared_ptr<element> e3( new int_element( f1( e1_int->data, e2_int->data ) ) );
                     stack.push(std::move(e3));
 
                 }
                 else if (e1->type == element_type::real
                          && e2->type == element_type::integer) {
 
-                    auto e1_real = std::unique_ptr<real_element>
-                        (static_cast<real_element *>(e1.release()));
+                    auto e1_real = std::static_pointer_cast<real_element>(e1);
 
-                    auto e2_int = std::unique_ptr<int_element>
-                        (static_cast<int_element *>(e2.release()));
+                    auto e2_int = std::static_pointer_cast<int_element>(e2);
 
-                    std::unique_ptr<element> e3( new real_element( f2(e1_real->data,e2_int->data) ) );
+                    std::shared_ptr<element> e3( new real_element( f2(e1_real->data, e2_int->data) ) );
                     stack.push(std::move(e3));
                 }
                 else if (e1->type == element_type::integer
                          && e2->type == element_type::real) {
 
-                    auto e1_int = std::unique_ptr<int_element>
-                        (static_cast<int_element *>(e1.release()));
 
-                    auto e2_real = std::unique_ptr<real_element>
-                        (static_cast<real_element *>(e2.release()));
+                    auto e1_int = std::static_pointer_cast<int_element>(e1);
+                    auto e2_real = std::static_pointer_cast<real_element>(e2);
 
-                    std::unique_ptr<element> e3( new real_element( f3(e1_int->data, e2_real->data) ) );
+                    std::shared_ptr<element> e3( new real_element( f3(e1_int->data, e2_real->data) ) );
                     stack.push(std::move(e3));
                 }
                 else {
 
-                    auto e1_real = std::unique_ptr<real_element>
-                        (static_cast<real_element *>(e1.release()));
+                    auto e1_real = std::static_pointer_cast<real_element>(e1);
+                    auto e2_real = std::static_pointer_cast<real_element>(e1);
 
-                    auto e2_real = std::unique_ptr<real_element>
-                        (static_cast<real_element *>(e2.release()));
-
-                    std::unique_ptr<element> e3( new real_element( f4(e1_real->data, e2_real->data) ) );
+                    std::shared_ptr<element> e3( new real_element( f4(e1_real->data, e2_real->data) ) );
                     stack.push(std::move(e3));
                 }
             }
 
         public:
-            auto create_inst(std::vector<std::string> inst_vec) -> std::unique_ptr<instruction>
+            auto create_inst(std::vector<std::string> inst_vec) -> std::shared_ptr<instruction>
             {
                 const std::string op_s = inst_vec[0];
                 operation op;
@@ -455,21 +465,19 @@ namespace popo {
                 else if (*(op_s.end() - 1 ) == ':') {
                     std::string fn_name = op_s;
                     fn_name.erase(fn_name.end() - 1);
-                    return std::unique_ptr<op_instruction>
-                        ( new op_instruction( operation::func, std::unique_ptr<element>
+                    return std::shared_ptr<op_instruction>
+                        ( new op_instruction( operation::func, std::shared_ptr<element>
                                               ( new symbol_element( fn_name ) ) ) );
                 }
 
                 else if (op_s == "\tpush_int") {
-                    //std::unique_ptr<element> int_e(new int_element( std::stoi(inst_vec[1])) );
-                    //return std::unique_ptr<op_instruction>( new op_instruction(operation::push_int, int_e) );
-                    return std::unique_ptr<op_instruction>
-                        ( new op_instruction( operation::push_int, std::unique_ptr<element>
+                    return std::shared_ptr<op_instruction>
+                        ( new op_instruction( operation::push_int, std::shared_ptr<element>
                                               ( new int_element( std::stoi( inst_vec[1] ) ) ) ) );
                 }
                 else if (op_s == "\tpush_float") {
-                    return std::unique_ptr<op_instruction>
-                        ( new op_instruction( operation::push_float, std::unique_ptr<element>
+                    return std::shared_ptr<op_instruction>
+                        ( new op_instruction( operation::push_float, std::shared_ptr<element>
                                               ( new real_element( std::stof( inst_vec[1] ) ) ) ) );
                 }
 
@@ -484,11 +492,11 @@ namespace popo {
                 // }
 
                 else if (op_s == "\tpush_symbol") {
-                    return std::unique_ptr<op_instruction>
+                    return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::push_symbol, create_op_element( inst_vec[1] ) ) );
                 }
                 else if (op_s == "\tparam") {
-                    return std::unique_ptr<op_instruction>
+                    return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::param, create_op_element( inst_vec[1] ) ) );
                 }
                 // else if (op_s == "\tmake_clojure") {
@@ -500,12 +508,12 @@ namespace popo {
                     op = operation::branch;
                 }
 
-                return std::unique_ptr<instruction>( new instruction(op) );
+                return std::shared_ptr<instruction>( new instruction(op) );
 
             }
 
         public:
-            auto create_op_element(const std::string operand) -> std::unique_ptr<element>
+            auto create_op_element(const std::string operand) -> std::shared_ptr<element>
             {
                 element_type type;
 
@@ -546,10 +554,10 @@ namespace popo {
                     type = element_type::define;
                 }
                 else {
-                    return std::unique_ptr<element>( new symbol_element(operand) );
+                    return std::shared_ptr<element>( new symbol_element(operand) );
                 }
 
-                return std::unique_ptr<element>( new element(type) );
+                return std::shared_ptr<element>( new element(type) );
             }
 
         };
