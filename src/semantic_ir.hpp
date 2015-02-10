@@ -4,6 +4,7 @@
 #include <memory>
 #include <list>
 #include <string>
+#include <algorithm>
 
 #include "syntax.hpp"
 #include "symbol_table.hpp"
@@ -18,7 +19,7 @@ namespace popo {
 
     public:
         semantic_analyzer(const Iteratable& itr)
-            : parser_(itr), symbol_stack_(), ir_manager_()
+            : parser_(itr), symbol_stack_(), ir_manager_(), clojure_number(0), definition()
         {
             for (auto&& pair : special_form) {
 
@@ -42,6 +43,10 @@ namespace popo {
         std::list<std::pair<std::string, std::shared_ptr<symbol_table_entry>>>
             symbol_stack_;
         ir::ir_manager ir_manager_;
+        int clojure_number;
+
+    public:
+        std::list<std::string> definition;
 
     public:
         auto analyze() -> std::list<std::string>
@@ -115,15 +120,30 @@ namespace popo {
                     auto cdr_list = analyze_node(std::move(cons->cdr));
                     s_list.insert(
                         s_list.end(), cdr_list.begin(), cdr_list.end());
-                    auto car_list = analyze_node(std::move(cons->car));
+
+                    auto car = cast_unique_ptr(std::move(cons->car));
+
+                                        auto apply = "apply";
+                    if(syntax::node_type::symbol == car->car->type){
+                        auto symbol_node = cast_unique_ptr<syntax::symbol_node>(std::move(car->car));
+                        if("lambda" == symbol_node->val){
+                            apply = "";
+                        }
+                        car->car.reset(symbol_node.release());
+                    }
+                    auto car_node =
+                        cast_unique_ptr<syntax::expr_node, syntax::cons_node>(
+                            std::move(car));
+
+
+                    auto car_list = analyze_node(std::move(car_node));
                     s_list.insert(
                         s_list.end(), car_list.begin(), car_list.end());
-                    s_list.push_back("apply");
+
+                    s_list.push_back(apply);
                     break;
                 }
 
-                case syntax::node_type::num:
-                case syntax::node_type::string:
                 case syntax::node_type::symbol: {
 
                     //TODO
@@ -137,6 +157,8 @@ namespace popo {
                         return special_form_procedure(std::move(cons));
                     }
                 }
+                case syntax::node_type::num:
+                case syntax::node_type::string:
                 case syntax::node_type::trust: {
                     auto cdr_list = analyze_node(std::move(cons->cdr));
                     s_list.insert(
@@ -170,6 +192,45 @@ namespace popo {
 
                 r_list.push_back("make_list " + std::to_string(a_list.size()));
             }
+            else if("lambda" == s_node->val){
+
+                std::list<std::string> def_tmp;
+                auto cdr = cast_unique_ptr(std::move(cons->cdr));
+
+                // function node
+                auto f_node = cast_unique_ptr(std::move(cdr->cdr));
+                assert(syntax::node_type::cons == f_node->car->type);
+
+                auto func_list = analyze_node(std::move(f_node));
+                func_list.insert(func_list.end(), "return");
+
+                def_tmp.insert(
+                    def_tmp.begin(), func_list.begin(), func_list.end());
+
+
+                // argument node
+                auto args_node = std::move(cdr->car);
+                assert(syntax::node_type::cons == args_node->type);
+                auto arg_list = analyze_node(std::move(args_node));
+                std::for_each(
+                    arg_list.begin(), arg_list.end(), [](std::string& s) {
+                        s.erase(s.begin(), s.begin() + s.find(" "));
+                        s.insert(0, "param");
+                    });
+
+                def_tmp.insert(def_tmp.begin(), arg_list.begin(), arg_list.end());
+
+                // label
+                auto clojure = "clojure_" + std::to_string(clojure_number++);
+                def_tmp.push_front(clojure + ":");
+
+                definition.insert(definition.end(), def_tmp.begin(), def_tmp.end());
+                definition.push_back("\n");
+
+                r_list.push_back("push_clojure " + clojure + "\n");
+
+
+            }
 //             else if("define" == s_node->val){
 
 //             }
@@ -185,6 +246,9 @@ namespace popo {
             -> bool
         {
             if ("quote" == symbol) {
+                return true;
+            }
+            else if("lambda" == symbol) {
                 return true;
             }
 //             else if ("if" == symbol) {

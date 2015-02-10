@@ -33,6 +33,10 @@ int main()
         std::cout << std::endl;
         ir_list = sa.analyze();
     }
+    std::cout << "-- def --" << std::endl;
+    for(auto def: sa.definition) {
+        std::cout << def << std::endl;
+    }
 
 
 //     auto& a = sa.ir_men;

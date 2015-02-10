@@ -16,7 +16,7 @@
 ;     (lambda (a b)
 ;         (+ a b)))
 
-(define z (quote (y "hello")))
+; (define z (quote (y "hello")))
 
 ; (if (= y 4)
 ;      (+ 3 4)
@@ -52,12 +52,12 @@
 ;                     (f x))
 ;                 dx))))
 
-; (define test
-;     (lambda (a)
-;         (lambda (c)
-;             (a 1 c))))
+(define test
+    (lambda (a)
+        (lambda (c)
+            (a 1 c))))
 
-; (lambda (x) (+ x 1))
+((lambda (x) (+ x 1)) 2)
 
 ; (+ 1 2)
 ; error is occured by below code.
