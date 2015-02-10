@@ -30,21 +30,21 @@ int main()
 {
     using namespace popo;
 
-    std::string filename("test.scm");
-    std::ifstream fs(filename);
+    // std::string filename("test.scm");
+    // std::ifstream fs(filename);
 
-    using input_data = std::list<char>;
+    // using input_data = std::list<char>;
 
-    const input_data file_data{std::istreambuf_iterator<char>(fs),
-            std::istreambuf_iterator<char>()};
+    // const input_data file_data{std::istreambuf_iterator<char>(fs),
+    //         std::istreambuf_iterator<char>()};
 
-    semantic::semantic_analyzer<input_data> sa(file_data);
+    // semantic::semantic_analyzer<input_data> sa(file_data);
 
 
-        auto symbol_entry = sa.analyze();
-    while (nullptr != symbol_entry) {
-        symbol_entry = sa.analyze();
-    }
+    //     auto symbol_entry = sa.analyze();
+    // while (nullptr != symbol_entry) {
+    //     symbol_entry = sa.analyze();
+    // }
 
 
     std::cout << "===== ir ======" << std::endl;
@@ -70,8 +70,7 @@ main:\n\
 \twrite\n\
 ");
 
-    //run_vm(ir_code1_);
-
+    run_vm(ir_code1_);
 
     std::string ir_code2("\
 main:\n\
@@ -83,7 +82,7 @@ main:\n\
 \twrite\n\
  ");
 
-    //std::cout << ir_code2 << std::endl;
+    std::cout << ir_code2 << std::endl;
 
     run_vm(ir_code2);
 
@@ -111,6 +110,6 @@ main:\n\
 
     //std::cout << ir_code3 << std::endl;
 
-    run_vm(ir_code3);
+    //run_vm(ir_code3);
 
 }

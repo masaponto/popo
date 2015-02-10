@@ -8,14 +8,15 @@ namespace popo {
                 add, sub, mul, div, eq,
                 lt, mt, lte, mte, land, lor,
                 cons, car, cdr,
-                func, data, define
+                symbol, data, define
                 };
 
 
         struct element {
         public :
-            element(){}
             element(element_type t) :type(t) {}
+
+            virtual ~element() {}
 
         public:
             element_type type;
@@ -57,9 +58,9 @@ namespace popo {
             std::list<T> data;
         };
 
-        struct func_element : element {
+        struct symbol_element : element {
         public:
-            func_element(std::string op) : element(element_type::func), data(op) {}
+            symbol_element(std::string op) : element(element_type::symbol), data(op) {}
         public:
             std::string data;
         };
@@ -73,7 +74,8 @@ namespace popo {
 
         struct instruction {
         public:
-            instruction (operation o) :op(o) {}
+           instruction (operation o) :op(o) {}
+            virtual ~instruction(){}
 
         public:
             operation op;
@@ -81,7 +83,7 @@ namespace popo {
 
         struct op_instruction : instruction {
         public:
-            op_instruction(operation o, std::unique_ptr<element> e )
+            op_instruction(operation o, std::unique_ptr<element> e)
                 : instruction(o)
             {
                 operand = std::move(e);

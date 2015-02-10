@@ -26,7 +26,7 @@ $(EXECUTABLE): $(OBJECTS)
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
-gdb_run: $(DEBUG_EXECUTABL)
+gdb_run:
 	$(CXX) -std=c++11 -ggdb3 -o $(DEBUG_EXECUTABL) main.cpp
 	gdb -x cmd.gdb
 

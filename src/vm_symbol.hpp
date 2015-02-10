@@ -13,6 +13,8 @@ namespace popo {
         struct symbol_entry {
         public:
             symbol_entry(sym_class c, std::string n) : sclass(c), name(n) {}
+            virtual ~symbol_entry() {}
+
         public:
             sym_class sclass;
             std::string name;
@@ -20,11 +22,11 @@ namespace popo {
 
         struct var_entry : symbol_entry {
         public:
-            var_entry(std::string n, element e)
+            var_entry(std::string n, std::shared_ptr<element> e)
                 : symbol_entry(sym_class::var, n), data(e) {}
 
         public:
-            element data;
+            std::shared_ptr<element> data;
         };
 
         struct function {
