@@ -28,8 +28,6 @@ namespace popo {
             std::stack<std::shared_ptr<element>> stack;
 
             std::map<std::string, std::shared_ptr<function>> function_table;
-            //std::stack<function> function_stack;
-            //std::list<var> var_table;
 
             std::map< std::string, std::shared_ptr<symbol_entry>> symbol_table;
 
@@ -185,21 +183,27 @@ namespace popo {
                     {
 
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
+                        //assert(nullptr != el.get());
 
-                        auto el = std::static_pointer_cast<symbol_element>(op_ins->operand);
-                        assert(nullptr == el.get());
-                        auto sym_it = symbol_table.find(el->data);
+                        if (op_ins->operand->type == element_type::symbol) {
 
-                        if (sym_it != symbol_table.end() ) {
+                            auto el = std::static_pointer_cast<symbol_element>(op_ins->operand);
+                            //std::cout << el->data << std::endl;
 
-                            if (sym_it->second->sclass == sym_class::var) {
-                                auto e = std::static_pointer_cast<var_entry>( sym_it->second );
-                                stack.push( e->data );
+                            auto sym_it = symbol_table.find(el->data);
+
+                            if (sym_it != symbol_table.end()) {
+
+                                if (sym_it->second->sclass == sym_class::var) {
+                                    auto e = std::static_pointer_cast<var_entry>( sym_it->second );
+                                    stack.push( e->data );
+                                }
+
+                            } else {
+                                stack.push(std::move(el));
                             }
 
-                        }
-                        else {
-                            op_ins->operand=std::move(el);
+                        } else {
                             stack.push(std::move(op_ins->operand));
                         }
 
@@ -210,12 +214,10 @@ namespace popo {
                     {
                         auto func_e = std::move( stack.top() );
                         stack.pop();
-                        std::cout << "aababa" << std::endl;
 
                         switch(func_e->type) {
                         case element_type::add :
                             {
-
                                 auto add_ii = [](int a, int b)->int{ return a + b; };
                                 auto add_fi = [](float a, int b)->float{ return a + b; };
                                 auto add_if = [](int a, float b)->float{ return a + b; };
@@ -411,7 +413,6 @@ namespace popo {
                          && e2->type == element_type::integer) {
 
                     auto e1_real = std::static_pointer_cast<real_element>(e1);
-
                     auto e2_int = std::static_pointer_cast<int_element>(e2);
 
                     std::shared_ptr<element> e3( new real_element( f2(e1_real->data, e2_int->data) ) );
@@ -430,7 +431,7 @@ namespace popo {
                 else {
 
                     auto e1_real = std::static_pointer_cast<real_element>(e1);
-                    auto e2_real = std::static_pointer_cast<real_element>(e1);
+                    auto e2_real = std::static_pointer_cast<real_element>(e2);
 
                     std::shared_ptr<element> e3( new real_element( f4(e1_real->data, e2_real->data) ) );
                     stack.push(std::move(e3));

@@ -63,9 +63,9 @@ main:\n\
 
     std::string ir_code1_("\
 main:\n\
-\tpush_int 3\n\
+\tpush_float 3.3\n\
 \tpush_float 5.22\n\
-\tpush_symbol /\n\
+\tpush_symbol +\n\
 \tapply\n\
 \twrite\n\
 ");
@@ -79,7 +79,7 @@ main:\n\
 \tpush_symbol define\n\
 \tapply\n\
 \tpush_symbol x\n\
-\tpush_int 4\n\
+\tpush_float 5.2\n\
 \tpush_symbol +\n\
 \tapply\n\
 \twrite\n\
