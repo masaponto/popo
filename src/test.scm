@@ -1,8 +1,10 @@
 ; (+ 1 2)
 
+(+ 2 1.4)
+
 ; (define i #f)
 
-(define y 10)
+; (define y 10)
 ; (+ 1 (+ 2 3))
 
 ; (+ 2 y)
@@ -17,10 +19,13 @@
 ;         (+ a b)))
 
 ; (define z (quote (y "hello")))
+; (cdr z)
 
-(if (= y 4)
-     (+ 3 4)
-     (- y 4))
+; (define c (cons 1 2 3))
+
+; (if (= y 4)
+;      (+ 3 4)
+;      (- y 4))
 
 ; (x 1 (+ 1 2))
 

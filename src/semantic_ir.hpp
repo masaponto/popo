@@ -8,7 +8,7 @@
 
 #include "syntax.hpp"
 #include "symbol_table.hpp"
-#include "ir.hpp"
+// #include "ir.hpp"
 
 
 namespace popo {
@@ -21,7 +21,6 @@ namespace popo {
         semantic_analyzer(const Iteratable& itr)
             : parser_(itr),
               symbol_stack_(),
-              ir_manager_(),
               clojure_number(0),
               definition(),
               consequent_number(0),
@@ -48,7 +47,6 @@ namespace popo {
         syntax::s_expression_parser<Iteratable> parser_;
         std::list<std::pair<std::string, std::shared_ptr<symbol_table_entry>>>
             symbol_stack_;
-        ir::ir_manager ir_manager_;
         int clojure_number;
         int consequent_number;
         int alternative_number;
@@ -111,6 +109,13 @@ namespace popo {
                     //                     std::cout << s << std::endl;
                     break;
                 }
+                case syntax::node_type::real:{
+                    auto r_node = static_cast<syntax::real_node*>(node.get());
+                    auto s = "push_float " + r_node->to_string();
+                    s_list.push_back(s);
+                    break;
+
+                }
                 case syntax::node_type::nil: {
                     break;
                 }
@@ -170,6 +175,7 @@ namespace popo {
                 }
                 case syntax::node_type::num:
                 case syntax::node_type::string:
+                case syntax::node_type::real:
                 case syntax::node_type::trust: {
                     auto cdr_list = analyze_node(std::move(cons->cdr));
                     s_list.insert(

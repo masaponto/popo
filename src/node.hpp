@@ -4,7 +4,7 @@
 namespace popo {
 namespace syntax {
 
-    enum struct node_type { num, string, symbol, cons, nil, trust, };
+    enum struct node_type { num, string, symbol, cons, nil, trust, real };
 
     struct expr_node {
         public:
@@ -26,6 +26,17 @@ namespace syntax {
 
         public:
             int val;
+    };
+
+    struct real_node : public expr_node {
+        public:
+            real_node(double value) : expr_node(node_type::real), val(value) {}
+            virtual auto to_string(void) -> std::string
+            {
+                return std::to_string(val);
+            }
+        public:
+            double val;
     };
 
     struct string_node : public expr_node {

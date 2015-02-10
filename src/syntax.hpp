@@ -74,6 +74,11 @@ class s_expression_parser {
                             new trust_node(lex_.get_lex().trust));
                     break;
 
+                case lexical::Token::real:
+                    car = std::unique_ptr<real_node>(
+                            new real_node(lex_.get_lex().real));
+                    break;
+
                 default:
                     assert(false);
             }
