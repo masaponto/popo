@@ -1,9 +1,9 @@
-(+ 1 2)
+; (+ 1 2)
 
-(define i #f)
+; (define i #f)
 
-(define y 10)
-(+ 1 (+ 2 3))
+; (define y 10)
+; (+ 1 (+ 2 3))
 
 ; (+ 2 y)
 
@@ -16,7 +16,7 @@
 ;     (lambda (a b)
 ;         (+ a b)))
 
-; (define z (quote (y "hello")))
+(define z (quote (y "hello")))
 
 ; (if (= y 4)
 ;      (+ 3 4)
