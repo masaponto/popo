@@ -78,8 +78,12 @@ main:\n\
 \tpush_symbol x\n\
 \tpush_symbol define\n\
 \tapply\n\
+\tpush_float 2.3\n\
+\tpush_symbol y\n\
+\tpush_symbol define\n\
+\tapply\n\
 \tpush_symbol x\n\
-\tpush_float 5.2\n\
+\tpush_symbol y\n\
 \tpush_symbol +\n\
 \tapply\n\
 \twrite\n\
@@ -103,12 +107,29 @@ main:\n\
 \tpush_symbol define\n\
 \tapply\n\
 \tpush_int 3\n\
+\twrite\n\
 \tpush_int 4\n\
+\twrite\n\
 \tpush_symbol f\n\
 \tapply\n\
 \twrite\n\
 ");
 
     run_vm(ir_code3);
+
+
+
+
+    std::string ir_code4("\
+main:\n\
+\tpush_float 3.3\n\
+\tpush_float 5.22\n\
+\tpush_float 5.2\n\
+\tpush_float 2.22\n\
+\tmake_list 3\n\
+\twrite\n\
+");
+        run_vm(ir_code4);
+
 
 }
