@@ -101,22 +101,37 @@ clojure_0:\n\
 \tpush_symbol +\n\
 \tapply\n\
 \treturn\n\
+clojure_1:\n\
+\tparam x\n\
+\tparam y\n\
+\tpush_symbol y\n\
+\tpush_symbol x\n\
+\tpush_symbol f\n\
+\tapply\n\
+\treturn\n\
 main:\n\
 \tpush_symbol clojure_0\n\
 \tpush_symbol f\n\
 \tpush_symbol define\n\
 \tapply\n\
+\tpush_symbol clojure_1\n\
+\tpush_symbol g\n\
+\tpush_symbol define\n\
+\tapply\n\
 \tpush_int 3\n\
+\tpush_int 2\n\
+\tpush_symbol a\n\
+\tpush_symbol define\n\
+\tapply\n\
 \twrite\n\
-\tpush_int 4\n\
+\tpush_symbol a\n\
 \twrite\n\
-\tpush_symbol f\n\
+\tpush_symbol g\n\
 \tapply\n\
 \twrite\n\
 ");
 
     run_vm(ir_code3);
-
 
 
 
