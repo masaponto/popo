@@ -5,6 +5,7 @@ namespace popo {
 
         enum struct element_type {
             integer, real, string, boolean, list,
+                int_list, real_list,
                 add, sub, mul, div, eq,
                 lt, mt, lte, mte, land, lor,
                 cons, car, cdr,
@@ -50,13 +51,29 @@ namespace popo {
             bool data;
         };
 
-        template<typename T>
-        struct list_element : element {
+        // template<typename T>
+        // struct list_element : element {
+        // public:
+        //     list_element(std::list<T> op) : element(element_type::list), data(op) {}
+        // public:
+        //     std::list<T> data;
+        // };
+
+
+        struct int_list_element : element {
         public:
-            list_element(std::list<T> op) : element(element_type::list), data(op) {}
+            int_list_element(std::list<int> op) : element(element_type::int_list), data(op) {}
         public:
-            std::list<T> data;
+            std::list<int> data;
         };
+
+        struct real_list_element : element {
+        public:
+            real_list_element(std::list<float> op) : element(element_type::real_list), data(op) {}
+        public:
+            std::list<float> data;
+        };
+
 
         struct symbol_element : element {
         public:

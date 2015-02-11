@@ -24,13 +24,8 @@ namespace popo {
         private:
             std::stringstream ir_code_ss;
             std::list<std::shared_ptr<instruction>> instruction_list;
-
             std::stack<std::shared_ptr<element>> stack;
-
             std::map<std::string, std::shared_ptr<function>> function_table;
-
-            std::map< std::string, std::shared_ptr<symbol_entry>> symbol_table;
-
             std::list<std::map< std::string, std::shared_ptr<symbol_entry>>> symbol_table_list;
 
         public:
@@ -70,14 +65,13 @@ namespace popo {
                     switch((*it)->op) {
                     case operation::main:
                         {
-                            std::cout << "main function" << std::endl;
+                            //std::cout << "main function" << std::endl;
                             break;
                         }
 
                     case operation::func:
                         {
                             //std::cout << "function define" << std::endl;
-
                             auto op_ins = std::static_pointer_cast<op_instruction>(*it);
                             auto func_ele = std::static_pointer_cast<symbol_element>(op_ins->operand);
 
@@ -85,7 +79,7 @@ namespace popo {
 
                             std::list<std::shared_ptr<instruction>> func_code;
                             int arg_num = 0;
-                            int ret_num = 1;
+                            //int ret_num = 1;
 
                             while((*it)->op != operation::ret) {
 
@@ -101,7 +95,7 @@ namespace popo {
                             function_table.insert( make_pair(func_name, std::shared_ptr<function>
                                                              (new function(func_name, arg_num, std::move(func_code) ) ) ) );
 
-                            std::cout << func_name << std::endl;
+                            //std::cout << func_name << std::endl;
                             break;
                         }
 
@@ -140,7 +134,6 @@ namespace popo {
                     {
                         if (!stack.empty()) {
                             auto e = stack.top();
-                            //stack.pop();
 
                             switch(e->type) {
                             case element_type::integer :
@@ -156,9 +149,20 @@ namespace popo {
                                     std::cout << e_real->data << std::endl;
                                     break;
                                 }
-                            case element_type::list :
+                            case element_type::real_list :
                                 {
-                                    auto e_list = std::static_pointer_cast<list_element<float>>(e);
+                                    auto e_list = std::static_pointer_cast<real_list_element>(e);
+                                    std::cout << "(";
+                                    for(auto it = e_list->data.begin();
+                                        it != e_list->data.end(); ++it) {
+                                        std::cout << *it << " " ;
+                                    }
+                                    std::cout << ")" << std::endl;
+                                    break;
+                                }
+                            case element_type::int_list :
+                                {
+                                    auto e_list = std::static_pointer_cast<int_list_element>(e);
                                     std::cout << "(";
                                     for(auto it = e_list->data.begin();
                                         it != e_list->data.end(); ++it) {
@@ -203,13 +207,15 @@ namespace popo {
 
                                 auto sym_it = sym_table.find(el->data);
 
-                                //std::cout << "size "<< sym_table.size()  << std::endl;
-
                                 if (sym_it != sym_table.end()) {
                                     find_flag = true;
                                     if (sym_it->second->sclass == sym_class::var) {
-                                        auto e = std::static_pointer_cast<var_entry>( sym_it->second );
-                                        stack.push( e->data );
+                                        auto v = std::static_pointer_cast<var_entry>( sym_it->second );
+                                        stack.push( v->data );
+                                        // element new_e = *(v->data);
+                                        // auto e = std::make_shared<element>(new_e);
+                                        // std::shared_ptr<element>(new_e);
+                                        //stack.push(std::move(e));
                                     } else {
                                         stack.push(std::move(el));
                                     }
@@ -237,7 +243,7 @@ namespace popo {
                         std::list<std::shared_ptr<element>> e_list;
 
                         for(int i = 0; i < size; i++) {
-                            e_list.push_back( std::move( stack.top() ) );
+                            e_list.push_front( std::move( stack.top() ) );
                             stack.pop();
                         }
 
@@ -253,7 +259,7 @@ namespace popo {
                                     int_list.push_back(int_e->data);
                                 }
 
-                                stack.push(std::shared_ptr<element>( new list_element<int>(int_list) ));
+                                stack.push(std::shared_ptr<element>( new int_list_element(int_list) ));
                                 break;
                             }
                         case element_type::real:
@@ -265,14 +271,11 @@ namespace popo {
                                     real_list.push_back(real_e->data);
                                 }
 
-                                stack.push(std::shared_ptr<element>( new list_element<float>(real_list) ));
+                                stack.push(std::shared_ptr<element>( new real_list_element(real_list) ));
                                 break;
                             }
 
                         }
-
-
-
 
                         break;
                     }
@@ -326,7 +329,7 @@ namespace popo {
 
                                     auto sym_it = sym_table.find(symbol_e->data);
 
-                                    if (sym_it != symbol_table.end()
+                                    if (sym_it != sym_table.end()
                                         && sym_it->second->sclass == sym_class::func ) {
 
                                         auto func_e = std::static_pointer_cast<func_entry>( sym_it->second );
@@ -352,9 +355,69 @@ namespace popo {
 
                                 break;
                             }
+                        case element_type::cdr:
+                            {
+                                auto cons_e = std::move(stack.top());
+                                stack.pop();
+
+                                switch(cons_e->type)
+                                    {
+                                    case element_type::int_list:
+                                        {
+                                            auto int_cons_e = std::static_pointer_cast<int_list_element>(cons_e);
+                                            int_cons_e->data.pop_front();
+
+                                            stack.push(std::move(int_cons_e));
+                                            break;
+                                        }
+                                    case element_type::real_list:
+                                        {
+                                            auto real_cons_e = std::static_pointer_cast<real_list_element>(cons_e);
+                                            real_cons_e->data.pop_front();
+
+                                            stack.push(std::move(real_cons_e));
+                                            break;
+                                        }
+
+                                    }
+                                break;
+                            }
+                        case element_type::car:
+                            {
+                                auto cons_e = std::move(stack.top());
+                                stack.pop();
+
+                                switch(cons_e->type)
+                                    {
+                                    case element_type::int_list:
+                                        {
+                                            auto int_cons_e = std::static_pointer_cast<int_list_element>(cons_e);
+                                            auto i = int_cons_e->data.front();
+                                            std::shared_ptr<element> e( new int_element(i) );
+                                            stack.push(std::move(e));
+                                            break;
+                                        }
+                                    case element_type::real_list:
+                                        {
+                                            auto real_cons_e = std::static_pointer_cast<real_list_element>(cons_e);
+                                            auto i = real_cons_e->data.front();
+                                            std::shared_ptr<element> e( new real_element(i) );
+                                            stack.push(std::move(e));
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            std::cout << "car is for list" << std::endl;
+                                        }
+
+                                    }
+                                break;
+                            }
+
+
                         default:
                             {
-                                //std::cout << "ccccc" << std::endl;
+                                std::cout << "not implemented" << std::endl;
                                 break;
                             }
 
@@ -412,9 +475,27 @@ namespace popo {
 
                         break;
                     }
+                case element_type::int_list:
+                    {
+                        auto e_intl = std::static_pointer_cast<int_list_element>(data_e);
+                        std::shared_ptr<symbol_entry> int_list_var
+                            ( new var_entry(name_e->data, std::move(e_intl)));
+                        sym.insert(make_pair(name_e->data, std::move(int_list_var)));
+
+                        break;
+                    }
+                case element_type::real_list:
+                    {
+                        auto e_reall = std::static_pointer_cast<real_list_element>(data_e);
+                        std::shared_ptr<symbol_entry> real_list_var
+                            ( new var_entry(name_e->data, std::move(e_reall)));
+                        sym.insert(make_pair(name_e->data, std::move(real_list_var)));
+
+                        break;
+                    }
                 default:
                     {
-                        std::cout << "not yet implemented" << std::endl;
+                        std::cout << "not implemented" << std::endl;
                     }
 
                 } //end switch
@@ -491,7 +572,6 @@ namespace popo {
                 }
                 else if (e1->type == element_type::integer
                          && e2->type == element_type::real) {
-
 
                     auto e1_int = std::static_pointer_cast<int_element>(e1);
                     auto e2_real = std::static_pointer_cast<real_element>(e2);
@@ -626,6 +706,12 @@ namespace popo {
                 }
                 else if (operand == "define") {
                     type = element_type::define;
+                }
+                else if (operand == "car") {
+                    type = element_type::car;
+                }
+                else if (operand == "cdr") {
+                    type = element_type::cdr;
                 }
                 else {
                     return std::shared_ptr<element>( new symbol_element(operand) );

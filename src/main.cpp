@@ -147,4 +147,65 @@ write\n\
         run_vm(ir_code4);
 
 
+        std::string ir_code5("\
+push_float 1.400000\n\
+push_int 2\n\
+push_symbol +\n\
+apply\n\
+write\n\
+");
+
+        run_vm(ir_code5);
+
+
+            std::string ir_code6("\
+main:\n\
+push_int 3\n\
+push_int 5\n\
+push_int 5\n\
+push_int 2\n\
+make_list 3\n\
+write\n\
+push_symbol l\n\
+push_symbol define\n\
+apply\n\
+push_symbol l\n\
+push_symbol cdr\n\
+apply\n\
+write\n\
+push_symbol car\n\
+apply\n\
+write\n\
+");
+            run_vm(ir_code6);
+
+
+            std::string ir_code7("\
+push_int 2\n\
+push_int 3\n\
+push_int 4\n\
+push_int 5\n\
+make_list 4\n\
+push_symbol z\n\
+push_symbol define\n\
+apply\n\
+write\n\
+push_symbol z\n\
+push_symbol cdr\n\
+apply\n\
+write\n\
+push_symbol car\n\
+apply\n\
+write\n\
+push_symbol z\n\
+push_symbol car\n\
+apply\n\
+write\n\
+push_symbol +\n\
+apply\n\
+write\n\
+");
+
+            run_vm(ir_code7);
+
 }
