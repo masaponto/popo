@@ -9,7 +9,7 @@ namespace popo {
                 add, sub, mul, div, eq,
                 lt, mt, lte, mte, land, lor,
                 cons, car, cdr,
-                symbol, data, define
+                branch, symbol, data, define
                 };
 
 
@@ -74,7 +74,6 @@ namespace popo {
             std::list<float> data;
         };
 
-
         struct symbol_element : element {
         public:
             symbol_element(std::string op) : element(element_type::symbol), data(op) {}
@@ -82,11 +81,18 @@ namespace popo {
             std::string data;
         };
 
+        struct branch_element : element {
+        public:
+            branch_element(std::string op1, std::string op2)
+                : element(element_type::branch), t_label(op1), f_label(op2) {}
+        public:
+            std::string t_label, f_label;
+        };
 
         enum struct operation {
             push_int, push_float, push_string, push_symbol, push_bool, push_list,
                 pop, main, func, param, apply, ret, make_clojure, branch,
-                read, write, make_list
+                read, write, make_list, other
                 };
 
         struct instruction {

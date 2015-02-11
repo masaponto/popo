@@ -208,4 +208,38 @@ write\n\
 
             run_vm(ir_code7);
 
+            std::string ir_code8("\
+false_0:\n\
+push_int 2\n\
+push_int 6\n\
+push_symbol +\n\
+apply\n\
+return\n\
+true_0:\n\
+push_int 3\n\
+push_int 1\n\
+push_symbol +\n\
+apply\n\
+return\n\
+push_int 2\n\
+push_int 2\n\
+push_symbol =\n\
+apply\n\
+write\n\
+branch true_0, false_0\n\
+write\n\
+");
+
+            run_vm(ir_code8);
+
+std::string ir_code9("\
+push_int 5\n\
+push_int 3\n\
+push_symbol <=\n\
+apply\n\
+write\n\
+");
+
+run_vm(ir_code9);
+
 }

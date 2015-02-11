@@ -8,6 +8,7 @@
 #include <cassert>
 #include <map>
 #include <memory>
+#include <regex>
 
 #include "vm_symbol.hpp"
 
@@ -27,6 +28,7 @@ namespace popo {
             std::stack<std::shared_ptr<element>> stack;
             std::map<std::string, std::shared_ptr<function>> function_table;
             std::list<std::map< std::string, std::shared_ptr<symbol_entry>>> symbol_table_list;
+
 
         public:
             auto parse() -> void
@@ -66,6 +68,7 @@ namespace popo {
                     case operation::main:
                         {
                             //std::cout << "main function" << std::endl;
+
                             break;
                         }
 
@@ -114,22 +117,9 @@ namespace popo {
                                std::list<std::map< std::string, std::shared_ptr<symbol_entry>>> sym_tables)
                 -> std::list<std::map< std::string, std::shared_ptr<symbol_entry>>>
             {
-                //std::cout << "size "<< sym_tables.begin()->size()  << std::endl;
-
                 auto sym = sym_tables.begin();
-                //std::cout << "sym_size "<< sym->size() << std::endl;
 
                 switch(ins->op) {
-                case operation::ret :
-                    {
-                        break;
-                    }
-                case operation::pop :
-                    {
-                        //arg_stack.push(stack.top());
-                        //stack.pop();
-                        break;
-                    }
                 case operation::write :
                     {
                         if (!stack.empty()) {
@@ -147,6 +137,13 @@ namespace popo {
                                 {
                                     auto e_real = std::static_pointer_cast<real_element>(e);
                                     std::cout << e_real->data << std::endl;
+                                    break;
+                                }
+                            case element_type::boolean :
+                                {
+                                    auto e_bool = std::static_pointer_cast<bool_element>(e);
+                                    auto btos = [](bool b){ return b ? "true" : "false"; };
+                                    std::cout << btos(e_bool->data) << std::endl;
                                     break;
                                 }
                             case element_type::real_list :
@@ -184,7 +181,7 @@ namespace popo {
                 case operation::push_int :
                 case operation::push_float :
                     // case operation::push_string :
-                    // case operation::push_bool :
+                case operation::push_bool :
                     // case operation::push_list :
                     {
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
@@ -201,8 +198,6 @@ namespace popo {
                             auto el = std::static_pointer_cast<symbol_element>(op_ins->operand);
                             bool find_flag = false;
 
-                            //std::cout << sym_tables.size() << std::endl;
-
                             for (auto sym_table : sym_tables) {
 
                                 auto sym_it = sym_table.find(el->data);
@@ -212,10 +207,9 @@ namespace popo {
                                     if (sym_it->second->sclass == sym_class::var) {
                                         auto v = std::static_pointer_cast<var_entry>( sym_it->second );
                                         stack.push( v->data );
-                                        // element new_e = *(v->data);
-                                        // auto e = std::make_shared<element>(new_e);
-                                        // std::shared_ptr<element>(new_e);
-                                        //stack.push(std::move(e));
+                                        //element new_e = *(v->data);
+                                        //auto ep = std::make_shared<element>(new_e);
+                                        //stack.push(std::move(ep));
                                     } else {
                                         stack.push(std::move(el));
                                     }
@@ -274,8 +268,34 @@ namespace popo {
                                 stack.push(std::shared_ptr<element>( new real_list_element(real_list) ));
                                 break;
                             }
+                        default :
+                            {
+                                std::cout << "not implemented" << std::endl;
+                            }
 
                         }
+
+                        break;
+                    }
+                case operation::branch:
+                    {
+                        auto op_ins = std::static_pointer_cast<op_instruction>(ins);
+                        auto branch_e = std::static_pointer_cast<branch_element>(op_ins->operand);
+                        auto e = std::move( stack.top() );
+                        stack.pop();
+                        auto bool_e = std::static_pointer_cast<bool_element>(e);
+
+                        if(bool_e->data)  {
+                            auto it = function_table.find(branch_e->t_label);
+                            run_func(it->second->code);
+                            function_table.erase(branch_e->t_label);
+                        } else {
+                            auto it = function_table.find(branch_e->f_label);
+                            run_func(it->second->code);
+                            function_table.erase(branch_e->f_label);
+
+                        }
+
 
                         break;
                     }
@@ -321,6 +341,52 @@ namespace popo {
                                 calc(div_ii, div_fi, div_if, div_ff);
                                 break;
                             }
+                        case element_type::eq :
+                            {
+                                auto eq_ii = [](int a, int b)->int{ return a == b; };
+                                auto eq_fi = [](float a, int b)->float{ return a == b; };
+                                auto eq_if = [](int a, float b)->float{ return a == b; };
+                                auto eq_ff = [](float a, float b)->float{ return a == b; };
+                                bool_calc(eq_ii, eq_fi, eq_if, eq_ff);
+                                break;
+                            }
+                        case element_type::lt :
+                            {
+                                auto lt_ii = [](int a, int b)->int{ return a < b; };
+                                auto lt_fi = [](float a, int b)->float{ return a < b; };
+                                auto lt_if = [](int a, float b)->float{ return a < b; };
+                                auto lt_ff = [](float a, float b)->float{ return a < b; };
+                                bool_calc(lt_ii, lt_fi, lt_if, lt_ff);
+                                break;
+                            }
+                        case element_type::mt :
+                            {
+                                auto mt_ii = [](int a, int b)->int{ return a > b; };
+                                auto mt_fi = [](float a, int b)->float{ return a > b; };
+                                auto mt_if = [](int a, float b)->float{ return a > b; };
+                                auto mt_ff = [](float a, float b)->float{ return a > b; };
+                                bool_calc(mt_ii, mt_fi, mt_if, mt_ff);
+                                break;
+                            }
+                        case element_type::lte :
+                            {
+                                auto lte_ii = [](int a, int b)->int{ return a <= b; };
+                                auto lte_fi = [](float a, int b)->float{ return a <= b; };
+                                auto lte_if = [](int a, float b)->float{ return a <= b; };
+                                auto lte_ff = [](float a, float b)->float{ return a <= b; };
+                                bool_calc(lte_ii, lte_fi, lte_if, lte_ff);
+                                break;
+                            }
+                        case element_type::mte :
+                            {
+                                auto mte_ii = [](int a, int b)->int{ return a >= b; };
+                                auto mte_fi = [](float a, int b)->float{ return a >= b; };
+                                auto mte_if = [](int a, float b)->float{ return a >= b; };
+                                auto mte_ff = [](float a, float b)->float{ return a >= b; };
+                                bool_calc(mte_ii, mte_fi, mte_if, mte_ff);
+                                break;
+                            }
+
                         case element_type::symbol :
                             {
                                 auto symbol_e = std::static_pointer_cast<symbol_element>(func_e);
@@ -378,6 +444,10 @@ namespace popo {
                                             stack.push(std::move(real_cons_e));
                                             break;
                                         }
+                                    default :
+                                        {
+                                            std::cout << "not implemented" << std::endl;
+                                        }
 
                                     }
                                 break;
@@ -418,16 +488,18 @@ namespace popo {
                         default:
                             {
                                 std::cout << "not implemented" << std::endl;
-                                break;
                             }
 
                             break;
                         } // end apply case
-
+                        break;
+                    }
+                default :
+                    {
+                        //std::cout << "not implemented" << std::endl;
                     }
 
-
-                }
+                } // end push_symbol case
 
                 return sym_tables;
             }
@@ -446,7 +518,6 @@ namespace popo {
                         std::shared_ptr<symbol_entry> int_var
                             ( new var_entry(name_e->data, std::move(e_int)));
                         sym.insert(make_pair(name_e->data, std::move(int_var)));
-                        //std::cout << name_e->data << " was defined !"<< std::endl;
                         break;
                     }
                 case element_type::real:
@@ -455,7 +526,6 @@ namespace popo {
                         std::shared_ptr<symbol_entry> real_var
                             ( new var_entry(name_e->data, std::move(e_real)));
                         sym.insert(make_pair(name_e->data, std::move(real_var)));
-
                         break;
                     }
                 case element_type::symbol:
@@ -467,7 +537,6 @@ namespace popo {
                             std::shared_ptr<symbol_entry> func
                                 ( new func_entry(name_e->data, fn_it->second));
                             sym.insert(make_pair(name_e->data, std::move(func)));
-                            //std::cout << name_e->data << " was defined !"<< std::endl;
                         }
                         else {
                             std::cout << "Oooops the function is not defined" << std::endl;
@@ -589,11 +658,63 @@ namespace popo {
                 }
             }
 
+
+            template<typename Func1, typename Func2, typename Func3, typename Func4>
+            auto bool_calc(Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
+            {
+                auto e2 = std::move( stack.top() );
+                stack.pop();
+                auto e1 = std::move( stack.top() );
+                stack.pop();
+
+                if (e1->type == element_type::integer
+                    && e2->type == element_type::integer) {
+
+                    auto e1_int = std::static_pointer_cast<int_element>(e1);
+                    auto e2_int = std::static_pointer_cast<int_element>(e2);
+
+                    std::shared_ptr<element> e3( new bool_element( f1( e1_int->data, e2_int->data ) ) );
+                    stack.push(std::move(e3));
+
+                }
+                else if (e1->type == element_type::real
+                         && e2->type == element_type::integer) {
+
+                    auto e1_real = std::static_pointer_cast<real_element>(e1);
+                    auto e2_int = std::static_pointer_cast<int_element>(e2);
+
+                    std::shared_ptr<element> e3( new bool_element( f2(e1_real->data, e2_int->data) ) );
+                    stack.push(std::move(e3));
+                }
+                else if (e1->type == element_type::integer
+                         && e2->type == element_type::real) {
+
+                    auto e1_int = std::static_pointer_cast<int_element>(e1);
+                    auto e2_real = std::static_pointer_cast<real_element>(e2);
+
+                    std::shared_ptr<element> e3( new bool_element( f3(e1_int->data, e2_real->data) ) );
+                    stack.push(std::move(e3));
+                }
+                else {
+
+                    auto e1_real = std::static_pointer_cast<real_element>(e1);
+                    auto e2_real = std::static_pointer_cast<real_element>(e2);
+
+                    std::shared_ptr<element> e3( new bool_element( f4(e1_real->data, e2_real->data) ) );
+                    stack.push(std::move(e3));
+                }
+            }
+
+
         public:
             auto create_inst(std::vector<std::string> inst_vec) -> std::shared_ptr<instruction>
             {
                 const std::string op_s = inst_vec[0];
                 operation op;
+
+                std::regex clojure("clojure_.:");
+                std::regex true_s("true_.:");
+                std::regex false_s("false_.:");
 
                 if (op_s == "pop") {
                     op = operation::pop;
@@ -614,14 +735,22 @@ namespace popo {
                     op = operation::main;
                 }
 
-                else if (*(op_s.end() - 1 ) == ':') {
+                else if (std::regex_match(op_s, clojure)) {
+                    //else if (*(op_s.end() - 1 ) == ':') {
                     std::string fn_name = op_s;
                     fn_name.erase(fn_name.end() - 1);
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::func, std::shared_ptr<element>
                                               ( new symbol_element( fn_name ) ) ) );
                 }
-
+                else if (std::regex_match(op_s, true_s)
+                         || std::regex_match(op_s, false_s)) {
+                    std::string label_name = op_s;
+                    label_name.erase(label_name.end() - 1);
+                    return std::shared_ptr<op_instruction>
+                        ( new op_instruction( operation::func, std::shared_ptr<element>
+                                              ( new symbol_element( label_name ) ) ) );
+                }
                 else if (op_s == "push_int") {
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::push_int, std::shared_ptr<element>
@@ -636,9 +765,13 @@ namespace popo {
                 // else if (op_s == "push_string") {
                 //     return instruction(operation::push_string, element(element_type::string, inst_vec[1]));
                 // }
-                // else if (op_s == "push_bool") {
-                //     return instruction(operation::push_bool, element(element_type::boolean, inst_vec[1]));
-                // }
+                else if (op_s == "push_bool") {
+                    auto stob = [](std::string s) { return s =="true" ? true : false; };
+
+                    return std::shared_ptr<op_instruction>
+                        ( new op_instruction( operation::push_bool, std::shared_ptr<element>
+                                              ( new bool_element( stob( inst_vec[1] ) ) ) ) );
+                }
                 // else if (op_s == "push_list") {
                 //     return instruction(operation::push_list, element(element_type::list, inst_vec[1]));
                 // }
@@ -656,10 +789,14 @@ namespace popo {
                         ( new op_instruction( operation::make_list, std::shared_ptr<element>
                                               ( new int_element( std::stoi( inst_vec[1] ) ) ) ) );
                 }
-
-                // // op_s == "branch"
-                else {
-                    op = operation::branch;
+                else if (op_s == "branch") {
+                    inst_vec[1].erase(inst_vec[1].end() - 1);
+                    return std::shared_ptr<op_instruction>
+                        ( new op_instruction( operation::branch, std::shared_ptr<element>
+                                              ( new branch_element( inst_vec[1], inst_vec[2] ) ) ) );
+                }
+                else  {
+                    op = operation::other;
                 }
 
                 return std::shared_ptr<instruction>( new instruction(op) );
