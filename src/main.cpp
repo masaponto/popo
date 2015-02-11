@@ -52,41 +52,41 @@ int main()
 
     std::string ir_code1("\
 main:\n\
-\tpush_int 3\n\
-\tpush_int 5\n\
-\tpush_symbol +\n\
-\tapply\n\
-\twrite\n\
+push_int 3\n\
+push_int 5\n\
+push_symbol +\n\
+apply\n\
+write\n\
 ");
 
     run_vm(ir_code1);
 
     std::string ir_code1_("\
 main:\n\
-\tpush_float 3.3\n\
-\tpush_float 5.22\n\
-\tpush_symbol +\n\
-\tapply\n\
-\twrite\n\
+push_float 3.3\n\
+push_float 5.22\n\
+push_symbol +\n\
+apply\n\
+write\n\
 ");
 
     run_vm(ir_code1_);
 
     std::string ir_code2("\
 main:\n\
-\tpush_float 3.3\n\
-\tpush_symbol x\n\
-\tpush_symbol define\n\
-\tapply\n\
-\tpush_float 2.3\n\
-\tpush_symbol y\n\
-\tpush_symbol define\n\
-\tapply\n\
-\tpush_symbol x\n\
-\tpush_symbol y\n\
-\tpush_symbol +\n\
-\tapply\n\
-\twrite\n\
+push_float 3.3\n\
+push_symbol x\n\
+push_symbol define\n\
+apply\n\
+push_float 2.3\n\
+push_symbol y\n\
+push_symbol define\n\
+apply\n\
+push_symbol x\n\
+push_symbol y\n\
+push_symbol +\n\
+apply\n\
+write\n\
  ");
 
     run_vm(ir_code2);
@@ -94,41 +94,41 @@ main:\n\
 
     std::string ir_code3("\
 clojure_0:\n\
-\tparam x\n\
-\tparam y\n\
-\tpush_symbol y\n\
-\tpush_symbol x\n\
-\tpush_symbol +\n\
-\tapply\n\
-\treturn\n\
+param x\n\
+param y\n\
+push_symbol y\n\
+push_symbol x\n\
+push_symbol +\n\
+apply\n\
+return\n\
 clojure_1:\n\
-\tparam x\n\
-\tparam y\n\
-\tpush_symbol y\n\
-\tpush_symbol x\n\
-\tpush_symbol f\n\
-\tapply\n\
-\treturn\n\
+param x\n\
+param y\n\
+push_symbol y\n\
+push_symbol x\n\
+push_symbol f\n\
+apply\n\
+return\n\
 main:\n\
-\tpush_symbol clojure_0\n\
-\tpush_symbol f\n\
-\tpush_symbol define\n\
-\tapply\n\
-\tpush_symbol clojure_1\n\
-\tpush_symbol g\n\
-\tpush_symbol define\n\
-\tapply\n\
-\tpush_int 3\n\
-\tpush_int 2\n\
-\tpush_symbol a\n\
-\tpush_symbol define\n\
-\tapply\n\
-\twrite\n\
-\tpush_symbol a\n\
-\twrite\n\
-\tpush_symbol g\n\
-\tapply\n\
-\twrite\n\
+push_symbol clojure_0\n\
+push_symbol f\n\
+push_symbol define\n\
+apply\n\
+push_symbol clojure_1\n\
+push_symbol g\n\
+push_symbol define\n\
+apply\n\
+push_int 3\n\
+push_int 2\n\
+push_symbol a\n\
+push_symbol define\n\
+apply\n\
+write\n\
+push_symbol a\n\
+write\n\
+push_symbol g\n\
+apply\n\
+write\n\
 ");
 
     run_vm(ir_code3);
@@ -137,12 +137,12 @@ main:\n\
 
     std::string ir_code4("\
 main:\n\
-\tpush_float 3.3\n\
-\tpush_float 5.22\n\
-\tpush_float 5.2\n\
-\tpush_float 2.22\n\
-\tmake_list 3\n\
-\twrite\n\
+push_float 3.3\n\
+push_float 5.22\n\
+push_float 5.2\n\
+push_float 2.22\n\
+make_list 3\n\
+write\n\
 ");
         run_vm(ir_code4);
 

@@ -515,19 +515,19 @@ namespace popo {
                 const std::string op_s = inst_vec[0];
                 operation op;
 
-                if (op_s == "\tpop") {
+                if (op_s == "pop") {
                     op = operation::pop;
                 }
-                else if (op_s == "\tapply") {
+                else if (op_s == "apply") {
                     op = operation::apply;
                 }
-                else if (op_s == "\treturn") {
+                else if (op_s == "return") {
                     op = operation::ret;
                 }
-                else if (op_s == "\tread") {
+                else if (op_s == "read") {
                     op = operation::read;
                 }
-                else if (op_s == "\twrite") {
+                else if (op_s == "write") {
                     op = operation::write;
                 }
                 else if (op_s == "main:") {
@@ -542,36 +542,36 @@ namespace popo {
                                               ( new symbol_element( fn_name ) ) ) );
                 }
 
-                else if (op_s == "\tpush_int") {
+                else if (op_s == "push_int") {
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::push_int, std::shared_ptr<element>
                                               ( new int_element( std::stoi( inst_vec[1] ) ) ) ) );
                 }
-                else if (op_s == "\tpush_float") {
+                else if (op_s == "push_float") {
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::push_float, std::shared_ptr<element>
                                               ( new real_element( std::stof( inst_vec[1] ) ) ) ) );
                 }
 
-                // else if (op_s == "\tpush_string") {
+                // else if (op_s == "push_string") {
                 //     return instruction(operation::push_string, element(element_type::string, inst_vec[1]));
                 // }
-                // else if (op_s == "\tpush_bool") {
+                // else if (op_s == "push_bool") {
                 //     return instruction(operation::push_bool, element(element_type::boolean, inst_vec[1]));
                 // }
-                // else if (op_s == "\tpush_list") {
+                // else if (op_s == "push_list") {
                 //     return instruction(operation::push_list, element(element_type::list, inst_vec[1]));
                 // }
 
-                else if (op_s == "\tpush_symbol") {
+                else if (op_s == "push_symbol") {
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::push_symbol, create_op_element( inst_vec[1] ) ) );
                 }
-                else if (op_s == "\tparam") {
+                else if (op_s == "param") {
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::param, create_op_element( inst_vec[1] ) ) );
                 }
-                else if (op_s == "\tmake_list") {
+                else if (op_s == "make_list") {
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::make_list, std::shared_ptr<element>
                                               ( new int_element( std::stoi( inst_vec[1] ) ) ) ) );
