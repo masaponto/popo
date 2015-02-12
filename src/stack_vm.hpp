@@ -168,26 +168,9 @@ namespace popo {
                                     std::cout << btos(e_bool->data) << std::endl;
                                     break;
                                 }
-                            case element_type::real_list :
+                            case element_type::list :
                                 {
-                                    auto e_list = std::static_pointer_cast<real_list_element>(e);
-                                    std::cout << "(";
-                                    for(auto it = e_list->data.begin();
-                                        it != e_list->data.end(); ++it) {
-                                        std::cout << *it << " " ;
-                                    }
-                                    std::cout << ")" << std::endl;
-                                    break;
-                                }
-                            case element_type::int_list :
-                                {
-                                    auto e_list = std::static_pointer_cast<int_list_element>(e);
-                                    std::cout << "(";
-                                    for(auto it = e_list->data.begin();
-                                        it != e_list->data.end(); ++it) {
-                                        std::cout << *it << " " ;
-                                    }
-                                    std::cout << ")" << std::endl;
+                                    std::cout << "this is list" << std::endl;
                                     break;
                                 }
                             default:
@@ -242,7 +225,7 @@ namespace popo {
                             }
 
                             if(!find_flag) {
-                                std::cout << "new symbol" << std::endl;
+                                //std::cout << "new symbol" << std::endl;
                                 stack.push(std::move(el));
                             }
 
@@ -266,39 +249,8 @@ namespace popo {
                             stack.pop();
                         }
 
-                        auto e = e_list.begin();
+                        stack.push(std::shared_ptr<element>( new list_element(std::move(e_list))));
 
-                        switch((*e)->type) {
-                        case element_type::integer:
-                            {
-                                std::list<int> int_list;
-                                for(auto it = e_list.begin();
-                                    it != e_list.end(); ++it) {
-                                    auto int_e = std::static_pointer_cast<int_element>(*it);
-                                    int_list.push_back(int_e->data);
-                                }
-
-                                stack.push(std::shared_ptr<element>( new int_list_element(int_list) ));
-                                break;
-                            }
-                        case element_type::real:
-                            {
-                                std::list<float> real_list;
-                                for(auto it = e_list.begin();
-                                    it != e_list.end(); ++it) {
-                                    auto real_e = std::static_pointer_cast<real_element>(*it);
-                                    real_list.push_back(real_e->data);
-                                }
-
-                                stack.push(std::shared_ptr<element>( new real_list_element(real_list) ));
-                                break;
-                            }
-                        default :
-                            {
-                                std::cout << "not implemented make list type" << std::endl;
-                            }
-
-                        }
                         break;
                     }
                 case operation::branch:
@@ -445,64 +397,24 @@ namespace popo {
                             }
                         case element_type::cdr:
                             {
-                                auto cons_e = std::move(stack.top());
+                                auto e = std::move(stack.top());
                                 stack.pop();
 
-                                switch(cons_e->type)
-                                    {
-                                    case element_type::int_list:
-                                        {
-                                            auto int_cons_e = std::static_pointer_cast<int_list_element>(cons_e);
-                                            int_cons_e->data.pop_front();
+                                auto cons_e = std::static_pointer_cast<list_element>(e);
+                                cons_e->data.pop_front();
+                                stack.push(std::move(cons_e));
 
-                                            stack.push(std::move(int_cons_e));
-                                            break;
-                                        }
-                                    case element_type::real_list:
-                                        {
-                                            auto real_cons_e = std::static_pointer_cast<real_list_element>(cons_e);
-                                            real_cons_e->data.pop_front();
-
-                                            stack.push(std::move(real_cons_e));
-                                            break;
-                                        }
-                                    default :
-                                        {
-                                            std::cout << "not implemented cdr type" << std::endl;
-                                        }
-
-                                    }
                                 break;
                             }
                         case element_type::car:
                             {
-                                auto cons_e = std::move(stack.top());
+                                auto e = std::move(stack.top());
                                 stack.pop();
 
-                                switch(cons_e->type)
-                                    {
-                                    case element_type::int_list:
-                                        {
-                                            auto int_cons_e = std::static_pointer_cast<int_list_element>(cons_e);
-                                            auto i = int_cons_e->data.front();
-                                            std::shared_ptr<element> e( new int_element(i) );
-                                            stack.push(std::move(e));
-                                            break;
-                                        }
-                                    case element_type::real_list:
-                                        {
-                                            auto real_cons_e = std::static_pointer_cast<real_list_element>(cons_e);
-                                            auto i = real_cons_e->data.front();
-                                            std::shared_ptr<element> e( new real_element(i) );
-                                            stack.push(std::move(e));
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            std::cout << "car is for list" << std::endl;
-                                        }
+                                auto cons_e = std::static_pointer_cast<list_element>(e);
+                                auto i = cons_e->data.front();
+                                stack.push(std::move(i));
 
-                                    }
                                 break;
                             }
 
@@ -540,7 +452,7 @@ namespace popo {
                         std::shared_ptr<symbol_entry> int_var
                             ( new var_entry(name_e->data, std::move(e_int)));
                         sym.insert(make_pair(name_e->data, std::move(int_var)));
-                        std::cout << name_e->data << " was defined !!" << std::endl;
+                        //std::cout << name_e->data << " was defined !!" << std::endl;
                         break;
                     }
                 case element_type::real:
@@ -549,7 +461,7 @@ namespace popo {
                         std::shared_ptr<symbol_entry> real_var
                             ( new var_entry(name_e->data, std::move(e_real)));
                         sym.insert(make_pair(name_e->data, std::move(real_var)));
-                        std::cout << name_e->data << " was defined !!" << std::endl;
+                        //std::cout << name_e->data << " was defined !!" << std::endl;
                         break;
                     }
                 case element_type::symbol:
@@ -562,7 +474,7 @@ namespace popo {
                                 ( new func_entry(name_e->data, fn_it->second));
                             sym.insert(make_pair(name_e->data, std::move(func)));
                             find_flag = true;
-                            std::cout << name_e->data << " was defined !!" << std::endl;
+                            //std::cout << name_e->data << " was defined !!" << std::endl;
                         }
                         else {
                             std::cout << "Oooops the function " << name_e->data << " is not defined" << std::endl;
@@ -570,21 +482,20 @@ namespace popo {
 
                         break;
                     }
-                case element_type::int_list:
+                case element_type::string:
                     {
-                        auto e_intl = std::static_pointer_cast<int_list_element>(data_e);
-                        std::shared_ptr<symbol_entry> int_list_var
-                            ( new var_entry(name_e->data, std::move(e_intl)));
-                        sym.insert(make_pair(name_e->data, std::move(int_list_var)));
-
+                        auto e_string = std::static_pointer_cast<string_element>(data_e);
+                        std::shared_ptr<symbol_entry> string_var
+                            ( new var_entry(name_e->data, std::move(e_string)));
+                        sym.insert(make_pair(name_e->data, std::move(string_var)));
                         break;
                     }
-                case element_type::real_list:
+                case element_type::list:
                     {
-                        auto e_reall = std::static_pointer_cast<real_list_element>(data_e);
-                        std::shared_ptr<symbol_entry> real_list_var
-                            ( new var_entry(name_e->data, std::move(e_reall)));
-                        sym.insert(make_pair(name_e->data, std::move(real_list_var)));
+                        auto e_list = std::static_pointer_cast<list_element>(data_e);
+                        std::shared_ptr<symbol_entry> list_var
+                            ( new var_entry(name_e->data, std::move(e_list)));
+                        sym.insert(make_pair(name_e->data, std::move(list_var)));
 
                         break;
                     }
@@ -614,7 +525,6 @@ namespace popo {
                     local_sym = define(symbol_e, arg_e, local_sym);
                     ++inst_it;
                 }
-
                 symbol_table_list.push_front(local_sym);
 
                 for (; inst_it != code.end(); ++inst_it) {
