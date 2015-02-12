@@ -1,58 +1,69 @@
-
 (+ 1 2)
-(+ 1 (+ 2 3))
+
+(+ 2 1.4)
+
 (define i #f)
 
 (define y 10)
+(+ 1 (+ 2 3))
 
 (+ 2 y)
+
+(define x y)
+(+ x y)
+
 (define st_hello "hello")
 (define string_hello st_hello)
 (define x
     (lambda (a b)
         (+ a b)))
 
-
-
 (define z (quote (y "hello")))
+; (cdr z)
 
-(if (= y 4)
-     (+ 3 4)
-     (- y 4))
+; (define c (cons 1 2 3))
 
-(x 1 (+ 1 2))
+; (if (= y 4)
+;      (+ 3 4)
+;      (- y 4))
 
-(define ff-time
-    (lambda (vy)
-        (/ (* 2 vy) 9)))
+; (x 1 (+ 1 2))
 
-(/ 1 2)
+; (define ff-time
+;     (lambda (vy)
+;         (/ (* 2 vy) 9)))
 
-(define pi 3)
+; (/ 1 2)
 
-(define radian
-    (lambda (deg)
-        (* deg (/ pi 180))))
+; (define pi 3)
+
+; (define radian
+;     (lambda (deg)
+;         (* deg (/ pi 180))))
 
 
-(define dx
-    (lambda (vx t)
-        (* vx t)))
+; (define dx
+;     (lambda (vx t)
+;         (* vx t)))
 
-(define deriv
-    (lambda (f dx)
-        (lambda (x)
-            (/
-                (-
-                    (f (+ x dx))
-                    (f x))
-                dx))))
 
-(define test
-    (lambda (a)
-        (lambda (c)
-            (+ a c))))
 
-(+ 1 2)
+; (define deriv
+;     (lambda (f dx)
+;         (lambda (x)
+;             (/
+;                 (-
+;                     (f (+ x dx))
+;                     (f x))
+;                 dx))))
+
+; (define test
+;     (lambda (a)
+;         (lambda (c)
+;             (a 1 c))))
+
+; ((lambda (x) (+ x 1)) 2)
+
+; (+ 1 2)
 ; error is occured by below code.
-((deriv radian y) pi)
+; ((deriv radian y) pi)

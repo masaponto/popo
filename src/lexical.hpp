@@ -13,10 +13,10 @@ namespace popo {
 
 namespace lexical{
 
-enum struct Token { string, symbol, num, left, right, eof, trust };
+enum struct Token { string, symbol, num, left, right, eof, trust, real};
 
 std::string token_text[] = {"string", "symbol", "num",  "left",
-                            "right",  "eof", "trust",};
+                            "right",  "eof", "trust", "real",};
 
 // TODO: when popo read many one line comment, error occured.
 template <typename Iteratable>
@@ -32,7 +32,7 @@ private:
 
     struct token_value {
         public:
-            token_value() : symbol(), str(), num(), trust() {};
+            token_value() : symbol(), str(), num(), trust(), real() {};
             ~token_value() {};
 
         public:
@@ -40,6 +40,7 @@ private:
             std::string str;
             int num;
             bool trust;
+            double real;
     } t_val;
 
 
@@ -72,8 +73,7 @@ public:
             }
             // num
             else if ('0' <= *begin_ && *begin_ <= '9') {
-                parse_digit();
-                return Token::num;
+                return parse_real_number();
             }
             //  string
             else if ('"' == *begin_) {
@@ -121,14 +121,25 @@ private:
         }
     }
 
-    auto parse_digit() -> void
+    auto parse_real_number() -> Token
     {
         std::string str_num(1, *begin_++);
         while ('0' <= *begin_ && *begin_ <= '9') {
             str_num += *begin_++;
         }
 
-        t_val.num = std::stoi(str_num);
+        if ('.' == *begin_++) {
+            str_num += ".";
+            while ('0' <= *begin_ && *begin_ <= '9') {
+                str_num += *begin_++;
+            }
+            t_val.real = std::stod(str_num);
+            return Token::real;
+        } else {
+            begin_--;
+            t_val.num = std::stoi(str_num);
+            return Token::num;
+        }
     }
 
     auto parse_symbol() -> void

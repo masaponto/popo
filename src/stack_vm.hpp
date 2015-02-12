@@ -18,6 +18,7 @@ namespace popo {
         class vm
         {
         public:
+            vm() {}
             vm (std::string ir_code)
                 : ir_code_ss(ir_code) {}
             ~vm() {}
@@ -40,6 +41,28 @@ namespace popo {
                 while( std::getline(ir_code_ss, s, '\n') ) {
                     ir_list.push_back(s);
                 }
+
+                for (auto it = ir_list.begin(); it != ir_list.end(); ++it) {
+                    std::stringstream inst_ss(*it);
+
+                    while( std::getline(inst_ss, s, ' ') ){
+                        inst_vec.push_back(s);
+                    }
+
+                    instruction_list.push_back( create_inst(inst_vec) );
+                    inst_vec.clear();
+                }
+
+                run();
+            }
+
+        public:
+            auto parse(std::list<std::string> ir_list) -> void
+            {
+
+                std::string s;
+                //std::list<std::string> ir_list;
+                std::vector<std::string> inst_vec;
 
                 for (auto it = ir_list.begin(); it != ir_list.end(); ++it) {
                     std::stringstream inst_ss(*it);
@@ -179,7 +202,7 @@ namespace popo {
 
                 case operation::push_int :
                 case operation::push_float :
-                    // case operation::push_string :
+                case operation::push_string :
                 case operation::push_bool :
                     // case operation::push_list :
                     {
@@ -752,11 +775,13 @@ namespace popo {
                                               ( new real_element( std::stof( inst_vec[1] ) ) ) ) );
                 }
 
-                // else if (op_s == "push_string") {
-                //     return instruction(operation::push_string, element(element_type::string, inst_vec[1]));
-                // }
+                else if (op_s == "push_string") {
+                    return std::shared_ptr<op_instruction>
+                        ( new op_instruction( operation::push_string, std::shared_ptr<element>
+                                              ( new string_element( inst_vec[1] ) ) ) );
+                }
                 else if (op_s == "push_bool") {
-                    auto stob = [](std::string s) { return s =="true" ? true : false; };
+                    auto stob = [](std::string s) { return s =="#t" ? true : false; };
 
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::push_bool, std::shared_ptr<element>
