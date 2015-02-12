@@ -1,0 +1,36 @@
+clojure_0:
+param x
+param y
+push_symbol y
+push_symbol x
+push_symbol +
+apply
+return
+clojure_1:
+param x
+param y
+push_symbol x
+push_symbol y
+push_symbol f
+apply
+return
+main:
+push_symbol clojure_0
+push_symbol f
+push_symbol define
+apply
+push_symbol clojure_1
+push_symbol g
+push_symbol define
+apply
+push_int 3
+push_int 2
+push_symbol a
+push_symbol define
+apply
+write
+push_symbol a
+write
+push_symbol g
+apply
+write

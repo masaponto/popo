@@ -129,7 +129,6 @@ namespace popo {
                             case element_type::integer :
                                 {
                                     auto e_int = std::static_pointer_cast<int_element>(e);
-
                                     std::cout << e_int->data << std::endl;
                                     break;
                                 }
@@ -169,7 +168,7 @@ namespace popo {
                                     break;
                                 }
                             default:
-                                std::cout << "not implemented" << std::endl;
+                                std::cout << "not implemented write type" << std::endl;
                             }
 
                         } else {
@@ -207,10 +206,12 @@ namespace popo {
                                     if (sym_it->second->sclass == sym_class::var) {
                                         auto v = std::static_pointer_cast<var_entry>( sym_it->second );
                                         stack.push( v->data );
+
                                         //element new_e = *(v->data);
                                         //auto ep = std::make_shared<element>(new_e);
                                         //stack.push(std::move(ep));
                                     } else {
+                                        // if function symbol
                                         stack.push(std::move(el));
                                     }
                                     break;
@@ -218,6 +219,7 @@ namespace popo {
                             }
 
                             if(!find_flag) {
+                                std::cout << "new symbol" << std::endl;
                                 stack.push(std::move(el));
                             }
 
@@ -270,11 +272,10 @@ namespace popo {
                             }
                         default :
                             {
-                                std::cout << "not implemented" << std::endl;
+                                std::cout << "not implemented make list type" << std::endl;
                             }
 
                         }
-
                         break;
                     }
                 case operation::branch:
@@ -288,14 +289,12 @@ namespace popo {
                         if(bool_e->data)  {
                             auto it = function_table.find(branch_e->t_label);
                             run_func(it->second->code);
-                            function_table.erase(branch_e->t_label);
+                            //function_table.erase(branch_e->t_label);
                         } else {
                             auto it = function_table.find(branch_e->f_label);
                             run_func(it->second->code);
-                            function_table.erase(branch_e->f_label);
-
+                            //function_table.erase(branch_e->f_label);
                         }
-
 
                         break;
                     }
@@ -417,7 +416,7 @@ namespace popo {
 
                                 auto name_sym_e = std::static_pointer_cast<symbol_element>(name_e);
 
-                                (*sym) = define(name_sym_e, data_e, *sym);
+                                *sym = define(name_sym_e, data_e, *sym);
 
                                 break;
                             }
@@ -446,7 +445,7 @@ namespace popo {
                                         }
                                     default :
                                         {
-                                            std::cout << "not implemented" << std::endl;
+                                            std::cout << "not implemented cdr type" << std::endl;
                                         }
 
                                     }
@@ -487,7 +486,7 @@ namespace popo {
 
                         default:
                             {
-                                std::cout << "not implemented" << std::endl;
+                                std::cout << "not implemented apply" << std::endl;
                             }
 
                             break;
@@ -518,6 +517,7 @@ namespace popo {
                         std::shared_ptr<symbol_entry> int_var
                             ( new var_entry(name_e->data, std::move(e_int)));
                         sym.insert(make_pair(name_e->data, std::move(int_var)));
+                        std::cout << name_e->data << " was defined !!" << std::endl;
                         break;
                     }
                 case element_type::real:
@@ -526,20 +526,23 @@ namespace popo {
                         std::shared_ptr<symbol_entry> real_var
                             ( new var_entry(name_e->data, std::move(e_real)));
                         sym.insert(make_pair(name_e->data, std::move(real_var)));
+                        std::cout << name_e->data << " was defined !!" << std::endl;
                         break;
                     }
                 case element_type::symbol:
                     {
                         auto e_func = std::static_pointer_cast<symbol_element>(data_e);
                         auto fn_it = function_table.find(e_func->data);
-
+                        bool find_flag = false;
                         if(fn_it != function_table.end()) {
                             std::shared_ptr<symbol_entry> func
                                 ( new func_entry(name_e->data, fn_it->second));
                             sym.insert(make_pair(name_e->data, std::move(func)));
+                            find_flag = true;
+                            std::cout << name_e->data << " was defined !!" << std::endl;
                         }
                         else {
-                            std::cout << "Oooops the function is not defined" << std::endl;
+                            std::cout << "Oooops the function " << name_e->data << " is not defined" << std::endl;
                         }
 
                         break;
@@ -564,7 +567,7 @@ namespace popo {
                     }
                 default:
                     {
-                        std::cout << "not implemented" << std::endl;
+                        std::cout << "not implemented define" << std::endl;
                     }
 
                 } //end switch
@@ -576,35 +579,23 @@ namespace popo {
             auto run_func(std::list<std::shared_ptr<instruction>> code) -> void
             {
                 std::map< std::string, std::shared_ptr<symbol_entry>> local_sym;
+                auto inst_it = code.begin();
+                inst_it++;
+
+                while((*inst_it)->op == operation::param) {
+                    auto op_ins = std::static_pointer_cast<op_instruction>(*inst_it);
+                    auto symbol_e = std::static_pointer_cast<symbol_element>(op_ins->operand);
+
+                    auto arg_e = std::move(stack.top());
+                    stack.pop();
+                    local_sym = define(symbol_e, arg_e, local_sym);
+                    ++inst_it;
+                }
+
                 symbol_table_list.push_front(local_sym);
-                auto sym = symbol_table_list.begin();
 
-                for(auto inst_it = code.begin();
-                    inst_it != code.end(); ++inst_it) {
-
-                    switch((*inst_it)->op)
-                        {
-                        case operation::param:
-                            {
-                                auto op_ins = std::static_pointer_cast<op_instruction>(*inst_it);
-                                auto symbol_e = std::static_pointer_cast<symbol_element>(op_ins->operand);
-
-                                auto arg_e = std::move(stack.top());
-                                stack.pop();
-
-                                (*sym) = define(symbol_e, arg_e, *sym);
-
-                                break;
-                            }
-                        default :
-                            {
-                                // TODO:
-                                symbol_table_list.push_front(*sym);
-                                symbol_table_list = stack_manager(*inst_it, symbol_table_list);
-                                break;
-                            }
-
-                        }
+                for (; inst_it != code.end(); ++inst_it) {
+                    symbol_table_list = stack_manager(*inst_it, symbol_table_list);
                 }
 
                 symbol_table_list.erase(symbol_table_list.begin());
@@ -736,7 +727,6 @@ namespace popo {
                 }
 
                 else if (std::regex_match(op_s, clojure)) {
-                    //else if (*(op_s.end() - 1 ) == ':') {
                     std::string fn_name = op_s;
                     fn_name.erase(fn_name.end() - 1);
                     return std::shared_ptr<op_instruction>
