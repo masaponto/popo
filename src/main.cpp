@@ -49,7 +49,7 @@ int main()
 
 
 
-    //     std::string ir_code3("               \
+    //     std::string ir_code3("\
     // clojure_0:\n\
     // param x\n\
     // param y\n\
@@ -223,7 +223,6 @@ write\n\
 
         run_vm(ir_code10);
 
-
     std::string ir_code11("\
 true_0:\n\
 push_int 1\n\
@@ -260,7 +259,7 @@ write\n\
 return\n\
 ");
 
-    //    run_vm(ir_code11);
+    run_vm(ir_code11);
 
 
 }

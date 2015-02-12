@@ -88,13 +88,12 @@ namespace popo {
                 for(auto it = instruction_list.begin(); it != instruction_list.end(); ++it ) {
 
                     switch((*it)->op) {
-                    case operation::main:
+                    case operation::other:
                         {
-                            //std::cout << "main function" << std::endl;
-
+                            std::cout << "illegal operation" << std::endl;
+                            std::exit(1);
                             break;
                         }
-
                     case operation::func:
                         {
                             //std::cout << "function define" << std::endl;
@@ -449,6 +448,7 @@ namespace popo {
                 case element_type::integer :
                     {
                         auto e_int = std::static_pointer_cast<int_element>(data_e);
+                        std::cout << e_int->data << std::endl;
                         std::shared_ptr<symbol_entry> int_var
                             ( new var_entry(name_e->data, std::move(e_int)));
                         sym.insert(make_pair(name_e->data, std::move(int_var)));
@@ -458,6 +458,7 @@ namespace popo {
                 case element_type::real:
                     {
                         auto e_real = std::static_pointer_cast<real_element>(data_e);
+                        std::cout << e_real->data << std::endl;
                         std::shared_ptr<symbol_entry> real_var
                             ( new var_entry(name_e->data, std::move(e_real)));
                         sym.insert(make_pair(name_e->data, std::move(real_var)));
@@ -485,6 +486,7 @@ namespace popo {
                 case element_type::string:
                     {
                         auto e_string = std::static_pointer_cast<string_element>(data_e);
+                        std::cout << e_string->data << std::endl;
                         std::shared_ptr<symbol_entry> string_var
                             ( new var_entry(name_e->data, std::move(e_string)));
                         sym.insert(make_pair(name_e->data, std::move(string_var)));
@@ -496,6 +498,17 @@ namespace popo {
                         std::shared_ptr<symbol_entry> list_var
                             ( new var_entry(name_e->data, std::move(e_list)));
                         sym.insert(make_pair(name_e->data, std::move(list_var)));
+
+                        break;
+                    }
+                case element_type::boolean:
+                    {
+                        auto e_bool = std::static_pointer_cast<bool_element>(data_e);
+                        auto btos = [](bool b){ return b ? "#t" : "#f"; };
+                        std::cout << btos(e_bool->data) << std::endl;
+                        std::shared_ptr<symbol_entry> bool_var
+                            ( new var_entry(name_e->data, std::move(e_bool)));
+                        sym.insert(make_pair(name_e->data, std::move(bool_var)));
 
                         break;
                     }
@@ -697,10 +710,6 @@ namespace popo {
                         ( new op_instruction( operation::push_bool, std::shared_ptr<element>
                                               ( new bool_element( stob( inst_vec[1] ) ) ) ) );
                 }
-                // else if (op_s == "push_list") {
-                //     return instruction(operation::push_list, element(element_type::list, inst_vec[1]));
-                // }
-
                 else if (op_s == "push_symbol") {
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::push_symbol, create_op_element( inst_vec[1] ) ) );
