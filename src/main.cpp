@@ -4,10 +4,26 @@
 #include <vector>
 #include <list>
 #include <cassert>
+#include <memory>
 
 #include "syntax.hpp"
 #include "semantic_ir.hpp"
 #include "debug.hpp"
+#include "stack_vm.hpp"
+
+
+auto run_vm(std::string ir_code) -> void
+{
+    std::cout << "=== src ===" << std::endl;
+
+    std::cout << ir_code << std::endl;
+    popo::stack_vm::vm pvm(ir_code);
+
+    std::cout << "=== result ===" << std::endl;
+    pvm.parse();
+    std::cout << std::endl;
+}
+
 
 
 int main()
@@ -24,101 +40,208 @@ int main()
 
     semantic::semantic_analyzer<input_data> sa(file_data);
 
-    std::cout << "----- immediate code -----" << std::endl;
-    auto ir_list = sa.analyze();
-    while (!ir_list.empty()) {
-        for (auto ir : ir_list) {
-            std::cout << ir << std::endl;
-        }
-        std::cout << std::endl;
-        ir_list = sa.analyze();
-    }
-    std::cout << "-- def --" << std::endl;
-    for(auto def: sa.definition) {
-        std::cout << def << std::endl;
+    auto instruction_list = sa.analyze();
+    while (!instruction_list.empty()) {
+        popo::stack_vm::vm pvm;
+        pvm.parse(instruction_list);
+        instruction_list = sa.analyze();
     }
 
+    /*
 
-//     auto& a = sa.ir_men;
-//     for(auto&& in : a.get_instructions()){
-//         auto a = in.release();
-//         switch (a->type) {
-//             case ir::ir_type::assignment: {
-//                 auto as = static_cast<ir::assignment*>(a);
-//                 std::cout << "  t" << as->dest_reg << " = " << std::flush;
-//                 if(as->op == ir::assignment::operation::nop){
+    std::cout << "===== ir ======" << std::endl;
+    std::cout << "===vm run ====" << std::endl;
 
-//                     if(as->rop == ir::assignment::relational_op::nop){
-//                         std::cout << as->immediate << std::endl;
-//                     }
-//                     else if(as->rop == ir::assignment::relational_op::eq){
-//                         std::cout << "t" << as->src_reg0 << " eq t"
-//                                   << as->src_reg1 << std::endl;
-//                     }
+    std::string ir_code1("\
+main:\n\
+push_int 3\n\
+push_int 5\n\
+push_symbol +\n\
+apply\n\
+write\n\
+");
 
-//                 }
-//                 else if(as->op == ir::assignment::operation::add){
-//                     std::cout << "t" << as->src_reg0 << " + t" << as->src_reg1
-//                               << std::endl;
-//                 }
-//                 else if(as->op == ir::assignment::operation::sub){
-//                     std::cout << "t" << as->src_reg0 << " - t" << as->src_reg1
-//                               << std::endl;
-//                 }
+    run_vm(ir_code1);
 
-//                 break;
-//             }
-//             case ir::ir_type::label:
-//             {
-//                 auto as = static_cast<ir::label*>(a);
-//                 std::cout << as->str << ":" << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::jmp:
-//             {
-//                 auto as = static_cast<ir::jmp*>(a);
-//                 std::cout << "  goto " << as->label << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::branch:
-//             {
-//                 auto as = static_cast<ir::condition_branch*>(a);
-//                 std::cout << "  if t" << as->reg_num << " goto " << as->label
-//                           << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::param:
-//             {
-//                 auto pr = static_cast<ir::param*>(a);
-//                 std::cout << "  param t" << pr->reg_num << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::arg:
-//             {
-//                 break;
-//             }
-//             case ir::ir_type::call:
-//             {
-//                 auto cl = static_cast<ir::call*>(a);
-//                 std::cout << "  t" << cl->reg_num << " = call " << cl->label
-//                           << std::endl;
-//                 break;
-//             }
-//             case ir::ir_type::ret:
-//             {
-//                 auto re = static_cast<ir::ret*>(a);
-//                 std::cout << "  ret t" << re->reg_num << std::endl;
-//                 break;
-//             }
-//         }
-//     }
-    std::cout << "----- immediate code end -----" << std::endl;
-//     syntax::s_expression_parser<input_data> ep(file_data);
+    std::string ir_code1_("\
+main:\n\
+push_float 3.3\n\
+push_float 5.22\n\
+push_symbol +\n\
+apply\n\
+write\n\
+");
 
-//     auto conscell = ep.s_exp_parse();
-//     while (nullptr != conscell) {
-//         syntax::print_cons<input_data>(std::move(conscell));
-//         std::cout << std::endl;
-//         conscell = ep.s_exp_parse();
-//     }
+    run_vm(ir_code1_);
+
+    std::string ir_code2("\
+main:\n\
+push_float 3.3\n\
+push_symbol x\n\
+push_symbol define\n\
+apply\n\
+push_float 2.3\n\
+push_symbol y\n\
+push_symbol define\n\
+apply\n\
+push_symbol x\n\
+push_symbol y\n\
+push_symbol +\n\
+apply\n\
+write\n\
+ ");
+
+    run_vm(ir_code2);
+
+
+    std::string ir_code3("\
+clojure_0:\n\
+param x\n\
+param y\n\
+push_symbol y\n\
+push_symbol x\n\
+push_symbol +\n\
+apply\n\
+return\n\
+clojure_1:\n\
+param x\n\
+param y\n\
+push_symbol y\n\
+push_symbol x\n\
+push_symbol f\n\
+apply\n\
+return\n\
+main:\n\
+push_symbol clojure_0\n\
+push_symbol f\n\
+push_symbol define\n\
+apply\n\
+push_symbol clojure_1\n\
+push_symbol g\n\
+push_symbol define\n\
+apply\n\
+push_int 3\n\
+push_int 2\n\
+push_symbol a\n\
+push_symbol define\n\
+apply\n\
+write\n\
+push_symbol a\n\
+write\n\
+push_symbol g\n\
+apply\n\
+write\n\
+");
+
+    run_vm(ir_code3);
+
+
+
+    std::string ir_code4("\
+main:\n\
+push_float 3.3\n\
+push_float 5.22\n\
+push_float 5.2\n\
+push_float 2.22\n\
+make_list 3\n\
+write\n\
+");
+        run_vm(ir_code4);
+
+
+        std::string ir_code5("\
+push_float 1.400000\n\
+push_int 2\n\
+push_symbol +\n\
+apply\n\
+write\n\
+");
+
+        run_vm(ir_code5);
+
+
+            std::string ir_code6("\
+main:\n\
+push_int 3\n\
+push_int 5\n\
+push_int 5\n\
+push_int 2\n\
+make_list 3\n\
+write\n\
+push_symbol l\n\
+push_symbol define\n\
+apply\n\
+push_symbol l\n\
+push_symbol cdr\n\
+apply\n\
+write\n\
+push_symbol car\n\
+apply\n\
+write\n\
+");
+            run_vm(ir_code6);
+
+
+            std::string ir_code7("\
+push_int 2\n\
+push_int 3\n\
+push_int 4\n\
+push_int 5\n\
+make_list 4\n\
+push_symbol z\n\
+push_symbol define\n\
+apply\n\
+write\n\
+push_symbol z\n\
+push_symbol cdr\n\
+apply\n\
+write\n\
+push_symbol car\n\
+apply\n\
+write\n\
+push_symbol z\n\
+push_symbol car\n\
+apply\n\
+write\n\
+push_symbol +\n\
+apply\n\
+write\n\
+");
+
+            run_vm(ir_code7);
+
+            std::string ir_code8("\
+false_0:\n\
+push_int 2\n\
+push_int 6\n\
+push_symbol +\n\
+apply\n\
+return\n\
+true_0:\n\
+push_int 3\n\
+push_int 1\n\
+push_symbol +\n\
+apply\n\
+return\n\
+push_int 2\n\
+push_int 2\n\
+push_symbol =\n\
+apply\n\
+write\n\
+branch true_0, false_0\n\
+write\n\
+");
+
+            run_vm(ir_code8);
+
+std::string ir_code9("\
+push_int 5\n\
+push_int 3\n\
+push_symbol <=\n\
+apply\n\
+write\n\
+");
+
+run_vm(ir_code9);
+*/
 }

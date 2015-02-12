@@ -136,6 +136,7 @@ private:
             t_val.real = std::stod(str_num);
             return Token::real;
         } else {
+            begin_--;
             t_val.num = std::stoi(str_num);
             return Token::num;
         }

@@ -1,22 +1,22 @@
-; (+ 1 2)
+(+ 1 2)
 
 (+ 2 1.4)
 
-; (define i #f)
+(define i #f)
 
-; (define y 10)
-; (+ 1 (+ 2 3))
+(define y 10)
+(+ 1 (+ 2 3))
 
-; (+ 2 y)
+(+ 2 y)
 
-; (define x y)
-; (+ x y)
+(define x y)
+(+ x y)
 
-; (define st_hello "hello")
-; (define string_hello st_hello)
-; (define x
-;     (lambda (a b)
-;         (+ a b)))
+(define st_hello "hello")
+(define string_hello st_hello)
+(define x
+    (lambda (a b)
+        (+ a b)))
 
 ; (define z (quote (y "hello")))
 ; (cdr z)

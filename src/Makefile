@@ -4,7 +4,7 @@ CXXFLAGS = -std=c++0x -c -Wall
 CMDLINE =
 LDFLAGS =
 HEADERS = lexical.hpp syntax.hpp semantic_ir.hpp node.hpp \
-		  symbol_table.hpp debug.hpp
+		  symbol_table.hpp stack_vm.hpp  vm_symbol.hpp debug.hpp
 SOURCES = main.cpp
 OBJECTS = main.o
 INPUT_FILE = test.scm
@@ -26,10 +26,9 @@ $(EXECUTABLE): $(OBJECTS)
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
-gdb_run: $(DEBUG_EXECUTABL)
+gdb_run:
 	$(CXX) -std=c++11 -ggdb3 -o $(DEBUG_EXECUTABL) main.cpp
 	gdb -x cmd.gdb
 
 clean:
 	rm -f *.o *.gch $(EXECUTABLE)
-

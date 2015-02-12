@@ -66,7 +66,9 @@ namespace popo {
                 std::move(conscell),
                 std::unique_ptr<syntax::cons_node>(new syntax::cons_node())));
 
-            return analyze_node(std::move(head_node));
+            auto i_list = analyze_node(std::move(head_node));
+            i_list.push_back("write");
+            return i_list;
         }
 
     private:
