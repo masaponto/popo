@@ -159,6 +159,9 @@ namespace popo {
                         else if("if" == symbol_node->val){
                             apply = "";
                         }
+                        else if("quote" == symbol_node->val){
+                            apply = "";
+                        }
                         car->car.reset(symbol_node.release());
                     }
                     auto car_node =
