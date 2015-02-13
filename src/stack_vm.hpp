@@ -133,6 +133,55 @@ namespace popo {
                 }
             }
 
+        public :
+            auto write_element(std::shared_ptr<element> e) -> void
+            {
+                switch(e->type) {
+                case element_type::integer :
+                    {
+                        auto e_int = std::static_pointer_cast<int_element>(e);
+                        std::cout << e_int->data ;
+                        break;
+                    }
+                case element_type::real :
+                    {
+                        auto e_real = std::static_pointer_cast<real_element>(e);
+                        std::cout << e_real->data ;
+                        break;
+                    }
+                case element_type::boolean :
+                    {
+                        auto e_bool = std::static_pointer_cast<bool_element>(e);
+                        auto btos = [](bool b){ return b ? "true" : "false"; };
+                        std::cout << btos(e_bool->data) ;
+                        break;
+                    }
+                case element_type::list :
+                    {
+                        auto e_list = std::static_pointer_cast<list_element>(e);
+                        for (auto data : e_list->data) {
+                            write_element(data);
+                            std::cout << " ";
+                        }
+                        break;
+                    }
+                case element_type::symbol :
+                    {
+                        auto e_symbol = std::static_pointer_cast<symbol_element>(e);
+                        std::cout << e_symbol->data ;
+                        break;
+                    }
+                case element_type::string :
+                    {
+                        auto e_string = std::static_pointer_cast<string_element>(e);
+                        std::cout << e_string->data ;
+                        break;
+                    }
+                default:
+                    std::cout << "not implemented write type" ;
+                }
+            }
+
 
         public :
             auto stack_manager(std::shared_ptr<instruction> ins,
@@ -146,39 +195,12 @@ namespace popo {
                     {
                         if (!stack.empty()) {
                             auto e = stack.top();
-
-                            switch(e->type) {
-                            case element_type::integer :
-                                {
-                                    auto e_int = std::static_pointer_cast<int_element>(e);
-                                    std::cout << e_int->data << std::endl;
-                                    break;
-                                }
-                            case element_type::real :
-                                {
-                                    auto e_real = std::static_pointer_cast<real_element>(e);
-                                    std::cout << e_real->data << std::endl;
-                                    break;
-                                }
-                            case element_type::boolean :
-                                {
-                                    auto e_bool = std::static_pointer_cast<bool_element>(e);
-                                    auto btos = [](bool b){ return b ? "true" : "false"; };
-                                    std::cout << btos(e_bool->data) << std::endl;
-                                    break;
-                                }
-                            case element_type::list :
-                                {
-                                    std::cout << "this is list" << std::endl;
-                                    break;
-                                }
-                            default:
-                                std::cout << "not implemented write type" << std::endl;
-                            }
-
+                            write_element(std::move(e));
                         } else {
-                            std::cout << "Ooops, stack is empty :(" << std::endl;
+                            std::cout << "Ooops, stack is empty :(";
                         }
+
+                        std::cout << std::endl;
                         break;
                     }
 
@@ -198,7 +220,6 @@ namespace popo {
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
 
                         if (op_ins->operand->type == element_type::symbol) {
-
                             auto el = std::static_pointer_cast<symbol_element>(op_ins->operand);
                             bool find_flag = false;
 
@@ -234,6 +255,12 @@ namespace popo {
 
                         break;
                     }
+                case operation::pop:
+                    {
+                        assert(!stack.empty());
+                        stack.pop();
+                        break;
+                    }
                 case operation::make_list:
                     {
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
@@ -244,7 +271,7 @@ namespace popo {
                         std::list<std::shared_ptr<element>> e_list;
 
                         for(int i = 0; i < size; i++) {
-                            e_list.push_front( std::move( stack.top() ) );
+                            e_list.push_back( std::move( stack.top() ) );
                             stack.pop();
                         }
 
@@ -390,7 +417,7 @@ namespace popo {
 
                                 auto name_sym_e = std::static_pointer_cast<symbol_element>(name_e);
 
-                                *sym = define(name_sym_e, data_e, *sym);
+                                *sym = define(std::move(name_sym_e), std::move(data_e), *sym, false);
 
                                 break;
                             }
@@ -440,7 +467,8 @@ namespace popo {
 
             auto define(std::shared_ptr<symbol_element> name_e,
                         std::shared_ptr<element> data_e,
-                        std::map< std::string, std::shared_ptr<symbol_entry>> sym)
+                        std::map< std::string, std::shared_ptr<symbol_entry>> sym,
+                        bool is_param)
                 -> std::map<std::string, std::shared_ptr<symbol_entry>>
             {
                 switch(data_e->type) {
@@ -448,21 +476,24 @@ namespace popo {
                 case element_type::integer :
                     {
                         auto e_int = std::static_pointer_cast<int_element>(data_e);
-                        std::cout << e_int->data << std::endl;
                         std::shared_ptr<symbol_entry> int_var
                             ( new var_entry(name_e->data, std::move(e_int)));
                         sym.insert(make_pair(name_e->data, std::move(int_var)));
-                        //std::cout << name_e->data << " was defined !!" << std::endl;
+                        //std::cout << name_e->data << std::endl;
+                        if(!is_param) {
+                            stack.push(std::move(data_e));
+                        }
                         break;
                     }
                 case element_type::real:
                     {
                         auto e_real = std::static_pointer_cast<real_element>(data_e);
-                        std::cout << e_real->data << std::endl;
                         std::shared_ptr<symbol_entry> real_var
                             ( new var_entry(name_e->data, std::move(e_real)));
                         sym.insert(make_pair(name_e->data, std::move(real_var)));
-                        //std::cout << name_e->data << " was defined !!" << std::endl;
+                        if(!is_param) {
+                            stack.push(std::move(data_e));
+                        }
                         break;
                     }
                 case element_type::symbol:
@@ -475,7 +506,6 @@ namespace popo {
                                 ( new func_entry(name_e->data, fn_it->second));
                             sym.insert(make_pair(name_e->data, std::move(func)));
                             find_flag = true;
-                            //std::cout << name_e->data << " was defined !!" << std::endl;
                         }
                         else {
                             std::cout << "Oooops the function " << name_e->data << " is not defined" << std::endl;
@@ -486,10 +516,13 @@ namespace popo {
                 case element_type::string:
                     {
                         auto e_string = std::static_pointer_cast<string_element>(data_e);
-                        std::cout << e_string->data << std::endl;
+                        //std::cout << e_string->data << std::endl;
                         std::shared_ptr<symbol_entry> string_var
                             ( new var_entry(name_e->data, std::move(e_string)));
                         sym.insert(make_pair(name_e->data, std::move(string_var)));
+                        if(!is_param) {
+                            stack.push(std::move(data_e));
+                        }
                         break;
                     }
                 case element_type::list:
@@ -498,18 +531,21 @@ namespace popo {
                         std::shared_ptr<symbol_entry> list_var
                             ( new var_entry(name_e->data, std::move(e_list)));
                         sym.insert(make_pair(name_e->data, std::move(list_var)));
-
+                        if(!is_param) {
+                            stack.push(std::move(data_e));
+                        }
                         break;
                     }
                 case element_type::boolean:
                     {
                         auto e_bool = std::static_pointer_cast<bool_element>(data_e);
                         auto btos = [](bool b){ return b ? "#t" : "#f"; };
-                        std::cout << btos(e_bool->data) << std::endl;
                         std::shared_ptr<symbol_entry> bool_var
                             ( new var_entry(name_e->data, std::move(e_bool)));
                         sym.insert(make_pair(name_e->data, std::move(bool_var)));
-
+                        if(!is_param) {
+                            stack.push(std::move(data_e));
+                        }
                         break;
                     }
                 default:
@@ -535,7 +571,7 @@ namespace popo {
 
                     auto arg_e = std::move(stack.top());
                     stack.pop();
-                    local_sym = define(symbol_e, arg_e, local_sym);
+                    local_sym = define(symbol_e, arg_e, local_sym, true);
                     ++inst_it;
                 }
                 symbol_table_list.push_front(local_sym);
@@ -671,7 +707,6 @@ namespace popo {
                 else if (op_s == "main:") {
                     op = operation::main;
                 }
-
                 else if (std::regex_match(op_s, clojure)) {
                     std::string fn_name = op_s;
                     fn_name.erase(fn_name.end() - 1);

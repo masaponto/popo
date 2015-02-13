@@ -49,46 +49,46 @@ int main()
 
 
 
-    //     std::string ir_code3("\
-    // clojure_0:\n\
-    // param x\n\
-    // param y\n\
-    // push_symbol y\n\
-    // push_symbol x\n\
-    // push_symbol +\n\
-    // apply\n\
-    // return\n\
-    // clojure_1:\n\
-    // param x\n\
-    // param y\n\
-    // push_symbol x\n\
-    // push_symbol y\n\
-    // push_symbol f\n\
-    // apply\n\
-    // return\n\
-    // main:\n\
-    // push_symbol clojure_0\n\
-    // push_symbol f\n\
-    // push_symbol define\n\
-    // apply\n\
-    // push_symbol clojure_1\n\
-    // push_symbol g\n\
-    // push_symbol define\n\
-    // apply\n\
-    // push_int 3\n\
-    // push_int 2\n\
-    // push_symbol a\n\
-    // push_symbol define\n\
-    // apply\n\
-    // write\n\
-    // push_symbol a\n\
-    // write\n\
-    // push_symbol g\n\
-    // apply\n\
-    // write\n\
-    // ");
+//     std::string ir_code3("\
+// clojure_0:\n\
+// param x\n\
+// param y\n\
+// push_symbol y\n\
+// push_symbol x\n\
+// push_symbol +\n\
+// apply\n\
+// return\n\
+// clojure_1:\n\
+// param x\n\
+// param y\n\
+// push_symbol x\n\
+// write\n\
+// push_symbol y\n\
+// write\n\
+// push_symbol f\n\
+// apply\n\
+// return\n\
+// main:\n\
+// push_symbol clojure_0\n\
+// push_symbol f\n\
+// push_symbol define\n\
+// apply\n\
+// push_symbol clojure_1\n\
+// push_symbol g\n\
+// push_symbol define\n\
+// apply\n\
+// push_int 3\n\
+// push_int 2\n\
+// push_symbol a\n\
+// push_symbol define\n\
+// apply\n\
+// write\n\
+// push_symbol g\n\
+// apply\n\
+// write\n\
+// ");
 
-    //     run_vm(ir_code3);
+//     run_vm(ir_code3);
 
 
 
@@ -137,33 +137,33 @@ int main()
     //     run_vm(ir_code6);
 
 
-    std::string ir_code7("\
-push_int 2\n\
-push_int 3\n\
-push_int 4\n\
-push_int 5\n\
-make_list 4\n\
-push_symbol z\n\
-push_symbol define\n\
-apply\n\
-write\n\
-push_symbol z\n\
-push_symbol cdr\n\
-apply\n\
-write\n\
-push_symbol car\n\
-apply\n\
-write\n\
-push_symbol z\n\
-push_symbol car\n\
-apply\n\
-write\n\
-push_symbol +\n\
-apply\n\
-write\n\
-");
+//     std::string ir_code7("\
+// push_int 2\n\
+// push_int 3\n\
+// push_int 4\n\
+// push_int 5\n\
+// make_list 4\n\
+// push_symbol z\n\
+// push_symbol define\n\
+// apply\n\
+// write\n\
+// push_symbol z\n\
+// push_symbol cdr\n\
+// apply\n\
+// write\n\
+// push_symbol car\n\
+// apply\n\
+// write\n\
+// push_symbol z\n\
+// push_symbol car\n\
+// apply\n\
+// write\n\
+// push_symbol +\n\
+// apply\n\
+// write\n\
+// ");
 
-    run_vm(ir_code7);
+//     run_vm(ir_code7);
 
     //     std::string ir_code8("\
     // false_0:\n\
@@ -202,26 +202,26 @@ write\n\
 
     //     run_vm(ir_code8);
 
-    std::string ir_code10("\
-push_int 5\n\
-push_symbol x\n\
-push_symbol define\n\
-apply\n\
-push_symbol x\n\
-push_int 3\n\
-push_symbol *\n\
-apply\n\
-write\n\
-push_symbol x\n\
-push_symbol x\n\
-push_symbol *\n\
-apply\n\
-write\n\
-push_symbol x\n\
-write\n\
-");
+//     std::string ir_code10("\
+// push_int 5\n\
+// push_symbol x\n\
+// push_symbol define\n\
+// apply\n\
+// push_symbol x\n\
+// push_int 3\n\
+// push_symbol *\n\
+// apply\n\
+// write\n\
+// push_symbol x\n\
+// push_symbol x\n\
+// push_symbol *\n\
+// apply\n\
+// write\n\
+// push_symbol x\n\
+// write\n\
+// ");
 
-        run_vm(ir_code10);
+//         run_vm(ir_code10);
 
     std::string ir_code11("\
 true_0:\n\
@@ -259,7 +259,7 @@ write\n\
 return\n\
 ");
 
-    run_vm(ir_code11);
+    //run_vm(ir_code11);
 
 
 }
