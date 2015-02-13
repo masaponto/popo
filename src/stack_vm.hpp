@@ -539,7 +539,6 @@ namespace popo {
                 case element_type::boolean:
                     {
                         auto e_bool = std::static_pointer_cast<bool_element>(data_e);
-                        auto btos = [](bool b){ return b ? "#t" : "#f"; };
                         std::shared_ptr<symbol_entry> bool_var
                             ( new var_entry(name_e->data, std::move(e_bool)));
                         sym.insert(make_pair(name_e->data, std::move(bool_var)));
