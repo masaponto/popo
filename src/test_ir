@@ -1,36 +1,33 @@
-clojure_0:
-param x
-param y
-push_symbol y
-push_symbol x
-push_symbol +
-apply
+true_0:
+push_int 1
 return
-clojure_1:
-param x
-param y
+false_0:
 push_symbol x
-push_symbol y
+push_int 1
+push_symbol -
+apply
+write
 push_symbol f
 apply
+push_symbol x
+push_symbol *
+apply
+return
+clojure_0:
+param x
+push_symbol x
+push_int 0
+push_symbol =
+apply
+branch true_0, false_0
 return
 main:
 push_symbol clojure_0
 push_symbol f
 push_symbol define
 apply
-push_symbol clojure_1
-push_symbol g
-push_symbol define
-apply
-push_int 3
-push_int 2
-push_symbol a
-push_symbol define
+push_int 10
+push_symbol f
 apply
 write
-push_symbol a
-write
-push_symbol g
-apply
-write
+return

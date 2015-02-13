@@ -19,8 +19,7 @@ namespace popo {
         {
         public:
             vm() {}
-            vm (std::string ir_code)
-                : ir_code_ss(ir_code) {}
+            vm (std::string ir_code) : ir_code_ss(ir_code) {}
             ~vm() {}
 
         private:
@@ -29,7 +28,6 @@ namespace popo {
             std::stack<std::shared_ptr<element>> stack;
             std::map<std::string, std::shared_ptr<function>> function_table;
             std::list<std::map< std::string, std::shared_ptr<symbol_entry>>> symbol_table_list;
-
 
         public:
             auto parse() -> void
@@ -78,7 +76,6 @@ namespace popo {
                 run();
             }
 
-
         public:
             auto run() -> void
             {
@@ -104,23 +101,17 @@ namespace popo {
 
                             std::list<std::shared_ptr<instruction>> func_code;
                             int arg_num = 0;
-                            //int ret_num = 1;
 
-                            while((*it)->op != operation::ret) {
-
-                                if((*it)->op == operation::param) {
+                            while( (*it)->op != operation::ret ) {
+                                if( (*it)->op == operation::param ) {
                                     arg_num++;
                                 }
-
                                 func_code.push_back(std::move(*it));
                                 ++it;
                             }
 
-
                             function_table.insert( make_pair(func_name, std::shared_ptr<function>
                                                              (new function(func_name, arg_num, std::move(func_code) ) ) ) );
-
-                            //std::cout << func_name << std::endl;
                             break;
                         }
 
@@ -182,7 +173,6 @@ namespace popo {
                 }
             }
 
-
         public :
             auto stack_manager(std::shared_ptr<instruction> ins,
                                std::list<std::map< std::string, std::shared_ptr<symbol_entry>>> sym_tables)
@@ -203,7 +193,6 @@ namespace popo {
                         std::cout << std::endl;
                         break;
                     }
-
                 case operation::push_int :
                 case operation::push_float :
                 case operation::push_string :
@@ -216,7 +205,6 @@ namespace popo {
                     }
                 case operation::push_symbol :
                     {
-
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
 
                         if (op_ins->operand->type == element_type::symbol) {
@@ -386,7 +374,30 @@ namespace popo {
                                 bool_calc(mte_ii, mte_fi, mte_if, mte_ff);
                                 break;
                             }
-
+                        case element_type::land :
+                            {
+                                auto e1 = std::move( stack.top() );
+                                stack.pop();
+                                auto e2 = std::move( stack.top() );
+                                stack.pop();
+                                auto e1_bool = std::static_pointer_cast<bool_element>(e1);
+                                auto e2_bool = std::static_pointer_cast<bool_element>(e2);
+                                std::shared_ptr<element> e3( new bool_element( (e1_bool->data) && (e2_bool->data) ) );
+                                stack.push(std::move(e3));
+                                break;
+                            }
+                        case element_type::lor :
+                            {
+                                auto e1 = std::move( stack.top() );
+                                stack.pop();
+                                auto e2 = std::move( stack.top() );
+                                stack.pop();
+                                auto e1_bool = std::static_pointer_cast<bool_element>(e1);
+                                auto e2_bool = std::static_pointer_cast<bool_element>(e2);
+                                std::shared_ptr<element> e3( new bool_element( (e1_bool->data) || (e2_bool->data) ) );
+                                stack.push(std::move(e3));
+                                break;
+                            }
                         case element_type::symbol :
                             {
                                 auto symbol_e = std::static_pointer_cast<symbol_element>(func_e);
@@ -397,9 +408,7 @@ namespace popo {
 
                                     if (sym_it != sym_table.end()
                                         && sym_it->second->sclass == sym_class::func ) {
-
                                         auto func_e = std::static_pointer_cast<func_entry>( sym_it->second );
-
                                         run_func(func_e->func->code);
                                         break;
                                     }
@@ -407,7 +416,6 @@ namespace popo {
 
                                 break;
                             }
-
                         case element_type::define :
                             {
                                 auto name_e = std::move(stack.top());
@@ -416,7 +424,6 @@ namespace popo {
                                 stack.pop();
 
                                 auto name_sym_e = std::static_pointer_cast<symbol_element>(name_e);
-
                                 *sym = define(std::move(name_sym_e), std::move(data_e), *sym, false);
 
                                 break;
@@ -443,8 +450,6 @@ namespace popo {
 
                                 break;
                             }
-
-
                         default:
                             {
                                 std::cout << "not implemented apply" << std::endl;
@@ -456,9 +461,8 @@ namespace popo {
                     }
                 default :
                     {
-                        //std::cout << "not implemented" << std::endl;
+                        std::cout << "not implemented push_symbol" << std::endl;
                     }
-
                 } // end push_symbol case
 
                 return sym_tables;
@@ -506,9 +510,12 @@ namespace popo {
                                 ( new func_entry(name_e->data, fn_it->second));
                             sym.insert(make_pair(name_e->data, std::move(func)));
                             find_flag = true;
+                            if(!is_param) {
+                                stack.push(std::move(name_e));
+                            }
                         }
                         else {
-                            std::cout << "Oooops the function " << name_e->data << " is not defined" << std::endl;
+                            std::cout << "function " << name_e->data << " is not defined" << std::endl;
                         }
 
                         break;
@@ -586,10 +593,9 @@ namespace popo {
             template<typename Func1, typename Func2, typename Func3, typename Func4>
             auto calc(Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
             {
-
-                auto e2 = std::move( stack.top() );
-                stack.pop();
                 auto e1 = std::move( stack.top() );
+                stack.pop();
+                auto e2 = std::move( stack.top() );
                 stack.pop();
 
                 if (e1->type == element_type::integer
@@ -600,14 +606,12 @@ namespace popo {
 
                     std::shared_ptr<element> e3( new int_element( f1( e1_int->data, e2_int->data ) ) );
                     stack.push(std::move(e3));
-
                 }
                 else if (e1->type == element_type::real
                          && e2->type == element_type::integer) {
 
                     auto e1_real = std::static_pointer_cast<real_element>(e1);
                     auto e2_int = std::static_pointer_cast<int_element>(e2);
-
                     std::shared_ptr<element> e3( new real_element( f2(e1_real->data, e2_int->data) ) );
                     stack.push(std::move(e3));
                 }
@@ -616,7 +620,6 @@ namespace popo {
 
                     auto e1_int = std::static_pointer_cast<int_element>(e1);
                     auto e2_real = std::static_pointer_cast<real_element>(e2);
-
                     std::shared_ptr<element> e3( new real_element( f3(e1_int->data, e2_real->data) ) );
                     stack.push(std::move(e3));
                 }
@@ -624,7 +627,6 @@ namespace popo {
 
                     auto e1_real = std::static_pointer_cast<real_element>(e1);
                     auto e2_real = std::static_pointer_cast<real_element>(e2);
-
                     std::shared_ptr<element> e3( new real_element( f4(e1_real->data, e2_real->data) ) );
                     stack.push(std::move(e3));
                 }
@@ -634,9 +636,9 @@ namespace popo {
             template<typename Func1, typename Func2, typename Func3, typename Func4>
             auto bool_calc(Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
             {
-                auto e2 = std::move( stack.top() );
-                stack.pop();
                 auto e1 = std::move( stack.top() );
+                stack.pop();
+                auto e2 = std::move( stack.top() );
                 stack.pop();
 
                 if (e1->type == element_type::integer
@@ -684,9 +686,9 @@ namespace popo {
                 const std::string op_s = inst_vec[0];
                 operation op;
 
-                std::regex clojure("clojure_.:");
-                std::regex true_s("true_.:");
-                std::regex false_s("false_.:");
+                std::regex clojure("clojure_.*:");
+                std::regex true_s("true_.*:");
+                std::regex false_s("false_.*:");
 
                 if (op_s == "pop") {
                     op = operation::pop;
@@ -731,7 +733,6 @@ namespace popo {
                         ( new op_instruction( operation::push_float, std::shared_ptr<element>
                                               ( new real_element( std::stof( inst_vec[1] ) ) ) ) );
                 }
-
                 else if (op_s == "push_string") {
                     return std::shared_ptr<op_instruction>
                         ( new op_instruction( operation::push_string, std::shared_ptr<element>

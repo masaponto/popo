@@ -22,6 +22,11 @@
 (define z (quote (y "hello")))
 (define z (quote (y "hello" x 3 4.2 true)))
 
+(define z (quote (2 3 4 5)))
+
+;(+ (car (quote (2 3 4 5)) (car (cdr (quote (2 3 4 5))))))
+
+
 
 ; (cdr z)
 
@@ -37,8 +42,8 @@
 ;     (lambda (vy)
 ;         (/ (* 2 vy) 9)))
 
-; (/ 1 2)
-
+;(/ 5 2.0)
+;(- 1 2)
 ; (define pi 3)
 
 ; (define radian

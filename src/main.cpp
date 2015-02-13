@@ -14,9 +14,10 @@
 
 auto run_vm(std::string ir_code) -> void
 {
+    std::cout << std::endl;
     std::cout << "=== src ===" << std::endl;
 
-    std::cout << ir_code << std::endl;
+    //std::cout << ir_code << std::endl;
     popo::stack_vm::vm pvm(ir_code);
 
     std::cout << "=== result ===" << std::endl;
@@ -45,6 +46,18 @@ int main()
         pvm.parse(instruction_list);
         instruction_list = sa.analyze();
     }
+
+
+    std::ifstream ifs("test_ir");
+    if (ifs.fail())
+    {
+        std::cerr << "fail" << std::endl;
+        return EXIT_FAILURE;
+    }
+    std::istreambuf_iterator<char> it(ifs);
+    std::istreambuf_iterator<char> last;
+    std::string ir_code(it, last);
+    //run_vm(ir_code);
 
 
 
@@ -163,31 +176,31 @@ int main()
 // write\n\
 // ");
 
-//     run_vm(ir_code7);
+//run_vm(ir_code7);
 
-    //     std::string ir_code8("\
-    // false_0:\n\
-    // push_int 2\n\
-    // push_int 6\n\
-    // push_symbol +\n\
-    // apply\n\
-    // return\n\
-    // true_0:\n\
-    // push_int 3\n\
-    // push_int 1\n\
-    // push_symbol +\n\
-    // apply\n\
-    // return\n\
-    // push_int 2\n\
-    // push_int 2\n\
-    // push_symbol =\n\
-    // apply\n\
-    // write\n\
-    // branch true_0, false_0\n\
-    // write\n\
-    // ");
+//     std::string ir_code8("\
+// false_0:\n\
+// push_int 2\n\
+// push_int 6\n\
+// push_symbol +\n\
+// apply\n\
+// return\n\
+// true_0:\n\
+// push_int 3\n\
+// push_int 1\n\
+// push_symbol +\n\
+// apply\n\
+// return\n\
+// push_int 2\n\
+// push_int 2\n\
+// push_symbol =\n\
+// apply\n\
+// write\n\
+// branch true_0, false_0\n\
+// write\n\
+// ");
 
-    //     run_vm(ir_code8);
+//     run_vm(ir_code8);
 
     //     std::string ir_code9("\
     // push_int 5\n\
@@ -223,43 +236,43 @@ int main()
 
 //         run_vm(ir_code10);
 
-    std::string ir_code11("\
-true_0:\n\
-push_int 1\n\
-return\n\
-false_0:\n\
-push_symbol x\n\
-push_int 1\n\
-push_symbol -\n\
-apply\n\
-write\n\
-push_symbol f\n\
-apply\n\
-push_symbol x\n\
-push_symbol *\n\
-apply\n\
-return\n\
-clojure_0:\n\
-param x\n\
-push_symbol x\n\
-push_int 0\n\
-push_symbol =\n\
-apply\n\
-branch true_0, false_0\n\
-return\n\
-main:\n\
-push_symbol clojure_0\n\
-push_symbol f\n\
-push_symbol define\n\
-apply\n\
-push_int 10\n\
-push_symbol f\n\
-apply\n\
-write\n\
-return\n\
-");
+//     std::string ir_code11("\
+// true_0:\n\
+// push_int 1\n\
+// return\n\
+// false_0:\n\
+// push_symbol x\n\
+// push_int 1\n\
+// push_symbol -\n\
+// apply\n\
+// write\n\
+// push_symbol f\n\
+// apply\n\
+// push_symbol x\n\
+// push_symbol *\n\
+// apply\n\
+// return\n\
+// clojure_0:\n\
+// param x\n\
+// push_symbol x\n\
+// push_int 0\n\
+// push_symbol =\n\
+// apply\n\
+// branch true_0, false_0\n\
+// return\n\
+// main:\n\
+// push_symbol clojure_0\n\
+// push_symbol f\n\
+// push_symbol define\n\
+// apply\n\
+// push_int 10\n\
+// push_symbol f\n\
+// apply\n\
+// write\n\
+// return\n\
+// ");
 
-    //run_vm(ir_code11);
+//     run_vm(ir_code11);
 
 
 }
