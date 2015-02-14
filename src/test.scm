@@ -22,13 +22,16 @@
 ; (define x y)
 ; (+ x y)
 
-; (define st_hello "hello")
-; (define string_hello st_hello)
-; (define x
-;     (lambda (a b)
-;         (+ a b)))
+(define st_hello "hello")
+(define string_hello st_hello)
 
-; (define z (quote (y "hello")))
+(define x
+    (lambda (a b)
+        (+ a b)))
+
+(define z (quote (y "hello")))
+(define z (quote (y "hello" x 3 4.2 true)))
+
 ; (cdr z)
 
 ; (define c (cons 1 2 3))

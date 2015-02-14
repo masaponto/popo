@@ -50,28 +50,12 @@ namespace popo {
             bool data;
         };
 
-
         struct list_element : element {
         public:
             list_element( std::list<std::shared_ptr<element>> e_list) : element(element_type::list), data(e_list) {}
          public:
             std::list<std::shared_ptr<element>> data;
         };
-
-
-        // struct int_list_element : element {
-        // public:
-        //     int_list_element(std::list<int> op) : element(element_type::int_list), data(op) {}
-        // public:
-        //     std::list<int> data;
-        // };
-
-        // struct real_list_element : element {
-        // public:
-        //     real_list_element(std::list<float> op) : element(element_type::real_list), data(op) {}
-        // public:
-        //     std::list<float> data;
-        // };
 
         struct symbol_element : element {
         public:
@@ -87,6 +71,7 @@ namespace popo {
         public:
             std::string t_label, f_label;
         };
+
 
         enum struct operation {
             push_int, push_float, push_string, push_symbol, push_bool, push_list,
