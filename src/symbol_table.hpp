@@ -9,7 +9,7 @@
 namespace popo {
 namespace semantic {
 
-enum struct entry_type { value, list, clojure, not_found };
+enum struct entry_type { value, list, closure, not_found };
 
 enum struct function_type {
     // special form
@@ -46,10 +46,10 @@ public:
     entry_type type;
 };
 
-struct clojure_entry : public symbol_table_entry {
+struct closure_entry : public symbol_table_entry {
 public:
-    clojure_entry(int argc, std::string l)
-        : symbol_table_entry(entry_type::clojure), arg_count(argc), label(l) {};
+    closure_entry(int argc, std::string l)
+        : symbol_table_entry(entry_type::closure), arg_count(argc), label(l) {};
 
 public:
     int arg_count;

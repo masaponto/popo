@@ -21,7 +21,7 @@ namespace popo {
         semantic_analyzer(const Iteratable& itr)
             : parser_(itr),
               symbol_stack_(),
-              clojure_number(0),
+              closure_number(0),
               definition(),
               consequent_number(0),
               alternative_number(0)
@@ -30,16 +30,16 @@ namespace popo {
 
                 symbol_stack_.push_front(
                     std::make_pair(pair.first,
-                                   std::shared_ptr<clojure_entry>(
-                                       new clojure_entry(pair.second, ""))));
+                                   std::shared_ptr<closure_entry>(
+                                       new closure_entry(pair.second, ""))));
             }
 
             for (auto& pair : built_in_function) {
 
                 symbol_stack_.push_front(
                     std::make_pair(pair.first,
-                                   std::shared_ptr<clojure_entry>(
-                                       new clojure_entry(pair.second, ""))));
+                                   std::shared_ptr<closure_entry>(
+                                       new closure_entry(pair.second, ""))));
             }
         }
 
@@ -47,7 +47,7 @@ namespace popo {
         syntax::s_expression_parser<Iteratable> parser_;
         std::list<std::pair<std::string, std::shared_ptr<symbol_table_entry>>>
             symbol_stack_;
-        int clojure_number;
+        int closure_number;
         int consequent_number;
         int alternative_number;
 
@@ -57,7 +57,6 @@ namespace popo {
     public:
         auto analyze() -> std::list<std::string>
         {
-
             auto conscell = parser_.s_exp_parse();
             if (nullptr == conscell) {
                 return std::list<std::string>();
@@ -69,16 +68,11 @@ namespace popo {
             auto i_list = analyze_node(std::move(head_node));
             i_list.push_back("write");
 
-            for (auto s : i_list) {
-                if(s.empty()){
-                    continue;
-                }
-
+            i_list.insert(i_list.begin(), definition.begin(), definition.end());
+            i_list.remove_if([](std::string s) -> bool { return s.empty(); });
+            for (auto& s : i_list) {
                 std::cout << s << std::endl;
             }
-
-            i_list.remove_if([](std::string s) -> bool { return s.empty();});
-            i_list.insert(i_list.begin(), definition.begin(), definition.end());
             return i_list;
         }
 
@@ -253,15 +247,15 @@ namespace popo {
                     def_tmp.begin(), arg_list.begin(), arg_list.end());
 
                 // label
-                auto clojure = "clojure_" + std::to_string(clojure_number++);
-                def_tmp.push_front(clojure + ":");
+                auto closure = "closure_" + std::to_string(closure_number++);
+                def_tmp.push_front(closure + ":");
 
                 definition.insert(
                     definition.end(), def_tmp.begin(), def_tmp.end());
                 //                definition.push_back("\n");
 
-                r_list.push_back("push_symbol " + clojure);
-                //r_list.push_back("push_symbol " + clojure);
+                r_list.push_back("push_symbol " + closure);
+                //r_list.push_back("push_symbol " + closure);
             } else if ("if" == s_node->val) {
 
                 // test node
