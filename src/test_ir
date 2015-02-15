@@ -1,36 +1,27 @@
-clojure_0:
-param x
-param y
-push_symbol y
-push_symbol x
-push_symbol +
+true_0:
+push_int 0
+return
+false_0:
+push_int 1
+push_symbol a
+push_symbol -
+apply
+write
+push_symbol rec
 apply
 return
-clojure_1:
-param x
-param y
-push_symbol x
-push_symbol y
-push_symbol f
+closure_0:
+param a
+push_symbol a
+push_int 0
+push_symbol <=
 apply
+branch true_0, false_0
 return
-main:
-push_symbol clojure_0
-push_symbol f
+push_symbol closure_0
+push_symbol rec
 push_symbol define
 apply
-push_symbol clojure_1
-push_symbol g
-push_symbol define
+push_int 10
+push_symbol rec
 apply
-push_int 3
-push_int 2
-push_symbol a
-push_symbol define
-apply
-write
-push_symbol a
-write
-push_symbol g
-apply
-write
