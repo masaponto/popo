@@ -19,7 +19,7 @@ namespace popo {
                 popo::stack_vm::vm pvm;
                 //std::regex left("\(.*");
                 //std::regex right("\)");
-                std::string cons;
+                std::string code;
 
                 while (true) {
                     std::cout << "popo >> ";
