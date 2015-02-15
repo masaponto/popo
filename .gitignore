@@ -9,3 +9,4 @@ src/test/build/*
 !src/test/CMakeLists.txt
 !src/test/build/
 !src/test/*.cpp
+src/test_ir.*

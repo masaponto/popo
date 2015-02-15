@@ -1,33 +1,27 @@
 true_0:
-push_int 1
+push_int 0
 return
 false_0:
-push_symbol x
 push_int 1
+push_symbol a
 push_symbol -
 apply
 write
-push_symbol f
-apply
-push_symbol x
-push_symbol *
+push_symbol rec
 apply
 return
-clojure_0:
-param x
-push_symbol x
+closure_0:
+param a
+push_symbol a
 push_int 0
-push_symbol =
+push_symbol <=
 apply
 branch true_0, false_0
 return
-main:
-push_symbol clojure_0
-push_symbol f
+push_symbol closure_0
+push_symbol rec
 push_symbol define
 apply
 push_int 10
-push_symbol f
+push_symbol rec
 apply
-write
-return
