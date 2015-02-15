@@ -4,7 +4,7 @@ CXXFLAGS = -std=c++0x -c -Wall
 CMDLINE =
 LDFLAGS =
 HEADERS = lexical.hpp syntax.hpp semantic_ir.hpp node.hpp \
-		  symbol_table.hpp stack_vm.hpp  vm_symbol.hpp debug.hpp
+		  symbol_table.hpp stack_vm.hpp  vm_symbol.hpp repl.hpp debug.hpp
 SOURCES = main.cpp
 OBJECTS = main.o
 INPUT_FILE = test.scm

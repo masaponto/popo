@@ -18,7 +18,9 @@ namespace popo {
         class vm
         {
         public:
-            vm() {}
+            vm() {
+                symbol_table_list.push_back(global_sym);
+            }
             vm (std::string ir_code) : ir_code_ss(ir_code) {}
             ~vm() {}
 
@@ -27,7 +29,8 @@ namespace popo {
             std::list<std::shared_ptr<instruction>> instruction_list;
             std::stack<std::shared_ptr<element>> stack;
             std::map<std::string, std::shared_ptr<function>> function_table;
-            std::list<std::map< std::string, std::shared_ptr<symbol_entry>>> symbol_table_list;
+            std::list<std::map<std::string, std::shared_ptr<symbol_entry>>> symbol_table_list;
+            std::map< std::string, std::shared_ptr<symbol_entry>> global_sym;
 
         public:
             auto parse() -> void
@@ -72,17 +75,18 @@ namespace popo {
                     instruction_list.push_back( create_inst(inst_vec) );
                     inst_vec.clear();
                 }
-
                 run();
+                instruction_list.clear();
             }
 
         public:
             auto run() -> void
             {
-                std::map< std::string, std::shared_ptr<symbol_entry>> global_sym;
-                            symbol_table_list.push_back(global_sym);
 
                 for(auto it = instruction_list.begin(); it != instruction_list.end(); ++it ) {
+
+                    assert(instruction_list.size() != 0);
+                    assert(nullptr != (*it));
 
                     switch((*it)->op) {
                     case operation::other:
@@ -284,8 +288,10 @@ namespace popo {
                         if(bool_e->data)  {
                             auto it = function_table.find(branch_e->t_label);
 
-                            //std::cout << branch_e->t_label << std::endl;
-                            //std::cout << function_table.size() << std::endl;
+                            //assert(nullptr != it);
+
+                            std::cout << branch_e->t_label << std::endl;
+                            std::cout << function_table.size() << std::endl;
                             assert(it != function_table.end());
 
                             run_func(it->second->code);

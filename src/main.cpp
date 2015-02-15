@@ -5,12 +5,13 @@
 #include <list>
 #include <cassert>
 #include <memory>
+#include <string>
 
 #include "syntax.hpp"
 #include "semantic_ir.hpp"
 #include "debug.hpp"
 #include "stack_vm.hpp"
-
+#include "repl.hpp"
 
 auto run_vm(std::string ir_code) -> void
 {
@@ -26,9 +27,17 @@ auto run_vm(std::string ir_code) -> void
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
     using namespace popo;
+
+    if(argc == 2) {
+         std::string args = argv[1];
+         if (args == "--repl") {
+             popo::repl::repl prepl;
+             prepl.run();
+         }
+    }
 
     std::string filename("test.scm");
     std::ifstream fs(filename);
@@ -41,13 +50,20 @@ int main()
     semantic::semantic_analyzer<input_data> sa(file_data);
     sa.analyze();
 
+    popo::stack_vm::vm pvm;
     auto instruction_list = sa.analyze();
-     while (!instruction_list.empty()) {
-         popo::stack_vm::vm pvm;
-         pvm.parse(instruction_list);
-         instruction_list = sa.analyze();
-     }
+    while (!instruction_list.empty()) {
+        pvm.parse(instruction_list);
+        instruction_list = sa.analyze();
+    }
 
+
+
+
+    // for (auto&& instruction : instruction_list) {
+    //         std::cout << instruction << std::endl;
+    // }
+    // std::cout << std::endl;
 
     std::ifstream ifs("test_ir");
     if (ifs.fail())
@@ -59,7 +75,7 @@ int main()
     std::istreambuf_iterator<char> it(ifs);
     std::istreambuf_iterator<char> last;
     std::string str(it, last);
-    run_vm(str);
+    //run_vm(str);
 
     // std::cout << str << std::endl;
     // popo::stack_vm::vm pvm(str);

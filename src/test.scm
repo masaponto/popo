@@ -4,37 +4,54 @@
             0
             (rec (- a 1)))))
 
-; (if (= 1 1)
-;     1
-;     0)
+(rec 12)
 
-; (+ 1 2)
 
-; (+ 2 1.4)
+;; (if (= 1 1)
+;;     1
+;;     0)
 
-; (define i #f)
+(+ 1 2)
 
-; (define y 10)
-; (+ 1 (+ 2 3))
+(+ 2 1.4)
 
-; (+ 2 y)
+(define i #f)
 
-; (define x y)
-; (+ x y)
+(define y 10)
+(+ 1 (+ 2 3))
+
+(+ 2 y)
+
+(define x y)
+(+ x y)
 
 (define st_hello "hello")
 (define string_hello st_hello)
 
-(define x
-    (lambda (a b)
+
+
+(define a (quote (y 3.4"hello")))
+
+(define f
+  (lambda (a b)
         (+ a b)))
 
+(f 3 2)
+
+
+(define g
+  (lambda (a b)
+        (- a b)))
+
 (define z (quote (y "hello")))
-(define z (quote (y "hello" x 3 4.2 true)))
+(define zl (quote (y "hello" x 3 4.2 true)))
 
-(define z (quote (2 3 4 5)))
+(define zw (quote (2 3 4 5)))
 
-;(+ (car (quote (2 3 4 5)) (car (cdr (quote (2 3 4 5))))))
+
+(f 20 y)
+
+
 
 
 ; (cdr z)
