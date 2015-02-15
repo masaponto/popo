@@ -20,7 +20,6 @@ namespace popo {
                 //std::regex left("\(.*");
                 //std::regex right("\)");
                 std::string cons;
-                //int count = 0;
 
                 while (true) {
                     std::cout << "popo >> ";
@@ -31,27 +30,27 @@ namespace popo {
 
                     //if (std::regex_match(in,left)) {
                     if (it == '(') {
-                        cons += in;
-                        lcount+=count_word(in, '(');
-                        rcount+=count_word(in, ')');
+                        code += in;
+                        lcount += count_word(in, '(');
+                        rcount += count_word(in, ')');
 
                         while(lcount != rcount) {
                             getline(std::cin, in);
 
                             if(*(in.end()) == '\0') {
-                                cons += " ";
+                                code += " ";
                             }
 
-                            cons+= in;
+                            code+= in;
                             lcount+=count_word(in, '(');
                             rcount+=count_word(in, ')');
                         }
 
-                        //std::cout << cons << std::endl;
-                        semantic::semantic_analyzer<std::string> sa(cons);
+                        //std::cout << code << std::endl;
+                        semantic::semantic_analyzer<std::string> sa(code);
                         auto ins_list = sa.analyze();
                         pvm.parse(ins_list);
-                        cons = "";
+                        code = "";
 
                     }
                     else if(it == '\0') {
@@ -60,7 +59,7 @@ namespace popo {
                         break;
                     }
                     else {
-                        std::cout << "command not found " << in << " :("<<std::endl;
+                        std::cout << "command not found " << in << std::endl;
                     }
 
                 }
@@ -78,7 +77,6 @@ namespace popo {
                 }
                 return count;
             }
-
 
         }; // calss repl
 

@@ -13,7 +13,9 @@ $ cd src
 $ make
 ```
 ### How to use
-
+```
+./popo --repl
+```
 
 ### sample code
 
