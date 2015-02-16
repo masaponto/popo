@@ -70,9 +70,9 @@ namespace popo {
 
             i_list.insert(i_list.begin(), definition.begin(), definition.end());
             i_list.remove_if([](std::string s) -> bool { return s.empty(); });
-            for (auto& s : i_list) {
+            //for (auto& s : i_list) {
                 //std::cout << s << std::endl;
-            }
+            //}
             return i_list;
         }
 

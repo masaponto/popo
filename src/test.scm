@@ -39,17 +39,17 @@
 (f 3 2)
 
 
-(define g
-  (lambda (a b)
-        (- a b)))
+;; (define g
+;;   (lambda (a b)
+;;         (- a b)))
 
-(define z (quote (y "hello")))
-(define zl (quote (y "hello" x 3 4.2 true)))
+;; (define z (quote (y "hello")))
+;; (define zl (quote (y "hello" x 3 4.2 true)))
 
-(define zw (quote (2 3 4 5)))
+;; (define zw (quote (2 3 4 5)))
 
 
-(f 20 y)
+;; (f 20 y)
 
 
 

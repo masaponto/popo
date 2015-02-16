@@ -15,5 +15,5 @@ mkdir -p build
 cd build
 cmake ..
 make
-# pwd
+pwd
 ./popo_test
