@@ -12,6 +12,7 @@ apply
 return
 closure_0:
 param a
+write
 push_symbol a
 push_int 0
 push_symbol <=

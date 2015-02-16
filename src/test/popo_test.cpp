@@ -747,8 +747,36 @@ push_symbol x\n\
 
     stack_vm::vm pvm(in_data);
     pvm.parse();
-    EXPECT_EQ("5", pvm.write_element(pvm.stack.top()));
+    EXPECT_EQ("x", pvm.write_element(pvm.stack.top()));
 }
+
+
+TEST(stack_vm, vm_test_12) {
+    using namespace popo;
+    std::string in_data("\
+push_int 3\n\
+push_symbol x\n\
+push_symbol define\n\
+apply\n\
+push_int 5\n\
+push_symbol x\n\
+push_symbol +\n\
+apply\n\
+push_int 4\n\
+push_symbol x\n\
+push_symbol define\n\
+apply\n\
+push_int 5\n\
+push_symbol x\n\
+push_symbol +\n\
+apply\n\
+");
+
+    stack_vm::vm pvm(in_data);
+    pvm.parse();
+    EXPECT_EQ("9", pvm.write_element(pvm.stack.top()));
+}
+
 
 
 

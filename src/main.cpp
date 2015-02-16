@@ -84,7 +84,7 @@ push_float 2.22\n\
 make_list 4\n\
 write\n\
 ");
-    run_vm(ir_code4);
+    //run_vm(ir_code4);
 
 
     std::string ir_code7("\
@@ -114,7 +114,43 @@ apply\n\
 write\n\
 ");
 
-    run_vm(ir_code7);
-
+    std::string ir_code8("\
+closure_0:\n\
+param b\n\
+param a\n\
+push_symbol b\n\
+push_symbol a\n\
+push_symbol +\n\
+apply\n\
+return\n\
+push_symbol closure_0\n\
+push_symbol f\n\
+push_symbol define\n\
+apply\n\
+write\n\
+push_int 3\n\
+push_int 2\n\
+push_symbol f\n\
+apply\n\
+write\n\
+closure_0:\n\
+param b\n\
+param a\n\
+push_symbol b\n\
+push_symbol a\n\
+push_symbol *\n\
+apply\n\
+return\n\
+push_symbol closure_0\n\
+push_symbol f\n\
+push_symbol define\n\
+apply\n\
+push_int 3\n\
+push_int 2\n\
+push_symbol f\n\
+apply\n\
+write\n\
+");
+    run_vm(ir_code8);
 
 }
