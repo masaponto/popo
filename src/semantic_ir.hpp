@@ -269,8 +269,8 @@ namespace popo {
                 r_list.insert(
                     r_list.begin(), test_list.begin(), test_list.end());
                 r_list.push_back(
-                    "branch true_" + std::to_string(consequent_number + 1) +
-                    ", false_" + std::to_string(alternative_number + 1));
+                    "branch true_" + std::to_string(consequent_number) +
+                    ", false_" + std::to_string(alternative_number));
 
                 // consequent node
                 auto consequent = std::move(test_cons->cdr);

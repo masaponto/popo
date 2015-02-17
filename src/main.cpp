@@ -151,6 +151,6 @@ push_symbol f\n\
 apply\n\
 write\n\
 ");
-    run_vm(ir_code8);
+    //run_vm(ir_code8);
 
 }

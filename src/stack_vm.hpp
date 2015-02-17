@@ -426,6 +426,7 @@ namespace popo {
 
                                 if(e->type == element_type::symbol) {
                                     e = find_symbol(sym_tables, e);
+                                    assert( e != nullptr);
                                 }
 
                                 auto cons_e = std::static_pointer_cast<list_element>(e);
@@ -441,6 +442,7 @@ namespace popo {
 
                                 if(e->type == element_type::symbol) {
                                     e = find_symbol(sym_tables, e);
+                                    assert( e != nullptr);
                                 }
 
                                 auto cons_e = std::static_pointer_cast<list_element>(e);
@@ -488,7 +490,8 @@ namespace popo {
                         }
 
                     }
-                    return e;
+
+                    return nullptr;
                 }
 
 
@@ -546,8 +549,11 @@ namespace popo {
                     }
                     else {
 
+                        auto e = find_symbol(sym_tables, data_e);
+                        assert(e != nullptr);
+
                         std::shared_ptr<symbol_entry> var
-                            ( new var_entry(name_e->data, find_symbol(sym_tables, data_e)));
+                            ( new var_entry(name_e->data, e));
 
                         if(sym.find(name_e->data) != sym.end()) {
                             sym[name_e->data] = std::move(var);
@@ -586,6 +592,7 @@ namespace popo {
                     stack.pop();
                     local_sym = define(symbol_e, arg_e, local_sym, sym_tables, true);
                     ++inst_it;
+                    std::cout << "param" << std::endl;
                 }
                 symbol_table_list.push_front(local_sym);
 
@@ -606,6 +613,7 @@ namespace popo {
 
                 if(e1->type == element_type::symbol) {
                     e1 = find_symbol(sym_tables, e1);
+                    assert(e1 != nullptr);
                 }
 
                 auto e2 = std::move( stack.top() );
@@ -613,6 +621,7 @@ namespace popo {
 
                 if(e2->type == element_type::symbol) {
                     e2 = find_symbol(sym_tables, e2);
+                    assert(e2 != nullptr);
                 }
 
 
@@ -660,6 +669,7 @@ namespace popo {
 
                 if(e2->type == element_type::symbol) {
                     e2 = find_symbol(sym_tables, e2);
+                    assert(e2 != nullptr);
                 }
 
                 auto e1 = std::move( stack.top() );
@@ -667,6 +677,7 @@ namespace popo {
 
                 if(e1->type == element_type::symbol) {
                     e1 = find_symbol(sym_tables, e1);
+                    assert(e1 != nullptr);
                 }
 
                 if (e1->type == element_type::integer
@@ -674,6 +685,8 @@ namespace popo {
 
                     auto e1_int = std::static_pointer_cast<int_element>(e1);
                     auto e2_int = std::static_pointer_cast<int_element>(e2);
+
+                    //std::cout << "aaaa" << std::endl;
 
                     std::shared_ptr<element> e3( new bool_element( f1( e1_int->data, e2_int->data ) ) );
                     stack.push(std::move(e3));
