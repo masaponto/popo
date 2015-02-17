@@ -5,6 +5,7 @@
 #include <list>
 #include <string>
 #include <algorithm>
+#include <sstream>
 
 #include "syntax.hpp"
 #include "symbol_table.hpp"
@@ -70,9 +71,9 @@ namespace popo {
 
             i_list.insert(i_list.begin(), definition.begin(), definition.end());
             i_list.remove_if([](std::string s) -> bool { return s.empty(); });
-            //for (auto& s : i_list) {
-                //std::cout << s << std::endl;
-            //}
+            for (auto& s : i_list) {
+                std::cout << s << std::endl;
+            }
             return i_list;
         }
 
@@ -181,6 +182,15 @@ namespace popo {
 
                     if (is_special_form(symbol)) {
                         return special_form_procedure(std::move(cons));
+                    }
+                    else {
+                        auto cdr_list = analyze_node(std::move(cons->cdr));
+                        s_list.insert(
+                            s_list.end(), cdr_list.begin(), cdr_list.end());
+                        auto car_list = analyze_node(std::move(cons->car));
+                        s_list.insert(
+                            s_list.end(), car_list.begin(), car_list.end());
+                        return s_list;
                     }
                 }
                 case syntax::node_type::num:
@@ -299,9 +309,20 @@ namespace popo {
                 definition.insert(definition.end(), alter.begin(), alter.end());
 
             }
-            //             else if("define" == s_node->val){
+            else if("define" == s_node->val){
+                auto cdr_node = analyze_node(std::move(cons->cdr));
 
-            //             }
+                std::string symbol;
+                std::stringstream ss(*cdr_node.rbegin());
+                std::getline(ss, symbol, ' ');
+                std::getline(ss, symbol, ' ');
+//                 std::cout << "symbol: " << symbol << std::endl;
+
+                r_list.insert(r_list.end(), "push_symbol define");
+                r_list.insert(r_list.end(), cdr_node.begin(), cdr_node.end());
+                symbol_stack_ .push_front(std::make_pair(symbol,
+                            std::make_shared<symbol_table_entry>()));
+            }
             else {
                 assert(false);
             }
@@ -319,9 +340,9 @@ namespace popo {
             else if("if" == symbol) {
                 return true;
             }
-            //             else if ("if" == symbol) {
-            //                 return true;
-            //             }
+            else if ("define" == symbol) {
+                return true;
+            }
             else {
                 return false;
             }

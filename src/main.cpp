@@ -63,58 +63,58 @@ int main(int argc, char *argv[])
     // }
     // std::cout << std::endl;
 
-    std::ifstream ifs("test_ir");
-    if (ifs.fail())
-    {
-        std::cerr << "fail" << std::endl;
-        return EXIT_FAILURE;
-    }
-    std::istreambuf_iterator<char> it(ifs);
-    std::istreambuf_iterator<char> last;
-    std::string str(it, last);
-    run_vm(str);
+//     std::ifstream ifs("test_ir");
+//     if (ifs.fail())
+//     {
+//         std::cerr << "fail" << std::endl;
+//         return EXIT_FAILURE;
+//     }
+//     std::istreambuf_iterator<char> it(ifs);
+//     std::istreambuf_iterator<char> last;
+//     std::string str(it, last);
+//     run_vm(str);
 
 
 
-    std::string ir_code4("\
-push_float 3.3\n\
-push_string uhihi\n\
-push_int 5\n\
-push_float 2.22\n\
-make_list 4\n\
-write\n\
-");
-    run_vm(ir_code4);
+//     std::string ir_code4("\
+// push_float 3.3\n\
+// push_string uhihi\n\
+// push_int 5\n\
+// push_float 2.22\n\
+// make_list 4\n\
+// write\n\
+// ");
+//     run_vm(ir_code4);
 
 
-    std::string ir_code7("\
-push_int 2\n\
-push_int 3\n\
-push_int 4\n\
-push_int 5\n\
-make_list 4\n\
-push_symbol z\n\
-push_symbol define\n\
-apply\n\
-write\n\
-push_symbol z\n\
-push_symbol cdr\n\
-apply\n\
-write\n\
-push_symbol car\n\
-apply\n\
-write\n\
-push_symbol z\n\
-write\n\
-push_symbol car\n\
-apply\n\
-write\n\
-push_symbol +\n\
-apply\n\
-write\n\
-");
+//     std::string ir_code7("\
+// push_int 2\n\
+// push_int 3\n\
+// push_int 4\n\
+// push_int 5\n\
+// make_list 4\n\
+// push_symbol z\n\
+// push_symbol define\n\
+// apply\n\
+// write\n\
+// push_symbol z\n\
+// push_symbol cdr\n\
+// apply\n\
+// write\n\
+// push_symbol car\n\
+// apply\n\
+// write\n\
+// push_symbol z\n\
+// write\n\
+// push_symbol car\n\
+// apply\n\
+// write\n\
+// push_symbol +\n\
+// apply\n\
+// write\n\
+// ");
 
-    run_vm(ir_code7);
+//     run_vm(ir_code7);
 
 
 }
