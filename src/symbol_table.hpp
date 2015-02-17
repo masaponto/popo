@@ -189,6 +189,10 @@ const std::pair<std::string, int> built_in_function[] = {
 
     // other build in function
     std::make_pair("=", 2),
+    std::make_pair(">", 2),
+    std::make_pair("<", 2),
+    std::make_pair(">=", 2),
+    std::make_pair("<=", 2),
 //     std::pair<std::string, int>("=", 2),
 };
 
