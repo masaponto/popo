@@ -36,9 +36,9 @@
 
 ; (define a (quote (y 3.4"hello")))
 
-; (define f
-;   (lambda (a b)
-;         (+ a b)))
+;; (define f
+;;    (lambda (a b)
+;;          (+ a b)))
 
 ; (f 3 2)
 
