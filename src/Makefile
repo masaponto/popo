@@ -19,7 +19,6 @@ all: $(EXECUTABLE) $(OBJECTS)
 main.o: $(HEADERS)
 
 $(EXECUTABLE): $(OBJECTS)
-	ctags -R .
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(EXECUTABLE)
 
 run_without_gosh:  $(EXECUTABLE)
