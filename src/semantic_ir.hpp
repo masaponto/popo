@@ -25,7 +25,9 @@ namespace popo {
               closure_number(0),
               definition(),
               consequent_number(0),
-              alternative_number(0)
+              alternative_number(0),
+              in_define(false)
+
         {
             for (auto&& pair : special_form) {
 
@@ -51,6 +53,7 @@ namespace popo {
         int closure_number;
         int consequent_number;
         int alternative_number;
+        bool in_define;
 
     public:
         std::list<std::string> definition;
@@ -177,10 +180,11 @@ namespace popo {
                     auto s_node = cast_unique_ptr<syntax::symbol_node>(
                         std::move(cons->car));
                     auto symbol = s_node->val;
-                    assert(search_symbol_stack(symbol));
                     cons->car.reset(
                         dynamic_cast<syntax::expr_node*>(s_node.release()));
+//                     std::cout << "sym: " << symbol << std::endl;
 
+                    assert(search_symbol_stack(symbol));
                     if (is_special_form(symbol)) {
                         return special_form_procedure(std::move(cons));
                     }
@@ -303,7 +307,9 @@ namespace popo {
 
             }
             else if("define" == s_node->val){
+                in_define = true;
                 auto cdr_node = analyze_node(std::move(cons->cdr));
+                in_define = false;
 
                 std::string symbol;
                 std::stringstream ss(*cdr_node.rbegin());
@@ -353,12 +359,14 @@ namespace popo {
 
         auto search_symbol_stack(const std::string& symbol) -> bool
         {
+            if(in_define){
+                return true;
+            }
             for(auto pair : symbol_stack_){
                 if(symbol == pair.first){
                     return true;
                 }
             }
-
             return false;
         }
 
