@@ -53,7 +53,6 @@ namespace popo {
               consequent_number(0),
               alternative_number(0),
               in_define(false)
-
         {
             for (auto&& pair : special_form) {
                 symbol_stack_.push_front(
@@ -78,14 +77,16 @@ namespace popo {
         int consequent_number;
         int alternative_number;
         bool in_define;
+        bool is_debug;
 
     public:
         std::list<std::string> definition;
 
     public:
-        auto analyze(const Iteratable& itr)
+        auto analyze(const Iteratable& itr, bool debug = false)
             -> std::list<std::string>
         {
+            is_debug = debug;
             return analyze(syntax::s_expression_parser<Iteratable>(itr));
         }
 
@@ -122,8 +123,10 @@ namespace popo {
 //             i_list.remove_if([](std::string s) -> bool { return s.empty(); });
             return_list.insert(return_list.begin(), definition.begin(), definition.end());
             return_list.remove_if([](std::string s) -> bool { return s.empty(); });
-            for (auto& s : return_list) {
-                std::cout << s << std::endl;
+            if(is_debug){
+                for (auto& s : return_list) {
+                    std::cout << s << std::endl;
+                }
             }
             return return_list;
         }
@@ -369,7 +372,7 @@ namespace popo {
                 r_list.insert(r_list.end(), "push_symbol define");
                 symbol_stack_ .push_front(std::make_pair(symbol,
                             std::make_shared<symbol_table_entry>()));
-                print_symbol_stack();
+//                 print_symbol_stack();
 
 
             }
@@ -413,8 +416,8 @@ namespace popo {
             if(in_define){
                 return true;
             }
+            print_symbol_stack();
             for(auto pair : symbol_stack_){
-                std::cout << pair.first << std::endl;
                 if(symbol == pair.first){
                     return true;
                 }
@@ -425,11 +428,14 @@ namespace popo {
 
         auto print_symbol_stack() -> void
         {
-            std::cout << " = == == = = =print symbol stack" << std::endl;
+            if(!is_debug){
+                return;
+            }
+            std::cout << "======symbol stack======" << std::endl;
             for (auto pair : symbol_stack_) {
                 std::cout << pair.first << std::endl;
             }
-            std::cout << "= = = = = = = =" << std::endl;
+            std::cout << "========================" << std::endl;
         }
 
     };

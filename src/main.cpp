@@ -20,11 +20,18 @@ int main(int argc, char *argv[])
     if (argc == 1) {
         popo::repl::repl prepl;
         prepl.run();
-    } else {
+    }
+    else {
+        auto debug = false;
         for (auto i = 1; i < argc; i++) {
-            std::string filename = argv[i];
+            std::string option = argv[i];
 
-            std::ifstream fs(filename);
+            if("-v" == option){
+                debug = true; 
+                continue;
+            }
+
+            std::ifstream fs(option);
 
             using input_data = std::list<char>;
 
@@ -34,7 +41,7 @@ int main(int argc, char *argv[])
             semantic::semantic_analyzer<input_data> sa;
 
             popo::stack_vm::vm pvm;
-            auto instruction_list = sa.analyze(file_data);
+            auto instruction_list = sa.analyze(file_data, debug);
 //             while (!instruction_list.empty()) {
                 pvm.parse(instruction_list);
 //                 instruction_list = sa.analyze();
