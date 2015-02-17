@@ -177,21 +177,14 @@ namespace popo {
                     auto s_node = cast_unique_ptr<syntax::symbol_node>(
                         std::move(cons->car));
                     auto symbol = s_node->val;
+                    assert(search_symbol_stack(symbol));
                     cons->car.reset(
                         dynamic_cast<syntax::expr_node*>(s_node.release()));
 
                     if (is_special_form(symbol)) {
                         return special_form_procedure(std::move(cons));
                     }
-                    else {
-                        auto cdr_list = analyze_node(std::move(cons->cdr));
-                        s_list.insert(
-                            s_list.end(), cdr_list.begin(), cdr_list.end());
-                        auto car_list = analyze_node(std::move(cons->car));
-                        s_list.insert(
-                            s_list.end(), car_list.begin(), car_list.end());
-                        return s_list;
-                    }
+
                 }
                 case syntax::node_type::num:
                 case syntax::node_type::string:
@@ -357,6 +350,18 @@ namespace popo {
             return std::unique_ptr<dest_type>(
                 static_cast<dest_type*>(node.release()));
         }
+
+        auto search_symbol_stack(const std::string& symbol) -> bool
+        {
+            for(auto pair : symbol_stack_){
+                if(symbol == pair.first){
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
     };
 
     } // namespace semantic

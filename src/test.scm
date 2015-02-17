@@ -19,15 +19,15 @@
 
 ;(+ 2 1.4)
 
-(define i #f)
+; (define i #f)
 
 (define y 10)
 ; (+ 1 (+ 2 3))
 
 (+ 2 y)
 
-; (define x y)
-; (+ x y)
+(define x  4)
+(+ x z)
 
 ; (define st_hello "hello")
 ; (define string_hello st_hello)
@@ -36,9 +36,9 @@
 
 ; (define a (quote (y 3.4"hello")))
 
-; (define f
-;   (lambda (a b)
-;         (+ a b)))
+;; (define f
+;;    (lambda (a b)
+;;          (+ a b)))
 
 ; (f 3 2)
 
