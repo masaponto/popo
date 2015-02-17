@@ -85,6 +85,9 @@ public:
                 parse_trust();
                 return Token::trust;
             }
+            else if('-' == *begin_){
+                return parse_minus();
+            }
             // symbol
             else if ('!' <= *begin_ && *begin_ <= '~') {
                 parse_symbol();
@@ -142,6 +145,28 @@ private:
         }
     }
 
+    auto parse_minus() -> Token
+    {
+        begin_++;
+        if('9' >= *begin_ && *begin_ >= '0') {
+            auto token = parse_real_number();
+            if(Token::num == token){
+                t_val.num *= -1;
+            }
+            else if(Token::real == token){
+                t_val.real *= -1;
+            }
+            else {
+                assert(false);
+            }
+            return token;
+        }
+        else {
+            begin_--;
+            return parse_string();
+        }
+    }
+
     auto parse_symbol() -> void
     {
         std::string str(1, *begin_++);
@@ -152,7 +177,7 @@ private:
         t_val.symbol = str;
     }
 
-    auto parse_string() -> void
+    auto parse_string() -> Token
     {
         assert(++begin_ != end_);
         std::string str;
@@ -162,6 +187,7 @@ private:
         }
         t_val.str = str;
         begin_++;
+        return Token::string;
     }
 
     auto parse_trust() -> void
