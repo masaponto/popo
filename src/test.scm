@@ -19,12 +19,12 @@
 
 ;(+ 2 1.4)
 
-(define i #f)
+; (define i #f)
 
-; (define y 10)
+(define y 10)
 ; (+ 1 (+ 2 3))
 
-; (+ 2 y)
+(+ 2 y)
 
 ; (define x  4)
 

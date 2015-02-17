@@ -19,9 +19,35 @@ namespace popo {
     class semantic_analyzer {
 
     public:
-        semantic_analyzer(const Iteratable& itr)
-            : parser_(itr),
-              symbol_stack_(),
+//         semantic_analyzer(const Iteratable& itr)
+//             : parser_(itr),
+//               symbol_stack_(),
+//               closure_number(0),
+//               definition(),
+//               consequent_number(0),
+//               alternative_number(0),
+//               in_define(false)
+
+//         {
+//             for (auto&& pair : special_form) {
+
+//                 symbol_stack_.push_front(
+//                     std::make_pair(pair.first,
+//                                    std::shared_ptr<closure_entry>(
+//                                        new closure_entry(pair.second, ""))));
+//             }
+
+//             for (auto& pair : built_in_function) {
+
+//                 symbol_stack_.push_front(
+//                     std::make_pair(pair.first,
+//                                    std::shared_ptr<closure_entry>(
+//                                        new closure_entry(pair.second, ""))));
+//             }
+//         }
+
+        semantic_analyzer() 
+            : symbol_stack_(),
               closure_number(0),
               definition(),
               consequent_number(0),
@@ -30,7 +56,6 @@ namespace popo {
 
         {
             for (auto&& pair : special_form) {
-
                 symbol_stack_.push_front(
                     std::make_pair(pair.first,
                                    std::shared_ptr<closure_entry>(
@@ -38,7 +63,6 @@ namespace popo {
             }
 
             for (auto& pair : built_in_function) {
-
                 symbol_stack_.push_front(
                     std::make_pair(pair.first,
                                    std::shared_ptr<closure_entry>(
@@ -47,7 +71,7 @@ namespace popo {
         }
 
     private:
-        syntax::s_expression_parser<Iteratable> parser_;
+//         syntax::s_expression_parser<Iteratable> parser_;
         std::list<std::pair<std::string, std::shared_ptr<symbol_table_entry>>>
             symbol_stack_;
         int closure_number;
@@ -59,25 +83,49 @@ namespace popo {
         std::list<std::string> definition;
 
     public:
-        auto analyze() -> std::list<std::string>
+        auto analyze(const Iteratable& itr)
+            -> std::list<std::string>
         {
-            auto conscell = parser_.s_exp_parse();
+            return analyze(syntax::s_expression_parser<Iteratable>(itr));
+        }
+
+        auto analyze(syntax::s_expression_parser<Iteratable> parser) -> std::list<std::string>
+        {
+            auto conscell = parser.s_exp_parse();
             if (nullptr == conscell) {
                 return std::list<std::string>();
             }
-            std::unique_ptr<syntax::cons_node> head_node(new syntax::cons_node(
-                std::move(conscell),
-                std::unique_ptr<syntax::cons_node>(new syntax::cons_node())));
 
-            auto i_list = analyze_node(std::move(head_node));
-            i_list.push_back("write");
+            std::list<std::string> return_list;
+            while (nullptr != conscell) {
+                std::unique_ptr<syntax::cons_node> head_node(
+                    new syntax::cons_node(std::move(conscell),
+                                          std::unique_ptr<syntax::cons_node>(
+                                              new syntax::cons_node())));
 
-            i_list.insert(i_list.begin(), definition.begin(), definition.end());
-            i_list.remove_if([](std::string s) -> bool { return s.empty(); });
-            for (auto& s : i_list) {
+                auto i_list = analyze_node(std::move(head_node));
+                return_list.insert(return_list.end(), i_list.begin(), i_list.end());
+                return_list.push_back("write");
+
+                conscell = parser.s_exp_parse();
+            }
+
+
+//             std::unique_ptr<syntax::cons_node> head_node(new syntax::cons_node(
+//                 std::move(conscell),
+//                 std::unique_ptr<syntax::cons_node>(new syntax::cons_node())));
+
+//             auto i_list = analyze_node(std::move(head_node));
+//             i_list.push_back("write");
+
+//             i_list.insert(i_list.begin(), definition.begin(), definition.end());
+//             i_list.remove_if([](std::string s) -> bool { return s.empty(); });
+            return_list.insert(return_list.begin(), definition.begin(), definition.end());
+            return_list.remove_if([](std::string s) -> bool { return s.empty(); });
+            for (auto& s : return_list) {
                 std::cout << s << std::endl;
             }
-            return i_list;
+            return return_list;
         }
 
     private:
@@ -317,10 +365,13 @@ namespace popo {
                 std::getline(ss, symbol, ' ');
 //                 std::cout << "symbol: " << symbol << std::endl;
 
-                r_list.insert(r_list.end(), "push_symbol define");
                 r_list.insert(r_list.end(), cdr_node.begin(), cdr_node.end());
+                r_list.insert(r_list.end(), "push_symbol define");
                 symbol_stack_ .push_front(std::make_pair(symbol,
                             std::make_shared<symbol_table_entry>()));
+                print_symbol_stack();
+
+
             }
             else {
                 assert(false);
@@ -363,11 +414,22 @@ namespace popo {
                 return true;
             }
             for(auto pair : symbol_stack_){
+                std::cout << pair.first << std::endl;
                 if(symbol == pair.first){
                     return true;
                 }
             }
+            std::cout << symbol << " not found" << std::endl;
             return false;
+        }
+
+        auto print_symbol_stack() -> void
+        {
+            std::cout << " = == == = = =print symbol stack" << std::endl;
+            for (auto pair : symbol_stack_) {
+                std::cout << pair.first << std::endl;
+            }
+            std::cout << "= = = = = = = =" << std::endl;
         }
 
     };

@@ -31,15 +31,14 @@ int main(int argc, char *argv[])
             const input_data file_data{std::istreambuf_iterator<char>(fs),
                                        std::istreambuf_iterator<char>()};
 
-            semantic::semantic_analyzer<input_data> sa(file_data);
-            sa.analyze();
+            semantic::semantic_analyzer<input_data> sa;
 
             popo::stack_vm::vm pvm;
-            auto instruction_list = sa.analyze();
-            while (!instruction_list.empty()) {
+            auto instruction_list = sa.analyze(file_data);
+//             while (!instruction_list.empty()) {
                 pvm.parse(instruction_list);
-                instruction_list = sa.analyze();
-            }
+//                 instruction_list = sa.analyze();
+//             }
         }
     }
 }
