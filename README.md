@@ -13,8 +13,11 @@ $ cd src
 $ make
 ```
 ### How to use
+
 ```
-./popo --repl
+./run_repl.sh
+./popo 
+./popo [fileneme]
 ```
 
 ### sample code
