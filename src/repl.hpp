@@ -26,6 +26,11 @@ namespace popo {
                     int lcount = 0;
                     int rcount = 0;
                     getline(std::cin, in);
+
+                    if(std::cin.eof()) {
+                        break;
+                    }
+
                     auto it = in[0];
 
                     //if (std::regex_match(in,left)) {

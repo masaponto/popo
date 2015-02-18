@@ -131,7 +131,7 @@ namespace popo {
                         }
                     default:
                         {
-                            symbol_table_list = stack_manager(std::move(*it), symbol_table_list);
+                            stack_manager(std::move(*it));
                         }
 
                     }
@@ -193,18 +193,17 @@ namespace popo {
 
 
         public:
-            auto stack_manager(std::shared_ptr<instruction> ins,
-                               std::list<symbol_table> sym_tables)
-                -> std::list<symbol_table>
-            {
+            auto stack_manager(std::shared_ptr<instruction> ins)
+                -> void
+                {
 
                 switch(ins->op) {
-                case operation::write :
+                case operation::write:
                     {
                         if (!stack.empty()) {
                             auto e = stack.top();
                             assert(nullptr != e);
-                            std::cout << write_element(std::move(e)) << std::endl;
+                            std::cout << write_element(e) << std::endl;
                         } else {
                             std::cout << "Ooops, stack is empty :(" << std::endl;
                         }
@@ -215,27 +214,11 @@ namespace popo {
                 case operation::push_float :
                 case operation::push_string :
                 case operation::push_bool :
+                case operation::push_symbol :
                     // case operation::push_list :
                     {
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
                         stack.push(op_ins->operand);
-                        break;
-                    }
-                case operation::push_symbol :
-                    {
-                        auto op_ins = std::static_pointer_cast<op_instruction>(ins);
-
-                        assert(nullptr != op_ins);
-                        assert(nullptr != op_ins->operand);
-
-                        if (op_ins->operand->type == element_type::symbol) {
-                            auto el = std::static_pointer_cast<symbol_element>(op_ins->operand);
-                            stack.push(el);
-                        } else {
-                            //if other symbol
-                            stack.push(op_ins->operand);
-                        }
-
                         break;
                     }
                 case operation::pop:
@@ -258,7 +241,7 @@ namespace popo {
                             stack.pop();
                         }
 
-                        stack.push(std::shared_ptr<element>( new list_element(e_list)));
+                        stack.push(std::shared_ptr<element>(new list_element(e_list)));
 
                         break;
                     }
@@ -277,11 +260,11 @@ namespace popo {
                             //std::cout << function_table.size() << std::endl;
                             assert(it != function_table.end());
 
-                            run_func(it->second->code, sym_tables);
+                            run_func(it->second->code);
                             //function_table.erase(branch_e->t_label);
                         } else {
                             auto it = function_table.find(branch_e->f_label);
-                            run_func(it->second->code, sym_tables);
+                            run_func(it->second->code);
                             //function_table.erase(branch_e->f_label);
                         }
 
@@ -289,6 +272,8 @@ namespace popo {
                     }
                 case operation::apply :
                     {
+
+                        assert(!stack.empty());
                         auto func_e = std::move( stack.top() );
                         stack.pop();
 
@@ -299,7 +284,7 @@ namespace popo {
                                 auto add_fi = [](float a, int b)->float{ return a + b; };
                                 auto add_if = [](int a, float b)->float{ return a + b; };
                                 auto add_ff = [](float a, float b)->float{ return a + b; };
-                                calc(sym_tables, add_ii, add_fi, add_if, add_ff);
+                                calc(add_ii, add_fi, add_if, add_ff);
                                 break;
                             }
                         case element_type::sub :
@@ -308,7 +293,7 @@ namespace popo {
                                 auto sub_fi = [](float a, int b)->float{ return a - b; };
                                 auto sub_if = [](int a, float b)->float{ return a - b; };
                                 auto sub_ff = [](float a, float b)->float{ return a - b; };
-                                calc(sym_tables, sub_ii, sub_fi, sub_if, sub_ff);
+                                calc(sub_ii, sub_fi, sub_if, sub_ff);
                                 break;
                             }
                         case element_type::mul :
@@ -317,7 +302,7 @@ namespace popo {
                                 auto mul_fi = [](float a, int b)->float{ return a * b; };
                                 auto mul_if = [](int a, float b)->float{ return a * b; };
                                 auto mul_ff = [](float a, float b)->float{ return a * b; };
-                                calc(sym_tables, mul_ii, mul_fi, mul_if, mul_ff);
+                                calc(mul_ii, mul_fi, mul_if, mul_ff);
                                 break;
                             }
                         case element_type::div :
@@ -326,7 +311,7 @@ namespace popo {
                                 auto div_fi = [](float a, int b)->float{ return a / b; };
                                 auto div_if = [](int a, float b)->float{ return a / b; };
                                 auto div_ff = [](float a, float b)->float{ return a / b; };
-                                calc(sym_tables, div_ii, div_fi, div_if, div_ff);
+                                calc(div_ii, div_fi, div_if, div_ff);
                                 break;
                             }
                         case element_type::eq :
@@ -335,7 +320,7 @@ namespace popo {
                                 auto eq_fi = [](float a, int b)->float{ return a == b; };
                                 auto eq_if = [](int a, float b)->float{ return a == b; };
                                 auto eq_ff = [](float a, float b)->float{ return a == b; };
-                                bool_calc(sym_tables, eq_ii, eq_fi, eq_if, eq_ff);
+                                bool_calc(eq_ii, eq_fi, eq_if, eq_ff);
                                 break;
                             }
                         case element_type::lt :
@@ -344,7 +329,7 @@ namespace popo {
                                 auto lt_fi = [](float a, int b)->float{ return a < b; };
                                 auto lt_if = [](int a, float b)->float{ return a < b; };
                                 auto lt_ff = [](float a, float b)->float{ return a < b; };
-                                bool_calc(sym_tables, lt_ii, lt_fi, lt_if, lt_ff);
+                                bool_calc(lt_ii, lt_fi, lt_if, lt_ff);
                                 break;
                             }
                         case element_type::mt :
@@ -353,7 +338,7 @@ namespace popo {
                                 auto mt_fi = [](float a, int b)->float{ return a > b; };
                                 auto mt_if = [](int a, float b)->float{ return a > b; };
                                 auto mt_ff = [](float a, float b)->float{ return a > b; };
-                                bool_calc(sym_tables, mt_ii, mt_fi, mt_if, mt_ff);
+                                bool_calc(mt_ii, mt_fi, mt_if, mt_ff);
                                 break;
                             }
                         case element_type::lte :
@@ -362,7 +347,7 @@ namespace popo {
                                 auto lte_fi = [](float a, int b)->float{ return a <= b; };
                                 auto lte_if = [](int a, float b)->float{ return a <= b; };
                                 auto lte_ff = [](float a, float b)->float{ return a <= b; };
-                                bool_calc(sym_tables, lte_ii, lte_fi, lte_if, lte_ff);
+                                bool_calc(lte_ii, lte_fi, lte_if, lte_ff);
                                 break;
                             }
                         case element_type::mte :
@@ -371,27 +356,26 @@ namespace popo {
                                 auto mte_fi = [](float a, int b)->float{ return a >= b; };
                                 auto mte_if = [](int a, float b)->float{ return a >= b; };
                                 auto mte_ff = [](float a, float b)->float{ return a >= b; };
-                                bool_calc(sym_tables, mte_ii, mte_fi, mte_if, mte_ff);
+                                bool_calc(mte_ii, mte_fi, mte_if, mte_ff);
                                 break;
                             }
                         case element_type::symbol :
                             {
                                 auto symbol_e = std::static_pointer_cast<symbol_element>(func_e);
 
-                                for (auto sym_table : sym_tables) {
+                                for (auto sym : symbol_table_list) {
 
-                                    auto sym_it = sym_table.find(symbol_e->data);
+                                    auto sym_it = sym.find(symbol_e->data);
 
-                                    if (sym_it != sym_table.end()
+                                    if (sym_it != sym.end()
                                         && sym_it->second->sclass == sym_class::func ) {
 
-                                        auto func_e = std::static_pointer_cast<func_entry>(
-                                            sym_it->second );
+                                        auto func_e = std::static_pointer_cast<func_entry>(sym_it->second);
 
                                         assert(nullptr != func_e->func);
                                         assert(nullptr != func_e);
 
-                                        run_func(func_e->func->code, sym_tables);
+                                        run_func(func_e->func->code);
                                         break;
                                     }
                                 }
@@ -400,8 +384,10 @@ namespace popo {
                             }
                         case element_type::define :
                             {
+                                assert(!stack.empty());
                                 auto name_e = std::move(stack.top());
                                 stack.pop();
+
                                 assert(!stack.empty());
                                 auto data_e = std::move(stack.top());
                                 stack.pop();
@@ -410,23 +396,24 @@ namespace popo {
                                 assert(nullptr != data_e);
 
                                 auto sym_name_e = std::static_pointer_cast<symbol_element>(name_e);
-                                auto sym = sym_tables.begin();
+                                auto sym = symbol_table_list.begin();
 
                                 assert(nullptr != sym_name_e);
-                                assert(sym != sym_tables.end());
+                                assert(sym != symbol_table_list.end());
 
-                                (*sym) = define(sym_name_e, data_e, (*sym), sym_tables, false);
+                                (*sym) = define(sym_name_e, data_e, (*sym), false);
 
                                 break;
                             }
                         case element_type::cdr:
                             {
+                                assert(!stack.empty());
                                 auto e = std::move(stack.top());
                                 stack.pop();
 
                                 if(e->type == element_type::symbol) {
-                                    e = find_symbol(sym_tables, e);
-                                    assert( e != nullptr);
+                                    e = find_symbol(e);
+                                    assert(e != nullptr);
                                 }
 
                                 auto cons_e = std::static_pointer_cast<list_element>(e);
@@ -437,18 +424,18 @@ namespace popo {
                             }
                         case element_type::car:
                             {
+                                assert(!stack.empty());
                                 auto e = std::move(stack.top());
                                 stack.pop();
 
                                 if(e->type == element_type::symbol) {
-                                    e = find_symbol(sym_tables, e);
+                                    e = find_symbol(e);
                                     assert( e != nullptr);
                                 }
 
                                 auto cons_e = std::static_pointer_cast<list_element>(e);
                                 auto i = cons_e->data.front();
                                 stack.push(std::move(i));
-
 
                                 break;
                             }
@@ -467,30 +454,32 @@ namespace popo {
                     }
                 } // end operation case
 
-                return sym_tables;
             }
 
-            auto find_symbol(std::list<symbol_table> sym_tables, std::shared_ptr<element> e)-> std::shared_ptr<element>
+            auto find_symbol(std::shared_ptr<element> e)
+                -> std::shared_ptr<element>
                 {
                     auto symbol_e = std::static_pointer_cast<symbol_element>(e);
 
-                    for (auto sym_table : sym_tables) {
+                    for (auto sym_table : symbol_table_list) {
 
                         auto sym_it = sym_table.find(symbol_e->data);
 
-                        if (sym_it->second->sclass == sym_class::var) {
-                            auto v = std::static_pointer_cast<var_entry>( sym_it->second );
-                            return v->data;
-                            //element new_e = *(v->data);
-                            //auto ep = std::make_shared<element>(new_e);
-                            //stack.push(std::move(ep));
-                        } else {
-                            // if function symbol
-                            return symbol_e;
+                        if(sym_it != sym_table.end()) {
+                            if (sym_it->second->sclass == sym_class::var) {
+                                auto v = std::static_pointer_cast<var_entry>( sym_it->second );
+                                return v->data;
+                                //element new_e = *(v->data);
+                                //auto ep = std::make_shared<element>(new_e);
+                                //stack.push(std::move(ep));
+                            } else {
+                                // if function symbol
+                                return symbol_e;
+                            }
                         }
 
                     }
-
+                    // if not found
                     return nullptr;
                 }
 
@@ -498,12 +487,10 @@ namespace popo {
             auto define(std::shared_ptr<symbol_element> name_e,
                         std::shared_ptr<element> data_e,
                         symbol_table sym,
-                        std::list<symbol_table> sym_tables,
                         bool is_param)
                 -> symbol_table
             {
 
-                //std::cout << "define called" << std::endl;
                 switch(data_e->type) {
 
                 case element_type::integer:
@@ -513,7 +500,7 @@ namespace popo {
                 case element_type::list:
                 {
                     std::shared_ptr<symbol_entry> var
-                        ( new var_entry(name_e->data, data_e));
+                        (new var_entry(name_e->data, data_e));
 
                     if(sym.find(name_e->data) != sym.end()) {
                         sym[name_e->data] = std::move(var);
@@ -522,7 +509,7 @@ namespace popo {
                     }
 
                     if(!is_param) {
-                        stack.push(std::move(data_e));
+                        stack.push(data_e);
                     }
 
                     //std::cout << name_e->data << std::endl;
@@ -544,12 +531,12 @@ namespace popo {
                         }
 
                         if(!is_param) {
-                            stack.push(std::move(name_e));
+                            stack.push(name_e);
                         }
                     }
                     else {
 
-                        auto e = find_symbol(sym_tables, data_e);
+                        auto e = find_symbol(data_e);
                         assert(e != nullptr);
 
                         std::shared_ptr<symbol_entry> var
@@ -577,8 +564,7 @@ namespace popo {
             }
 
 
-                auto run_func(std::list<std::shared_ptr<instruction>> code,
-                              std::list<symbol_table>sym_tables) -> void
+                auto run_func(std::list<std::shared_ptr<instruction>> code) -> void
             {
                 std::map< std::string, std::shared_ptr<symbol_entry>> local_sym;
                 auto inst_it = code.begin();
@@ -590,14 +576,13 @@ namespace popo {
 
                     auto arg_e = std::move(stack.top());
                     stack.pop();
-                    local_sym = define(symbol_e, arg_e, local_sym, sym_tables, true);
+                    local_sym = define(symbol_e, arg_e, local_sym, true);
                     ++inst_it;
-                    std::cout << "param" << std::endl;
                 }
                 symbol_table_list.push_front(local_sym);
 
                 for (; inst_it != code.end(); ++inst_it) {
-                    symbol_table_list = stack_manager(*inst_it, symbol_table_list);
+                    stack_manager(*inst_it);
                 }
 
                 symbol_table_list.erase(symbol_table_list.begin());
@@ -605,14 +590,13 @@ namespace popo {
 
 
             template<typename Func1, typename Func2, typename Func3, typename Func4>
-            auto calc(std::list<symbol_table> sym_tables,
-                      Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
+            auto calc(Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
             {
                 auto e1 = std::move( stack.top() );
                 stack.pop();
 
                 if(e1->type == element_type::symbol) {
-                    e1 = find_symbol(sym_tables, e1);
+                    e1 = find_symbol(e1);
                     assert(e1 != nullptr);
                 }
 
@@ -620,10 +604,9 @@ namespace popo {
                 stack.pop();
 
                 if(e2->type == element_type::symbol) {
-                    e2 = find_symbol(sym_tables, e2);
+                    e2 = find_symbol(e2);
                     assert(e2 != nullptr);
                 }
-
 
                 if (e1->type == element_type::integer
                     && e2->type == element_type::integer) {
@@ -661,14 +644,13 @@ namespace popo {
 
 
             template<typename Func1, typename Func2, typename Func3, typename Func4>
-            auto bool_calc(std::list<symbol_table> sym_tables,
-                           Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
+            auto bool_calc(Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
             {
                 auto e2 = std::move( stack.top() );
                 stack.pop();
 
                 if(e2->type == element_type::symbol) {
-                    e2 = find_symbol(sym_tables, e2);
+                    e2 = find_symbol(e2);
                     assert(e2 != nullptr);
                 }
 
@@ -676,7 +658,7 @@ namespace popo {
                 stack.pop();
 
                 if(e1->type == element_type::symbol) {
-                    e1 = find_symbol(sym_tables, e1);
+                    e1 = find_symbol(e1);
                     assert(e1 != nullptr);
                 }
 
@@ -685,8 +667,6 @@ namespace popo {
 
                     auto e1_int = std::static_pointer_cast<int_element>(e1);
                     auto e2_int = std::static_pointer_cast<int_element>(e2);
-
-                    //std::cout << "aaaa" << std::endl;
 
                     std::shared_ptr<element> e3( new bool_element( f1( e1_int->data, e2_int->data ) ) );
                     stack.push(std::move(e3));

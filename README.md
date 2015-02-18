@@ -14,7 +14,8 @@ $ make
 ```
 ### How to use
 ```
-./popo --repl
+./popo
+./popo [filename]
 ```
 
 ### sample code

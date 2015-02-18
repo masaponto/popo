@@ -26,54 +26,71 @@ auto run_vm(std::string ir_code) -> void
     std::cout << std::endl;
 }
 
-
 int main(int argc, char *argv[])
 {
     using namespace popo;
 
-    if(argc == 2) {
-         std::string args = argv[1];
-         if (args == "--repl") {
-             popo::repl::repl prepl;
-             prepl.run();
-         }
-    }
-
-    std::string filename("test.scm");
-    std::ifstream fs(filename);
-
-    using input_data = std::list<char>;
-
-    const input_data file_data{std::istreambuf_iterator<char>(fs),
-            std::istreambuf_iterator<char>()};
-
-    semantic::semantic_analyzer<input_data> sa(file_data);
-    sa.analyze();
-
-    popo::stack_vm::vm pvm;
-    auto instruction_list = sa.analyze();
-    while (!instruction_list.empty()) {
-        pvm.parse(instruction_list);
-        instruction_list = sa.analyze();
-    }
-
-
-    // for (auto&& instruction : instruction_list) {
-    //         std::cout << instruction << std::endl;
+    // if(argc == 1) {
+    //     popo::repl::repl prepl;
+    //     prepl.run();
     // }
-    // std::cout << std::endl;
+    // else {
+    //     for (auto i = 1; i < argc; i++) {
+    //         std::string filename = argv[i];
 
-    std::ifstream ifs("test_ir");
-    if (ifs.fail())
-    {
-        std::cerr << "fail" << std::endl;
-        return EXIT_FAILURE;
-    }
-    std::istreambuf_iterator<char> it(ifs);
-    std::istreambuf_iterator<char> last;
-    std::string str(it, last);
-    run_vm(str);
+    //         std::ifstream fs(filename);
 
+    //         using input_data = std::list<char>;
+
+    //         const input_data file_data{std::istreambuf_iterator<char>(fs),
+    //                 std::istreambuf_iterator<char>()};
+
+    //         semantic::semantic_analyzer<input_data> sa(file_data);
+    //         //sa.analyze();
+
+    //         popo::stack_vm::vm pvm;
+
+    //         auto instruction_list = sa.analyze();
+    //         while (!instruction_list.empty()) {
+    //             pvm.parse(instruction_list);
+    //             instruction_list = sa.analyze();
+    //         }
+    //     }
+
+    // }
+
+
+    std::string ir_code3("\
+true_0:\n\
+push_int 0\n\
+return\n\
+false_0:\n\
+push_int 1\n\
+push_symbol a\n\
+push_symbol -\n\
+apply\n\
+write\n\
+push_symbol rec\n\
+apply\n\
+return\n\
+closure_0:\n\
+param a\n\
+push_symbol a\n\
+push_int 0\n\
+push_symbol <=\n\
+apply\n\
+branch true_0, false_0\n\
+return\n\
+push_symbol closure_0\n\
+push_symbol rec\n\
+push_symbol define\n\
+apply\n\
+push_int 10\n\
+push_symbol rec\n\
+apply\n\
+");
+
+    run_vm(ir_code3);
 
 
     std::string ir_code4("\

@@ -1,19 +1,23 @@
-(define rec
-    (lambda (a)
-        (if (<= 0 a)
-            0
-            (rec (- a 1)))))
+;(define rec
+;    (lambda (a)
+;        (if (<= 0 a)
+;            0
+;            (rec (- a 1)))))
+;
+;(rec 12)
 
-(rec 12)
 
+; (if (= 1 1)
+;     1
+;     0)
 
-;; (if (= 1 1)
-;;     1
-;;     0)
+; (if (> 2 3)
+;     (+ 2 3)
+;     2)
 
 (+ 1 2)
 
-(+ 2 1.4)
+;(+ 2 1.4)
 
 (define i #f)
 
@@ -22,21 +26,21 @@
 
 (+ 2 y)
 
-(define x y)
-(+ x y)
+; (define x y)
+; (+ x y)
 
-(define st_hello "hello")
-(define string_hello st_hello)
+; (define st_hello "hello")
+; (define string_hello st_hello)
 
 
 
-(define a (quote (y 3.4"hello")))
+; (define a (quote (y 3.4"hello")))
 
-(define f
-  (lambda (a b)
-        (+ a b)))
+;; (define f
+;;    (lambda (a b)
+;;          (+ a b)))
 
-(f 3 2)
+; (f 3 2)
 
 
 ;; (define g
