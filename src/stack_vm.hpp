@@ -124,8 +124,16 @@ namespace popo {
                                 ++it;
                             }
 
-                            function_table.insert( make_pair(func_name, std::shared_ptr<function>
-                                                             (new function(func_name, arg_num, std::move(func_code)))) );
+                            auto it = function_table.find(func_name);
+
+                            if (it != function_table.end()){
+                                function_table[func_name] = std::shared_ptr<function>(
+                                    new function(func_name, arg_num, std::move(func_code)));
+
+                            } else {
+                                function_table.insert( make_pair(func_name, std::shared_ptr<function>
+                                                                 (new function(func_name, arg_num, std::move(func_code)))) );
+                            }
 
                             break;
                         }
@@ -416,9 +424,11 @@ namespace popo {
                                     assert(e != nullptr);
                                 }
 
-                                auto cons_e = std::static_pointer_cast<list_element>(e);
-                                cons_e->data.pop_front();
-                                stack.push(std::move(cons_e));
+                                auto cons_e1 = std::static_pointer_cast<list_element>(e);
+                                std::shared_ptr<list_element> cons_e2( new list_element(cons_e1->data));
+
+                                cons_e2->data.pop_front();
+                                stack.push(cons_e2);
 
                                 break;
                             }
@@ -433,9 +443,11 @@ namespace popo {
                                     assert( e != nullptr);
                                 }
 
-                                auto cons_e = std::static_pointer_cast<list_element>(e);
-                                auto i = cons_e->data.front();
-                                stack.push(std::move(i));
+                                auto cons_e1 = std::static_pointer_cast<list_element>(e);
+                                std::shared_ptr<list_element> cons_e2( new list_element(cons_e1->data));
+
+                                auto i = cons_e2->data.front();
+                                stack.push(i);
 
                                 break;
                             }
