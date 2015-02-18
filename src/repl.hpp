@@ -8,7 +8,10 @@ namespace popo {
         class repl
         {
         public:
-            repl(){};
+            repl(): sa() {};
+
+        private:
+            semantic::semantic_analyzer<std::string> sa;
 
         public:
             auto run() -> void
@@ -39,21 +42,24 @@ namespace popo {
                         lcount += count_word(in, '(');
                         rcount += count_word(in, ')');
 
-                        while(lcount != rcount) {
+                        while (lcount != rcount) {
                             getline(std::cin, in);
 
-                            if(*(in.end()) == '\0') {
+                            if (*(in.end()) == '\0') {
                                 code += " ";
                             }
 
-                            code+= in;
-                            lcount+=count_word(in, '(');
-                            rcount+=count_word(in, ')');
+                            code += in;
+                            lcount += count_word(in, '(');
+                            rcount += count_word(in, ')');
                         }
 
-                        //std::cout << code << std::endl;
-                        semantic::semantic_analyzer<std::string> sa(code);
-                        auto ins_list = sa.analyze();
+                        // std::cout << code << std::endl;
+                        //                         semantic::semantic_analyzer<std::string>
+                        //                         sa(code);
+                        //                         auto ins_list = sa.analyze();
+                        auto ins_list = sa.analyze(code);
+
                         pvm.parse(ins_list);
                         code = "";
 

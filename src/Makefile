@@ -19,11 +19,13 @@ all: $(EXECUTABLE) $(OBJECTS)
 main.o: $(HEADERS)
 
 $(EXECUTABLE): $(OBJECTS)
-	ctags -R .
-	gosh $(INPUT_FILE)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $(EXECUTABLE)
 
+run_without_gosh:  $(EXECUTABLE)
+	./$(EXECUTABLE)
+
 run: $(EXECUTABLE)
+	gosh $(INPUT_FILE)
 	./$(EXECUTABLE)
 
 gdb_run:

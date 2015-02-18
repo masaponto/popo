@@ -592,12 +592,23 @@ namespace popo {
             template<typename Func1, typename Func2, typename Func3, typename Func4>
             auto calc(Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
             {
+
+                if(stack.empty()) {
+                    std::shared_ptr<element> e( new int_element(0) );
+                    stack.push(std::move(e));
+                }
+
                 auto e1 = std::move( stack.top() );
                 stack.pop();
 
                 if(e1->type == element_type::symbol) {
                     e1 = find_symbol(e1);
                     assert(e1 != nullptr);
+                }
+
+                if(stack.empty()) {
+                    std::shared_ptr<element> e( new int_element(0) );
+                    stack.push(std::move(e));
                 }
 
                 auto e2 = std::move( stack.top() );
@@ -646,12 +657,23 @@ namespace popo {
             template<typename Func1, typename Func2, typename Func3, typename Func4>
             auto bool_calc(Func1 f1, Func2 f2, Func3 f3, Func4 f4) -> void
             {
+
+                if(stack.empty()) {
+                    std::shared_ptr<element> e( new int_element(0) );
+                    stack.push(std::move(e));
+                }
                 auto e2 = std::move( stack.top() );
                 stack.pop();
+
 
                 if(e2->type == element_type::symbol) {
                     e2 = find_symbol(e2);
                     assert(e2 != nullptr);
+                }
+
+                if(stack.empty()) {
+                    std::shared_ptr<element> e( new int_element(0) );
+                    stack.push(std::move(e));
                 }
 
                 auto e1 = std::move( stack.top() );

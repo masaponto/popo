@@ -22,11 +22,18 @@
 (define i #f)
 
 (define y 10)
+
 (+ 1 (+ 2 3))
 
 (+ 2 y)
 
-; (define x y)
+; (+ 1 (+ 2 3))
+
+(+ 2 y)
+
+; (define x  4)
+
+
 ; (+ x y)
 
 ; (define st_hello "hello")
