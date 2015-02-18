@@ -17,7 +17,7 @@ $ make
 ```
 ./run_repl.sh
 ./popo 
-./popo [fileneme]
+./popo [filename]
 ```
 
 ### sample code
