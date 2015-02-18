@@ -124,14 +124,22 @@ namespace popo {
                                 ++it;
                             }
 
-                            function_table.insert( make_pair(func_name, std::shared_ptr<function>
-                                                             (new function(func_name, arg_num, std::move(func_code)))) );
+                            auto it = function_table.find(func_name);
+
+                            if (it != function_table.end()){
+                                function_table[func_name] = std::shared_ptr<function>(
+                                    new function(func_name, arg_num, std::move(func_code)));
+
+                            } else {
+                                function_table.insert( make_pair(func_name, std::shared_ptr<function>
+                                                                 (new function(func_name, arg_num, std::move(func_code)))) );
+                            }
 
                             break;
                         }
                     default:
                         {
-                            symbol_table_list = stack_manager(std::move(*it), symbol_table_list);
+                            stack_manager(std::move(*it));
                         }
 
                     }
@@ -193,18 +201,17 @@ namespace popo {
 
 
         public:
-            auto stack_manager(std::shared_ptr<instruction> ins,
-                               std::list<symbol_table> sym_tables)
-                -> std::list<symbol_table>
-            {
+            auto stack_manager(std::shared_ptr<instruction> ins)
+                -> void
+                {
 
                 switch(ins->op) {
-                case operation::write :
+                case operation::write:
                     {
                         if (!stack.empty()) {
                             auto e = stack.top();
                             assert(nullptr != e);
-                            std::cout << write_element(std::move(e)) << std::endl;
+                            std::cout << write_element(e) << std::endl;
                         } else {
                             std::cout << "Ooops, stack is empty :(" << std::endl;
                         }
@@ -215,53 +222,11 @@ namespace popo {
                 case operation::push_float :
                 case operation::push_string :
                 case operation::push_bool :
+                case operation::push_symbol :
                     // case operation::push_list :
                     {
                         auto op_ins = std::static_pointer_cast<op_instruction>(ins);
                         stack.push(op_ins->operand);
-                        break;
-                    }
-                case operation::push_symbol :
-                    {
-                        auto op_ins = std::static_pointer_cast<op_instruction>(ins);
-
-                        assert(nullptr != op_ins);
-                        assert(nullptr != op_ins->operand);
-
-                        if (op_ins->operand->type == element_type::symbol) {
-                            auto el = std::static_pointer_cast<symbol_element>(op_ins->operand);
-                            bool find_flag = false;
-
-                            for (auto sym_table : sym_tables) {
-
-                                auto sym_it = sym_table.find(el->data);
-
-                                if (sym_it != sym_table.end()) {
-                                    find_flag = true;
-                                    if (sym_it->second->sclass == sym_class::var) {
-                                        auto v = std::static_pointer_cast<var_entry>( sym_it->second );
-                                        stack.push( v->data );
-                                        //element new_e = *(v->data);
-                                        //auto ep = std::make_shared<element>(new_e);
-                                        //stack.push(std::move(ep));
-                                    } else {
-                                        // if function symbol
-                                        stack.push(el);
-                                    }
-                                    break;
-                                }
-                            }
-
-                            if(!find_flag) {
-                                //if new aymbol
-                                stack.push(el);
-                            }
-
-                        } else {
-                            //if other symbol
-                            stack.push(op_ins->operand);
-                        }
-
                         break;
                     }
                 case operation::pop:
@@ -284,7 +249,7 @@ namespace popo {
                             stack.pop();
                         }
 
-                        stack.push(std::shared_ptr<element>( new list_element(e_list)));
+                        stack.push(std::shared_ptr<element>(new list_element(e_list)));
 
                         break;
                     }
@@ -315,6 +280,8 @@ namespace popo {
                     }
                 case operation::apply :
                     {
+
+                        assert(!stack.empty());
                         auto func_e = std::move( stack.top() );
                         stack.pop();
 
@@ -404,15 +371,14 @@ namespace popo {
                             {
                                 auto symbol_e = std::static_pointer_cast<symbol_element>(func_e);
 
-                                for (auto sym_table : sym_tables) {
+                                for (auto sym : symbol_table_list) {
 
-                                    auto sym_it = sym_table.find(symbol_e->data);
+                                    auto sym_it = sym.find(symbol_e->data);
 
-                                    if (sym_it != sym_table.end()
+                                    if (sym_it != sym.end()
                                         && sym_it->second->sclass == sym_class::func ) {
 
-                                        auto func_e = std::static_pointer_cast<func_entry>(
-                                            sym_it->second );
+                                        auto func_e = std::static_pointer_cast<func_entry>(sym_it->second);
 
                                         assert(nullptr != func_e->func);
                                         assert(nullptr != func_e);
@@ -426,9 +392,10 @@ namespace popo {
                             }
                         case element_type::define :
                             {
+                                assert(!stack.empty());
                                 auto name_e = std::move(stack.top());
                                 stack.pop();
-                                //std::cout << "abyaaa" << std::endl;
+
                                 assert(!stack.empty());
                                 auto data_e = std::move(stack.top());
                                 stack.pop();
@@ -437,11 +404,10 @@ namespace popo {
                                 assert(nullptr != data_e);
 
                                 auto sym_name_e = std::static_pointer_cast<symbol_element>(name_e);
-                                auto sym = sym_tables.begin();
+                                auto sym = symbol_table_list.begin();
 
                                 assert(nullptr != sym_name_e);
-                                assert(sym != sym_tables.end());
-                                //assert(nullptr != sym->second);
+                                assert(sym != symbol_table_list.end());
 
                                 (*sym) = define(sym_name_e, data_e, (*sym), false);
 
@@ -453,9 +419,17 @@ namespace popo {
                                 auto e = std::move(stack.top());
                                 stack.pop();
 
-                                auto cons_e = std::static_pointer_cast<list_element>(e);
-                                cons_e->data.pop_front();
-                                stack.push(cons_e);
+                                if(e->type == element_type::symbol) {
+                                    e = find_symbol(e);
+                                    assert(e != nullptr);
+                                }
+
+                                auto cons_e1 = std::static_pointer_cast<list_element>(e);
+                                std::shared_ptr<list_element> cons_e2( new list_element(cons_e1->data));
+
+                                cons_e2->data.pop_front();
+                                stack.push(cons_e2);
+
 
                                 break;
                             }
@@ -465,8 +439,16 @@ namespace popo {
                                 auto e = std::move(stack.top());
                                 stack.pop();
 
-                                auto cons_e = std::static_pointer_cast<list_element>(e);
-                                auto i = cons_e->data.front();
+                                if(e->type == element_type::symbol) {
+                                    e = find_symbol(e);
+                                    assert( e != nullptr);
+                                }
+
+                                auto cons_e1 = std::static_pointer_cast<list_element>(e);
+                                std::shared_ptr<list_element> cons_e2( new list_element(cons_e1->data));
+
+                                auto i = cons_e2->data.front();
+
                                 stack.push(i);
 
                                 break;
@@ -486,8 +468,34 @@ namespace popo {
                     }
                 } // end operation case
 
-                return sym_tables;
             }
+
+            auto find_symbol(std::shared_ptr<element> e)
+                -> std::shared_ptr<element>
+                {
+                    auto symbol_e = std::static_pointer_cast<symbol_element>(e);
+
+                    for (auto sym_table : symbol_table_list) {
+
+                        auto sym_it = sym_table.find(symbol_e->data);
+
+                        if(sym_it != sym_table.end()) {
+                            if (sym_it->second->sclass == sym_class::var) {
+                                auto v = std::static_pointer_cast<var_entry>( sym_it->second );
+                                return v->data;
+                                //element new_e = *(v->data);
+                                //auto ep = std::make_shared<element>(new_e);
+                                //stack.push(std::move(ep));
+                            } else {
+                                // if function symbol
+                                return symbol_e;
+                            }
+                        }
+
+                    }
+                    // if not found
+                    return nullptr;
+                }
 
 
             auto define(std::shared_ptr<symbol_element> name_e,
@@ -497,86 +505,68 @@ namespace popo {
                 -> symbol_table
             {
 
-                //std::cout << "define called" << std::endl;
                 switch(data_e->type) {
 
-                case element_type::integer :
-                    {
-                        auto e_int = std::static_pointer_cast<int_element>(data_e);
-                        std::shared_ptr<symbol_entry> int_var
-                            ( new var_entry(name_e->data, std::move(e_int)));
-                        sym.insert(make_pair(name_e->data, std::move(int_var)));
-                        //std::cout << name_e->data << std::endl;
-                        if(!is_param) {
-                            stack.push(std::move(data_e));
-                        }
-                        break;
-                    }
+                case element_type::integer:
                 case element_type::real:
-                    {
-                        auto e_real = std::static_pointer_cast<real_element>(data_e);
-                        std::shared_ptr<symbol_entry> real_var
-                            ( new var_entry(name_e->data, std::move(e_real)));
-                        sym.insert(make_pair(name_e->data, std::move(real_var)));
-                        if(!is_param) {
-                            stack.push(std::move(data_e));
-                        }
-                        break;
+                case element_type::string:
+                case element_type::boolean:
+                case element_type::list:
+                {
+                    std::shared_ptr<symbol_entry> var
+                        (new var_entry(name_e->data, data_e));
+
+                    if(sym.find(name_e->data) != sym.end()) {
+                        sym[name_e->data] = std::move(var);
+                    } else {
+                        sym.insert(make_pair(name_e->data, std::move(var)));
                     }
+
+                    if(!is_param) {
+                        stack.push(data_e);
+                    }
+
+                    //std::cout << name_e->data << std::endl;
+                    break;
+                }
                 case element_type::symbol:
-                    {
-                        auto e_func = std::static_pointer_cast<symbol_element>(data_e);
-                        auto fn_it = function_table.find(e_func->data);
-                        bool find_flag = false;
-                        if(fn_it != function_table.end()) {
-                            std::shared_ptr<symbol_entry> func
-                                ( new func_entry(name_e->data, fn_it->second));
+                {
+                    auto e_symbol = std::static_pointer_cast<symbol_element>(data_e);
+                    auto fn_it = function_table.find(e_symbol->data);
+
+                    if(fn_it != function_table.end()) {
+                        std::shared_ptr<symbol_entry> func
+                            ( new func_entry(name_e->data, fn_it->second));
+
+                        if(sym.find(name_e->data) != sym.end()) {
+                            sym[name_e->data] = std::move(func);
+                        } else {
                             sym.insert(make_pair(name_e->data, std::move(func)));
-                            find_flag = true;
-                            if(!is_param) {
-                                stack.push(std::move(name_e));
-                            }
-                        }
-                        else {
-                            std::cout << "function " << name_e->data << " is not defined" << std::endl;
                         }
 
-                        break;
-                    }
-                case element_type::string:
-                    {
-                        auto e_string = std::static_pointer_cast<string_element>(data_e);
-                        //std::cout << e_string->data << std::endl;
-                        std::shared_ptr<symbol_entry> string_var
-                            ( new var_entry(name_e->data, std::move(e_string)));
-                        sym.insert(make_pair(name_e->data, std::move(string_var)));
                         if(!is_param) {
-                            stack.push(std::move(data_e));
+                            stack.push(name_e);
                         }
-                        break;
                     }
-                case element_type::list:
-                    {
-                        auto e_list = std::static_pointer_cast<list_element>(data_e);
-                        std::shared_ptr<symbol_entry> list_var
-                            ( new var_entry(name_e->data, std::move(e_list)));
-                        sym.insert(make_pair(name_e->data, std::move(list_var)));
-                        if(!is_param) {
-                            stack.push(std::move(data_e));
+                    else {
+
+                        auto e = find_symbol(data_e);
+                        assert(e != nullptr);
+
+                        std::shared_ptr<symbol_entry> var
+                            ( new var_entry(name_e->data, e));
+
+                        if(sym.find(name_e->data) != sym.end()) {
+                            sym[name_e->data] = std::move(var);
                         }
-                        break;
-                    }
-                case element_type::boolean:
-                    {
-                        auto e_bool = std::static_pointer_cast<bool_element>(data_e);
-                        std::shared_ptr<symbol_entry> bool_var
-                            ( new var_entry(name_e->data, std::move(e_bool)));
-                        sym.insert(make_pair(name_e->data, std::move(bool_var)));
-                        if(!is_param) {
-                            stack.push(std::move(data_e));
+                        else {
+                            sym.insert(make_pair(name_e->data, std::move(var)));
                         }
-                        break;
+
                     }
+
+                    break;
+                }
                 default:
                     {
                         std::cout << "not implemented define" << std::endl;
@@ -588,7 +578,7 @@ namespace popo {
             }
 
 
-            auto run_func(std::list<std::shared_ptr<instruction>> code) -> void
+                auto run_func(std::list<std::shared_ptr<instruction>> code) -> void
             {
                 std::map< std::string, std::shared_ptr<symbol_entry>> local_sym;
                 auto inst_it = code.begin();
@@ -606,7 +596,7 @@ namespace popo {
                 symbol_table_list.push_front(local_sym);
 
                 for (; inst_it != code.end(); ++inst_it) {
-                    symbol_table_list = stack_manager(*inst_it, symbol_table_list);
+                    stack_manager(*inst_it);
                 }
 
                 symbol_table_list.erase(symbol_table_list.begin());
@@ -625,6 +615,11 @@ namespace popo {
                 auto e1 = std::move( stack.top() );
                 stack.pop();
 
+                if(e1->type == element_type::symbol) {
+                    e1 = find_symbol(e1);
+                    assert(e1 != nullptr);
+                }
+
                 if(stack.empty()) {
                     std::shared_ptr<element> e( new int_element(0) );
                     stack.push(std::move(e));
@@ -632,6 +627,11 @@ namespace popo {
 
                 auto e2 = std::move( stack.top() );
                 stack.pop();
+
+                if(e2->type == element_type::symbol) {
+                    e2 = find_symbol(e2);
+                    assert(e2 != nullptr);
+                }
 
                 if (e1->type == element_type::integer
                     && e2->type == element_type::integer) {
@@ -679,12 +679,24 @@ namespace popo {
                 auto e2 = std::move( stack.top() );
                 stack.pop();
 
+
+                if(e2->type == element_type::symbol) {
+                    e2 = find_symbol(e2);
+                    assert(e2 != nullptr);
+                }
+
                 if(stack.empty()) {
                     std::shared_ptr<element> e( new int_element(0) );
                     stack.push(std::move(e));
                 }
+
                 auto e1 = std::move( stack.top() );
                 stack.pop();
+
+                if(e1->type == element_type::symbol) {
+                    e1 = find_symbol(e1);
+                    assert(e1 != nullptr);
+                }
 
                 if (e1->type == element_type::integer
                     && e2->type == element_type::integer) {
@@ -865,7 +877,6 @@ namespace popo {
                 }
                 else {
                     return std::shared_ptr<element>( new symbol_element(operand) );
-                    //return std::make_shared<element>(symbol_element(operand));
                 }
 
                 return std::shared_ptr<element>( new element(type) );
