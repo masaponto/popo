@@ -449,23 +449,25 @@ namespace popo {
                             }
                         case element_type::cdr:
                             {
+                                assert(!stack.empty());
                                 auto e = std::move(stack.top());
                                 stack.pop();
 
                                 auto cons_e = std::static_pointer_cast<list_element>(e);
                                 cons_e->data.pop_front();
-                                stack.push(std::move(cons_e));
+                                stack.push(cons_e);
 
                                 break;
                             }
                         case element_type::car:
                             {
+                                assert(!stack.empty());
                                 auto e = std::move(stack.top());
                                 stack.pop();
 
                                 auto cons_e = std::static_pointer_cast<list_element>(e);
                                 auto i = cons_e->data.front();
-                                stack.push(std::move(i));
+                                stack.push(i);
 
                                 break;
                             }
