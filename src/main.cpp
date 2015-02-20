@@ -32,16 +32,21 @@ int main(int argc, char *argv[])
 {
     using namespace popo;
 
+    auto debug = false;
+    std::string opt = argv[1];
+    if ("-v" == opt) {
+        debug = true;
+        argc--;
+    }
+
     if (argc == 1) {
         popo::repl::repl prepl;
-        prepl.run();
-    }
-    else {
-        auto debug = false;
+        prepl.run(debug);
+    } else {
         for (auto i = 1; i < argc; i++) {
             std::string option = argv[i];
 
-            if("-v" == option){
+            if ("-v" == option) {
                 debug = true;
                 continue;
             }
@@ -57,8 +62,7 @@ int main(int argc, char *argv[])
 
             popo::stack_vm::vm pvm;
             auto instruction_list = sa.analyze(file_data, debug);
-                pvm.parse(instruction_list);
+            pvm.parse(instruction_list);
         }
     }
-
 }
