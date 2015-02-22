@@ -16,10 +16,12 @@ add_definitions(
 add_executable(
     popo_test
     popo_test.cpp
+    front_test.cpp
+    vm_test.cpp
     )
 
-#add_executable(lexical_test lexical_test.cpp)
-#add_executable(syntax_test syntax_test.cpp)
+# add_executable(lexical_test lexical_test.cpp)
+# add_executable(syntax_test syntax_test.cpp)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest-1.7.0)
 
