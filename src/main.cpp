@@ -33,10 +33,13 @@ int main(int argc, char *argv[])
     using namespace popo;
 
     auto debug = false;
-    std::string opt = argv[1];
-    if ("-v" == opt) {
-        debug = true;
-        argc--;
+
+    if (argc > 1) {
+        std::string opt = argv[1];
+        if ("-v" == opt) {
+            debug = true;
+            argc--;
+        }
     }
 
     if (argc == 1) {
