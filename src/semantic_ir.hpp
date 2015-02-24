@@ -90,6 +90,7 @@ namespace popo {
                     std::cout << s << std::endl;
                 }
             }
+            print_symbol_stack();
             return return_list;
         }
 
@@ -376,7 +377,6 @@ namespace popo {
             if(in_define){
                 return true;
             }
-            print_symbol_stack();
             for(auto pair : symbol_stack_){
                 if(symbol == pair.first){
                     return true;

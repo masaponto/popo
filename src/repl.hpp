@@ -14,7 +14,7 @@ namespace popo {
             semantic::semantic_analyzer<std::string> sa;
 
         public:
-            auto run() -> void
+            auto run(bool is_debug = false) -> void
             {
                 std::cout << "Hello popo REPL" << std::endl;
 
@@ -58,7 +58,7 @@ namespace popo {
                         //                         semantic::semantic_analyzer<std::string>
                         //                         sa(code);
                         //                         auto ins_list = sa.analyze();
-                        auto ins_list = sa.analyze(code);
+                        auto ins_list = sa.analyze(code, is_debug);
 
                         pvm.parse(ins_list);
                         code = "";

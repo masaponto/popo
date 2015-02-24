@@ -13,21 +13,44 @@
 #include "stack_vm.hpp"
 #include "repl.hpp"
 
+
+auto run_vm(std::string ir_code) -> void
+{
+    std::cout << "=== src ===" << std::endl;
+
+    std::cout << ir_code << std::endl;
+
+    popo::stack_vm::vm vms(ir_code);
+
+    std::cout << "=== result ===" << std::endl;
+    vms.parse();
+    std::cout << std::endl;
+}
+
+
 int main(int argc, char *argv[])
 {
     using namespace popo;
 
+    auto debug = false;
+
+    if (argc > 1) {
+        std::string opt = argv[1];
+        if ("-v" == opt) {
+            debug = true;
+            argc--;
+        }
+    }
+
     if (argc == 1) {
         popo::repl::repl prepl;
-        prepl.run();
-    }
-    else {
-        auto debug = false;
+        prepl.run(debug);
+    } else {
         for (auto i = 1; i < argc; i++) {
             std::string option = argv[i];
 
-            if("-v" == option){
-                debug = true; 
+            if ("-v" == option) {
+                debug = true;
                 continue;
             }
 
@@ -42,10 +65,7 @@ int main(int argc, char *argv[])
 
             popo::stack_vm::vm pvm;
             auto instruction_list = sa.analyze(file_data, debug);
-//             while (!instruction_list.empty()) {
-                pvm.parse(instruction_list);
-//                 instruction_list = sa.analyze();
-//             }
+            pvm.parse(instruction_list);
         }
     }
 }
