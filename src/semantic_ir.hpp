@@ -19,34 +19,7 @@ namespace popo {
     class semantic_analyzer {
 
     public:
-//         semantic_analyzer(const Iteratable& itr)
-//             : parser_(itr),
-//               symbol_stack_(),
-//               closure_number(0),
-//               definition(),
-//               consequent_number(0),
-//               alternative_number(0),
-//               in_define(false)
-
-//         {
-//             for (auto&& pair : special_form) {
-
-//                 symbol_stack_.push_front(
-//                     std::make_pair(pair.first,
-//                                    std::shared_ptr<closure_entry>(
-//                                        new closure_entry(pair.second, ""))));
-//             }
-
-//             for (auto& pair : built_in_function) {
-
-//                 symbol_stack_.push_front(
-//                     std::make_pair(pair.first,
-//                                    std::shared_ptr<closure_entry>(
-//                                        new closure_entry(pair.second, ""))));
-//             }
-//         }
-
-        semantic_analyzer() 
+        semantic_analyzer()
             : symbol_stack_(),
               closure_number(0),
               definition(),
@@ -70,7 +43,6 @@ namespace popo {
         }
 
     private:
-//         syntax::s_expression_parser<Iteratable> parser_;
         std::list<std::pair<std::string, std::shared_ptr<symbol_table_entry>>>
             symbol_stack_;
         int closure_number;
@@ -111,16 +83,6 @@ namespace popo {
                 conscell = parser.s_exp_parse();
             }
 
-
-//             std::unique_ptr<syntax::cons_node> head_node(new syntax::cons_node(
-//                 std::move(conscell),
-//                 std::unique_ptr<syntax::cons_node>(new syntax::cons_node())));
-
-//             auto i_list = analyze_node(std::move(head_node));
-//             i_list.push_back("write");
-
-//             i_list.insert(i_list.begin(), definition.begin(), definition.end());
-//             i_list.remove_if([](std::string s) -> bool { return s.empty(); });
             return_list.insert(return_list.begin(), definition.begin(), definition.end());
             return_list.remove_if([](std::string s) -> bool { return s.empty(); });
             if(is_debug){
@@ -227,7 +189,6 @@ namespace popo {
 
                 case syntax::node_type::symbol: {
 
-                    // TODO
                     auto s_node = cast_unique_ptr<syntax::symbol_node>(
                         std::move(cons->car));
                     auto symbol = s_node->val;
@@ -373,7 +334,6 @@ namespace popo {
                 symbol_stack_ .push_front(std::make_pair(symbol,
                             std::make_shared<symbol_table_entry>()));
 //                 print_symbol_stack();
-
 
             }
             else {

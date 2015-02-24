@@ -51,13 +51,9 @@ public:
 
     auto get_next_token(void) -> Token
     {
-        // TODO: when code have many one line comment, popo occured error.
         pass_space();
         pass_one_line_comment();
 
-//                             std::cout << *begin_ << std::endl;
-
-        // TODO: add #t and #f procedure
         if (begin_ != end_) {
 
             // left
@@ -67,7 +63,6 @@ public:
             }
             // right
             else if (*begin_ == ')') {
-//                 std::cout << "line: " << line_number << std::endl;
                 begin_++;
                 return Token::right;
             }
@@ -95,7 +90,6 @@ public:
             }
         }
 
-//         std::cout << "line: " << line_number << std::endl;
         return Token::eof;
     }
 
